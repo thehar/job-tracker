@@ -53,5 +53,5 @@ class ClassName {
 - Destroy Chart.js instances before recreating them
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---

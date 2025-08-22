@@ -71,5 +71,5 @@
 - Avoid expensive properties in animations
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---

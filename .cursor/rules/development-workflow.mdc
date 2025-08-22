@@ -58,5 +58,5 @@ Test on these browsers:
 - **Monitoring**: Check for console errors and user feedback
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
