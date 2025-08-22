@@ -2,7 +2,7 @@
 
 A modern, client-side job application tracking system with analytics, CSV import/export, and weekly reporting features. Built with vanilla HTML, CSS, and JavaScript - no frameworks, no backend required.
 
-![Job Tracker Screenshot](https://via.placeholder.com/800x400/0a1929/e8f4fd?text=Job+Tracker+Dashboard)
+![Job Tracker Screenshot](https://github.com/thehar/job-tracker/blob/395c870fccf7b577be11a0a402f610716ced1b5b/images/screenshot.png)
 
 ## ✨ Features
 
