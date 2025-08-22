@@ -45,5 +45,5 @@
 - Implement proper CSRF protection if backend is added later
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---

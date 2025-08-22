@@ -1,33 +1,33 @@
 /* Reset and base styles */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 /* Accessibility - Screen Reader Only Text */
 .sr-only {
-    position: absolute;
-    width: 1px;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
     height: 1px;
-    padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    padding: 0;
+    position: absolute;
     white-space: nowrap;
-    border: 0;
+    width: 1px;
 }
 
 /* Skip Link for Keyboard Navigation */
 .skip-link {
-    position: absolute;
-    top: -40px;
-    left: 6px;
     background: #000;
-    color: #fff;
-    padding: 8px;
-    text-decoration: none;
     border-radius: 4px;
+    color: #fff;
+    left: 6px;
+    padding: 8px;
+    position: absolute;
+    text-decoration: none;
+    top: -40px;
     z-index: 10000;
 }
 
@@ -36,25 +36,25 @@
 }
 
 body {
+    background-color: #0a1929;
+    color: #e8f4fd;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
-    color: #e8f4fd;
-    background-color: #0a1929;
 }
 
 .container {
-    max-width: 1200px;
     margin: 0 auto;
+    max-width: 1200px;
     padding: 0 20px;
 }
 
 /* Header */
 .header {
-    padding: 2rem 0;
     background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    border-radius: 0 0 20px 20px;
     color: white;
     margin-bottom: 2rem;
-    border-radius: 0 0 20px 20px;
+    padding: 2rem 0;
 }
 
 .header .container {
@@ -62,40 +62,40 @@ body {
 }
 
 .header-content {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
+    display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
+    justify-content: space-between;
     min-height: 60px;
 }
 
 .header-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
     align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .nav-tabs {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
     display: flex;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
     padding: 0.5rem;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
 }
 
 .nav-tab {
-    padding: 0.75rem 1.25rem;
-    border: none;
     background: transparent;
-    color: rgba(255, 255, 255, 0.7);
+    border: none;
     border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
     font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
 }
 
 .nav-tab:hover {
@@ -121,31 +121,31 @@ body {
 
 .header h1 {
     font-size: 2.5rem;
-    margin-bottom: 0.75rem;
-    margin-left: 1rem;
     font-weight: 700;
     line-height: 1.2;
+    margin-bottom: 0.75rem;
+    margin-left: 1rem;
 }
 
 .header p {
     font-size: 1.1rem;
+    line-height: 1.4;
     margin-left: 1rem;
     opacity: 0.9;
-    line-height: 1.4;
 }
 
 /* Main content layout */
 .main-content {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 2rem;
+    grid-template-columns: 1fr;
     margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
     .main-content {
+        align-items: flex-start;
         grid-template-columns: 1fr 1fr;
-        align-items: start;
     }
 }
 
@@ -159,10 +159,10 @@ body {
 }
 
 .add-job-section h2, .jobs-section h2 {
-    color: #e8f4fd;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
     border-bottom: 2px solid #475569;
+    color: #e8f4fd;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
 }
 
@@ -175,8 +175,8 @@ body {
 
 .form-row {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 1rem;
+    grid-template-columns: 1fr;
 }
 
 @media (min-width: 480px) {
@@ -195,35 +195,35 @@ body {
 }
 
 .form-group label {
-    font-weight: 600;
-    margin-bottom: 0.75rem;
     color: #cbd5e1;
     font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-    padding: 0.75rem;
+    background: #334155;
     border: 2px solid #475569;
     border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    background: #334155;
     color: #e8f4fd;
+    font-size: 1rem;
+    padding: 0.75rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    outline: none;
 }
 
 .form-group textarea {
-    resize: vertical;
     min-height: 80px;
+    resize: vertical;
 }
 
 .form-actions {
@@ -234,17 +234,17 @@ body {
 }
 
 .btn {
-    padding: 0.75rem 1.5rem;
+    align-items: center;
     border: none;
     border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
     font-size: 1rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
     justify-content: center;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
@@ -253,8 +253,8 @@ body {
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -277,49 +277,49 @@ body {
 }
 
 .btn-sm {
-    padding: 0.5rem 1rem;
     font-size: 0.875rem;
+    padding: 0.5rem 1rem;
 }
 
 /* Jobs section */
 .jobs-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
 }
 
 .jobs-stats {
     background: #334155;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    color: #94a3b8;
     border: 1px solid #475569;
+    border-radius: 20px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
 }
 
 .jobs-stats span {
-    font-weight: 700;
     color: #3b82f6;
+    font-weight: 700;
 }
 
 .jobs-filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
 }
 
 .filter-select {
-    padding: 0.5rem 1rem;
+    background: #334155;
     border: 2px solid #475569;
     border-radius: 8px;
-    font-size: 0.9rem;
-    background: #334155;
     color: #e8f4fd;
+    font-size: 0.9rem;
     min-width: 150px;
+    padding: 0.5rem 1rem;
 }
 
 .csv-actions {
@@ -368,8 +368,8 @@ body {
     border: 2px solid #475569;
     border-radius: 12px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .job-card:hover {
@@ -379,17 +379,17 @@ body {
 }
 
 .job-card-header {
-    display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    display: flex;
     gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
 }
 
 .job-title {
+    color: #e8f4fd;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #e8f4fd;
     margin-bottom: 0.25rem;
 }
 
@@ -399,12 +399,12 @@ body {
 }
 
 .job-status {
-    padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
+    padding: 0.25rem 0.75rem;
+    text-transform: uppercase;
 }
 
 .status-applied { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
@@ -416,8 +416,8 @@ body {
 
 .job-details {
     display: grid;
-    grid-template-columns: 1fr;
     gap: 0.75rem;
+    grid-template-columns: 1fr;
     margin-bottom: 1rem;
 }
 
@@ -428,25 +428,25 @@ body {
 }
 
 .job-detail {
-    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
     color: #e8f4fd;
+    display: flex;
+    font-size: 0.9rem;
+    gap: 0.5rem;
 }
 
 .job-detail-label {
-    font-weight: 600;
     color: #94a3b8;
+    font-weight: 600;
     min-width: 80px;
 }
 
 .job-notes {
     background: #334155;
-    padding: 1rem;
+    border-left: 4px solid #3b82f6;
     border-radius: 8px;
     margin-bottom: 1rem;
-    border-left: 4px solid #3b82f6;
+    padding: 1rem;
 }
 
 .job-notes-text {
@@ -456,9 +456,9 @@ body {
 
 .job-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     justify-content: flex-end;
-    flex-wrap: wrap;
 }
 
 .no-jobs {
@@ -473,24 +473,24 @@ body {
 
 /* Modal styles */
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    align-items: center;
     background: rgba(10, 25, 41, 0.85);
     backdrop-filter: blur(4px);
     display: flex;
-    align-items: center;
+    height: 100%;
     justify-content: center;
-    z-index: 1000;
+    left: 0;
     padding: 1rem;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 .auth-modal {
     max-width: 400px;
-    width: 90%;
     padding: 2rem;
+    width: 90%;
 }
 
 .auth-form {
@@ -502,8 +502,8 @@ body {
 
 .auth-form h4 {
     color: #e8f4fd;
-    margin-bottom: 1rem;
     font-size: 1.2rem;
+    margin-bottom: 1rem;
 }
 
 /* Authentication form specific styles */
@@ -512,28 +512,28 @@ body {
 }
 
 .auth-form .form-group label {
-    font-weight: 600;
-    margin-bottom: 0.75rem;
     color: #e8f4fd;
     font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
 
 .auth-form .form-group input {
-    padding: 1rem;
+    background: #334155;
     border: 2px solid #475569;
     border-radius: 8px;
-    background: #334155;
     color: #e8f4fd;
     font-size: 1rem;
+    padding: 1rem;
     transition: all 0.3s ease;
     width: 100%;
 }
 
 .auth-form .form-group input:focus {
-    outline: none;
+    background: #3a4a5c;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    background: #3a4a5c;
+    outline: none;
 }
 
 .auth-form .form-group input::placeholder {

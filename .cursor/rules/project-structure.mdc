@@ -35,5 +35,5 @@ This is a client-side job application tracking system built with vanilla HTML, C
 - **Security**: SHA-256 password hashing with Web Crypto API
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---

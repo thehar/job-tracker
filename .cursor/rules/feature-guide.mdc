@@ -82,5 +82,5 @@ User Input → Form Validation → Data Processing → localStorage → UI Updat
 6. **Accessibility**: Implement proper ARIA labels and keyboard support
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
