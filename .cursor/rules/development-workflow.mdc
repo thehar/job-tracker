@@ -1,0 +1,62 @@
+# Development Workflow
+
+## Getting Started
+1. **Clone the repository**: `git clone https://github.com/thehar/job-tracker.git`
+2. **Open in browser**: Simply open `index.html` in any modern browser
+3. **No build process**: This is a vanilla JavaScript application
+4. **Development server**: Use Live Server extension in VS Code for auto-reload
+
+## Development Environment
+- **Editor**: VS Code with Cursor AI assistance
+- **Extensions**: Live Server, HTML CSS Support, JavaScript (ES6) code snippets
+- **Browser**: Chrome DevTools for debugging and testing
+- **Version Control**: Git with conventional commit messages
+
+## Testing Checklist
+Before committing changes, ensure:
+- [ ] Application loads without errors
+- [ ] Authentication flow works correctly
+- [ ] Job CRUD operations function properly
+- [ ] CSV import/export works with sample data
+- [ ] Dashboard charts render correctly
+- [ ] Weekly reports generate accurately
+- [ ] Settings save and load properly
+- [ ] Responsive design works on mobile
+- [ ] Keyboard navigation is functional
+- [ ] Screen reader accessibility works
+
+## Browser Testing
+Test on these browsers:
+- **Chrome 88+** - Primary development browser
+- **Firefox 85+** - Cross-browser compatibility
+- **Safari 14+** - iOS/macOS compatibility
+- **Edge 88+** - Windows compatibility
+
+## Code Quality
+- **Linting**: Use ESLint for JavaScript (if configured)
+- **Formatting**: Use Prettier for consistent code style
+- **Documentation**: Update README.md for new features
+- **Changelog**: Add entries to CHANGELOG.md for releases
+
+## Feature Development
+1. **Create feature branch**: `git checkout -b feature/feature-name`
+2. **Implement feature**: Follow coding standards and architecture
+3. **Test thoroughly**: Use the testing checklist above
+4. **Update documentation**: README, CHANGELOG, and inline comments
+5. **Submit PR**: Create pull request with clear description
+
+## Debugging
+- **Console Logging**: Use `console.log()` for debugging (remove before commit)
+- **Browser DevTools**: Network tab for localStorage inspection
+- **Error Handling**: Implement proper error handling with user feedback
+- **Performance**: Monitor memory usage and rendering performance
+
+## Deployment
+- **Static Hosting**: Deploy to GitHub Pages, Netlify, or Vercel
+- **HTTPS Required**: Ensure HTTPS for production (required for Web Crypto API)
+- **Testing**: Test deployed version thoroughly
+- **Monitoring**: Check for console errors and user feedback
+description:
+globs:
+alwaysApply: false
+---

@@ -1,0 +1,57 @@
+# JavaScript Coding Standards
+
+## Code Organization
+- Use ES6+ features where supported by target browsers (Chrome 88+, Firefox 85+, Safari 14+, Edge 88+)
+- Organize code into focused classes with single responsibility
+- Keep methods small and focused on one task
+- Use meaningful variable and function names with camelCase
+
+## Class Structure
+```javascript
+/**
+ * Class description with JSDoc
+ */
+class ClassName {
+    constructor(dependencies) {
+        this.dependency = dependencies;
+        this.setupEventListeners();
+    }
+
+    /**
+     * Method description
+     * @param {string} param - Parameter description
+     * @returns {Object} Return value description
+     */
+    methodName(param) {
+        // Implementation
+    }
+}
+```
+
+## Event Handling
+- Use event delegation for dynamically rendered elements
+- Always remove event listeners when components are destroyed
+- Use `addEventListener` instead of inline event handlers
+- Handle errors gracefully with try-catch blocks
+
+## Data Management
+- Use the [DataManager](mdc:js/data.js) class for all localStorage operations
+- Validate data before saving to localStorage
+- Use the [NotificationManager](mdc:js/notifications.js) for user feedback
+- Always handle async operations with proper error handling
+
+## Security
+- Never store sensitive data in plain text
+- Use Web Crypto API for password hashing (SHA-256)
+- Validate all user inputs before processing
+- Sanitize data before rendering to prevent XSS
+
+## Performance
+- Debounce user input events where appropriate
+- Use efficient DOM queries and caching
+- Minimize localStorage reads/writes
+- Destroy Chart.js instances before recreating them
+description:
+globs:
+alwaysApply: false
+---

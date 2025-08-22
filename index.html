@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Personal job application tracker with analytics, CSV import/export, and weekly reports">
+    <meta name="keywords" content="job tracker, job search, applications, career, analytics">
+    <meta name="author" content="Job Tracker">
+    <title>Job Tracker - Track Your Job Applications</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content auth-modal">
+            <div class="modal-header">
+                <h3 id="authTitle">Welcome to Job Tracker</h3>
+            </div>
+            <div id="authContent">
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form" role="form" aria-labelledby="authTitle">
+                    <div class="form-group">
+                        <label for="password">Enter Password</label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Enter your password" autocomplete="current-password"
+                               aria-describedby="passwordHelp">
+                        <div id="passwordHelp" class="sr-only">Enter your password to access the job tracker application</div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" aria-label="Login to Job Tracker">Login</button>
+                    </div>
+                </form>
+                
+                <!-- Setup Form (shown only on first visit) -->
+                <form id="setupForm" class="auth-form hidden">
+                    <div class="form-group">
+                        <label for="newPassword">Create Password</label>
+                        <input type="password" id="newPassword" name="newPassword" required placeholder="Create a new password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Set Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden" id="mainApp">
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1>Job Tracker</h1>
+                    <p>Keep track of your job applications</p>
+                </div>
+                <div class="header-actions">
+                    <div class="nav-tabs">
+                        <button id="jobsTab" class="nav-tab active">Jobs</button>
+                        <button id="dashboardTab" class="nav-tab">Dashboard</button>
+                    </div>
+                    <button id="settingsBtn" class="btn btn-secondary">Settings</button>
+                    <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="add-job-section">
+                <h2>Add New Job</h2>
+                <form id="jobForm" class="job-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Job Title *</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company *</label>
+                            <input type="text" id="company" name="company" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" name="status" required>
+                                <option value="">Select Status</option>
+                                <option value="Applied">Applied</option>
+                                <option value="Interview Scheduled">Interview Scheduled</option>
+                                <option value="Interview Completed">Interview Completed</option>
+                                <option value="Offer Received">Offer Received</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Withdrawn">Withdrawn</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stage">Stage</label>
+                            <select id="stage" name="stage">
+                                <option value="">Select Stage</option>
+                                <option value="Application Submitted">Application Submitted</option>
+                                <option value="Phone Screen">Phone Screen</option>
+                                <option value="Technical Interview">Technical Interview</option>
+                                <option value="Onsite Interview">Onsite Interview</option>
+                                <option value="Final Round">Final Round</option>
+                                <option value="Negotiation">Negotiation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dateApplied">Date Applied *</label>
+                            <input type="date" id="dateApplied" name="dateApplied" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPerson">Contact Person</label>
+                            <input type="text" id="contactPerson" name="contactPerson">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Add any additional notes..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Job</button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="jobs-section">
+                <div class="jobs-header">
+                    <h2>Your Job Applications</h2>
+                    <div class="jobs-stats">
+                        <span id="totalJobs">0</span> total applications
+                    </div>
+                </div>
+
+                <div class="jobs-filters">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Interview Scheduled">Interview Scheduled</option>
+                        <option value="Interview Completed">Interview Completed</option>
+                        <option value="Offer Received">Offer Received</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Withdrawn">Withdrawn</option>
+                    </select>
+                    <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
+                    <button id="addSampleData" class="btn btn-secondary">Add Sample Data</button>
+                </div>
+
+                <div class="csv-actions">
+                    <div class="csv-import">
+                        <input type="file" id="csvFileInput" accept=".csv" class="csv-file-input">
+                        <label for="csvFileInput" class="btn btn-secondary">Import CSV</label>
+                    </div>
+                    <button id="exportCsv" class="btn btn-primary">Export CSV</button>
+                </div>
+
+                <div id="jobsList" class="jobs-list">
+                    <!-- Jobs will be rendered here dynamically -->
+                </div>
+
+                <div id="noJobs" class="no-jobs hidden">
+                    <p>No job applications yet. Add your first job above!</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Dashboard Section -->
+        <section id="dashboardSection" class="dashboard-section hidden">
+            <div class="dashboard-header">
+                <h2>Analytics Dashboard</h2>
+                <p>Insights into your job application journey</p>
+                <div class="dashboard-actions">
+                    <button id="weeklyReportBtn" class="btn btn-primary">📊 Generate Weekly Report</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <div class="summary-icon">📊</div>
+                        <div class="summary-content">
+                            <div class="summary-number" id="totalApplications">0</div>
+                            <div class="summary-label">Total Applications</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">✅</div>
+                        <div class="summary-content">
+                            <div class="summary-number" id="successRate">0%</div>
+                            <div class="summary-label">Success Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">📈</div>
+                        <div class="summary-content">
+                            <div class="summary-number" id="activeApplications">0</div>
+                            <div class="summary-label">Active Applications</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon">⏱️</div>
+                        <div class="summary-content">
+                            <div class="summary-number" id="avgResponseTime">0</div>
+                            <div class="summary-label">Days Since Last Apply</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Applications by Status</h3>
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Applications by Stage</h3>
+                        <canvas id="stageChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>Success vs Rejection Rate</h3>
+                        <canvas id="successChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container chart-wide">
+                        <h3>Applications Over Time</h3>
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Company Status Section -->
+                <div class="company-status-section">
+                    <h3>Active Company Applications</h3>
+                    <div id="companyStatusList" class="company-status-list">
+                        <!-- Company status items will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Weekly Report Modal -->
+    <div id="weeklyReportModal" class="modal hidden">
+        <div class="modal-content weekly-report-modal">
+            <div class="modal-header">
+                <h3>Weekly Job Search Report</h3>
+                <button id="closeWeeklyReport" class="close-btn">&times;</button>
+            </div>
+            <div class="weekly-report-content">
+                <div class="report-summary">
+                    <h4>Report Period: <span id="reportPeriod"></span></h4>
+                    <div class="report-actions">
+                        <button id="copyReportBtn" class="btn btn-secondary">📋 Copy to Clipboard</button>
+                        <button id="emailReportBtn" class="btn btn-primary">📧 Email Report</button>
+                    </div>
+                </div>
+                
+                <div class="report-text-container">
+                    <textarea id="reportText" class="report-textarea" readonly></textarea>
+                </div>
+                
+                <div class="report-options">
+                    <div class="form-group">
+                        <label for="emailSubject">Email Subject (optional):</label>
+                        <input type="text" id="emailSubject" class="form-control" 
+                               placeholder="Weekly Job Search Report" value="Weekly Job Search Report">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailRecipient">Email To (optional):</label>
+                        <input type="email" id="emailRecipient" class="form-control" 
+                               placeholder="your-email@example.com">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button id="closeSettings" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-tabs">
+                    <button type="button" class="settings-tab active" data-tab="password">Password</button>
+                    <button type="button" class="settings-tab" data-tab="statuses">Statuses</button>
+                    <button type="button" class="settings-tab" data-tab="stages">Stages</button>
+                </div>
+
+                <!-- Password Tab -->
+                <div class="settings-tab-content active" id="passwordTab">
+                    <form id="changePasswordForm" class="auth-form">
+                        <h4>Change Password</h4>
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsNewPassword">New Password</label>
+                            <input type="password" id="settingsNewPassword" name="settingsNewPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settingsConfirmPassword">Confirm New Password</label>
+                            <input type="password" id="settingsConfirmPassword" name="settingsConfirmPassword" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Statuses Tab -->
+                <div class="settings-tab-content" id="statusesTab">
+                    <div class="custom-list-section">
+                        <h4>Customize Application Statuses</h4>
+                        <p class="settings-description">Add, remove, or reorder the statuses used for job applications.</p>
+                        
+                        <div class="custom-list-container">
+                            <div id="statusesList" class="custom-list">
+                                <!-- Status items will be rendered here -->
+                            </div>
+                            
+                            <div class="add-item-form">
+                                <div class="form-row">
+                                    <input type="text" id="newStatusInput" placeholder="Enter new status name" class="form-control">
+                                    <button type="button" id="addStatusBtn" class="btn btn-primary">Add Status</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="saveStatusesBtn" class="btn btn-primary">Save Statuses</button>
+                            <button type="button" id="resetStatusesBtn" class="btn btn-secondary">Reset to Default</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stages Tab -->
+                <div class="settings-tab-content" id="stagesTab">
+                    <div class="custom-list-section">
+                        <h4>Customize Application Stages</h4>
+                        <p class="settings-description">Add, remove, or reorder the stages used for job applications.</p>
+                        
+                        <div class="custom-list-container">
+                            <div id="stagesList" class="custom-list">
+                                <!-- Stage items will be rendered here -->
+                            </div>
+                            
+                            <div class="add-item-form">
+                                <div class="form-row">
+                                    <input type="text" id="newStageInput" placeholder="Enter new stage name" class="form-control">
+                                    <button type="button" id="addStageBtn" class="btn btn-primary">Add Stage</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="saveStagesBtn" class="btn btn-primary">Save Stages</button>
+                            <button type="button" id="resetStagesBtn" class="btn btn-secondary">Reset to Default</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Edit Modal -->
+    <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Job</h3>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <form id="editForm" class="job-form">
+                <input type="hidden" id="editJobId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTitle">Job Title *</label>
+                        <input type="text" id="editTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCompany">Company *</label>
+                        <input type="text" id="editCompany" name="company" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editStatus">Status *</label>
+                        <select id="editStatus" name="status" required>
+                            <option value="Applied">Applied</option>
+                            <option value="Interview Scheduled">Interview Scheduled</option>
+                            <option value="Interview Completed">Interview Completed</option>
+                            <option value="Offer Received">Offer Received</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Withdrawn">Withdrawn</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStage">Stage</label>
+                        <select id="editStage" name="stage">
+                            <option value="">Select Stage</option>
+                            <option value="Application Submitted">Application Submitted</option>
+                            <option value="Phone Screen">Phone Screen</option>
+                            <option value="Technical Interview">Technical Interview</option>
+                            <option value="Onsite Interview">Onsite Interview</option>
+                            <option value="Final Round">Final Round</option>
+                            <option value="Negotiation">Negotiation</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDateApplied">Date Applied *</label>
+                        <input type="date" id="editDateApplied" name="dateApplied" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editContactPerson">Contact Person</label>
+                        <input type="text" id="editContactPerson" name="contactPerson">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="editNotes">Notes</label>
+                    <textarea id="editNotes" name="notes" rows="3" placeholder="Add any additional notes..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Job</button>
+                    <button type="button" id="cancelEdit" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="js/notifications.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/csv.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/job-tracker.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/weekly-report.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# HTML and Accessibility Standards
+
+## Semantic HTML
+- Use semantic HTML5 elements: `<header>`, `<main>`, `<section>`, `<article>`, `<nav>`, `<footer>`
+- Structure content with proper heading hierarchy (h1 → h2 → h3)
+- Use `<button>` for interactive elements, not `<div>` with click handlers
+- Use `<form>` elements for all data input, not custom div structures
+
+## Accessibility (WCAG 2.1 AA)
+- Include `aria-label` and `aria-describedby` attributes where appropriate
+- Use `role` attributes for custom components (e.g., `role="form"`, `role="button"`)
+- Ensure all form inputs have associated `<label>` elements
+- Add `alt` text for images and icons
+- Use `aria-hidden="true"` for decorative elements
+
+## Form Standards
+```html
+<form role="form" aria-labelledby="form-title">
+    <h2 id="form-title">Form Title</h2>
+    <div class="form-group">
+        <label for="input-id">Label Text</label>
+        <input type="text" id="input-id" name="input-name" 
+               required aria-describedby="input-help">
+        <div id="input-help" class="sr-only">Help text for screen readers</div>
+    </div>
+</form>
+```
+
+## Screen Reader Support
+- Use `.sr-only` class for screen reader only text
+- Provide context for interactive elements
+- Use `aria-live` regions for dynamic content updates
+- Ensure keyboard navigation works for all interactive elements
+
+## Responsive Design
+- Use viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+- Test on mobile devices and screen readers
+- Ensure touch targets are at least 44x44px
+- Use semantic breakpoints for responsive design
+
+## Security
+- Use `autocomplete` attributes for form inputs
+- Sanitize user input before rendering
+- Use HTTPS for production deployments
+- Implement proper CSRF protection if backend is added later
+description:
+globs:
+alwaysApply: false
+---

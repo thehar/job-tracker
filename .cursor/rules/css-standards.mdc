@@ -1,0 +1,75 @@
+# CSS Styling Standards
+
+## Color Scheme
+- **Primary Background**: `#0a1929` (dark blue)
+- **Secondary Background**: `#1e293b` (lighter dark blue)
+- **Text Color**: `#e8f4fd` (light blue-white)
+- **Accent Colors**: `#3b82f6` (blue), `#10b981` (green), `#ef4444` (red)
+- **Border Colors**: `#475569`, `#334155`
+
+## Typography
+- **Font Family**: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
+- **Line Height**: `1.6` for readability
+- **Font Sizes**: Use rem units for scalability
+- **Heading Hierarchy**: Clear visual distinction between h1, h2, h3
+
+## Layout Principles
+- **Mobile First**: Design for mobile, enhance for desktop
+- **CSS Grid & Flexbox**: Use modern layout techniques
+- **Responsive Breakpoints**: 
+  - Mobile: `< 768px`
+  - Tablet: `768px - 1024px`
+  - Desktop: `> 1024px`
+
+## Component Styling
+```css
+.component-name {
+    /* Layout */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    
+    /* Spacing */
+    padding: 1.5rem;
+    margin: 1rem 0;
+    
+    /* Visual */
+    background: #1e293b;
+    border: 2px solid #475569;
+    border-radius: 8px;
+    
+    /* Typography */
+    color: #e8f4fd;
+    font-size: 1rem;
+    
+    /* Transitions */
+    transition: all 0.3s ease;
+}
+
+.component-name:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+```
+
+## Accessibility Features
+- **Focus States**: Clear focus indicators for keyboard navigation
+- **Color Contrast**: Minimum 4.5:1 ratio for normal text
+- **Touch Targets**: Minimum 44x44px for mobile interactions
+- **Screen Reader**: `.sr-only` class for hidden content
+
+## Responsive Design
+- Use CSS Grid for complex layouts
+- Implement flexible containers with max-widths
+- Use media queries for breakpoint-specific styles
+- Ensure content remains readable on all screen sizes
+
+## Performance
+- Minimize CSS specificity conflicts
+- Use CSS custom properties for repeated values
+- Optimize animations with `transform` and `opacity`
+- Avoid expensive properties in animations
+description:
+globs:
+alwaysApply: false
+---

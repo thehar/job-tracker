@@ -1,0 +1,86 @@
+# Feature Implementation Guide
+
+## Core Features Overview
+
+### Authentication System
+- **Location**: [js/auth.js](mdc:js/auth.js)
+- **Purpose**: Secure access control with password protection
+- **Key Methods**: `hashPassword()`, `authenticate()`, `logout()`
+- **Security**: SHA-256 hashing via Web Crypto API
+- **Storage**: Hashed password and session in localStorage
+
+### Job Management
+- **Location**: [js/job-tracker.js](mdc:js/job-tracker.js)
+- **Purpose**: CRUD operations for job applications
+- **Key Methods**: `addJob()`, `updateJob()`, `deleteJob()`, `renderJobs()`
+- **Data Flow**: Form → Validation → DataManager → localStorage → UI Update
+- **Event Handling**: Uses event delegation for dynamic job cards
+
+### Analytics Dashboard
+- **Location**: [js/dashboard.js](mdc:js/dashboard.js)
+- **Purpose**: Data visualization and insights
+- **Charts**: Status distribution, stage breakdown, timeline, success metrics
+- **Library**: Chart.js via CDN
+- **Updates**: Automatically refreshes when job data changes
+
+### CSV Operations
+- **Location**: [js/csv.js](mdc:js/csv.js)
+- **Purpose**: Import/export job data
+- **Import**: File validation, parsing, deduplication
+- **Export**: Generate CSV with current job data
+- **Browser APIs**: File API, Blob API, FileReader
+
+### Weekly Reports
+- **Location**: [js/weekly-report.js](mdc:js/weekly-report.js)
+- **Purpose**: Automated weekly analysis and insights
+- **Analysis**: 7-day period, status changes, new applications
+- **Export**: Copy to clipboard, email via mailto
+- **Format**: Plain text with emojis and structured sections
+
+### Settings Management
+- **Location**: [js/settings.js](mdc:js/settings.js)
+- **Purpose**: Customize statuses and stages
+- **Features**: Add, edit, delete, reorder with drag & drop
+- **Persistence**: Saves to localStorage
+- **Integration**: Updates all forms and validation dynamically
+
+## Data Flow Architecture
+
+```
+User Input → Form Validation → Data Processing → localStorage → UI Update
+    ↓              ↓              ↓              ↓           ↓
+  HTML Form → DataManager → Business Logic → Persistence → Dashboard
+```
+
+## Key Integration Points
+
+### Event System
+- All components communicate through events
+- Job changes trigger dashboard refresh
+- Settings changes update all forms
+- Authentication state controls app visibility
+
+### Data Persistence
+- **DataManager**: Centralized data operations
+- **localStorage**: Client-side data storage
+- **Validation**: Input sanitization and validation
+- **Error Handling**: Graceful fallbacks and user feedback
+
+### UI Updates
+- **Event Delegation**: Efficient event handling for dynamic content
+- **Component Refresh**: Targeted updates without full re-render
+- **Responsive Design**: Mobile-first approach with progressive enhancement
+- **Accessibility**: WCAG 2.1 AA compliance throughout
+
+## Adding New Features
+
+1. **Create Module**: Add new JavaScript file in `js/` directory
+2. **Follow Patterns**: Use established class structure and naming conventions
+3. **Integration**: Connect with existing event system and data flow
+4. **Testing**: Ensure compatibility with all existing features
+5. **Documentation**: Update README and add JSDoc comments
+6. **Accessibility**: Implement proper ARIA labels and keyboard support
+description:
+globs:
+alwaysApply: false
+---

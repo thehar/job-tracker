@@ -1,0 +1,39 @@
+# Job Tracker Project Structure
+
+## Overview
+This is a client-side job application tracking system built with vanilla HTML, CSS, and JavaScript. The application is fully modular and works offline with local storage.
+
+## File Organization
+
+### Main Application Files
+- [index.html](mdc:index.html) - Main HTML structure with authentication, job tracking, dashboard, and settings
+- [styles.css](mdc:styles.css) - Complete application styling with dark theme and responsive design
+
+### JavaScript Modules (js/ directory)
+- [js/app.js](mdc:js/app.js) - Application entry point and global initialization
+- [js/auth.js](mdc:js/auth.js) - Authentication management, password hashing, session control
+- [js/data.js](mdc:js/data.js) - Data utilities, validation, and localStorage operations
+- [js/csv.js](mdc:js/csv.js) - CSV import/export functionality with parsing and validation
+- [js/job-tracker.js](mdc:js/job-tracker.js) - Core job CRUD operations and UI management
+- [js/dashboard.js](mdc:js/dashboard.js) - Analytics dashboard with Chart.js visualizations
+- [js/settings.js](mdc:js/settings.js) - Custom statuses/stages management with drag-and-drop
+- [js/weekly-report.js](mdc:js/weekly-report.js) - Weekly report generation and export
+- [js/notifications.js](mdc:js/notifications.js) - Toast notification system
+
+### Documentation
+- [README.md](mdc:README.md) - Project overview, features, and setup instructions
+- [CONTRIBUTING.md](mdc:CONTRIBUTING.md) - Development guidelines and contribution process
+- [CHANGELOG.md](mdc:CHANGELOG.md) - Version history and changes
+- [LICENSE](mdc:LICENSE) - MIT license
+- [sample_import.csv](mdc:sample_import.csv) - Sample CSV data for testing imports
+
+## Architecture Principles
+- **Modular Design**: Each feature in its own JavaScript file
+- **Client-Side Only**: No backend, all data stored in localStorage
+- **Accessibility First**: WCAG 2.1 AA compliance with semantic HTML
+- **Mobile Responsive**: Mobile-first design approach
+- **Security**: SHA-256 password hashing with Web Crypto API
+description:
+globs:
+alwaysApply: false
+---
