@@ -121,7 +121,7 @@ class JobTracker {
      */
     addJob() {
         const formData = DataManager.getFormData('jobForm');
-        
+
         if (!DataManager.validateJobData(formData)) {
             NotificationManager.show('Please fill in all required fields!', 'error');
             return;
@@ -134,12 +134,12 @@ class JobTracker {
         this.renderJobs();
         this.updateStats();
         DataManager.resetForm('jobForm');
-        
+
         // Update dashboard if it exists
         if (window.dashboard) {
             window.dashboard.refresh();
         }
-        
+
         NotificationManager.show('Job added successfully!', 'success');
     }
 
@@ -149,7 +149,7 @@ class JobTracker {
     updateJob() {
         const formData = DataManager.getFormData('editForm');
         const jobId = document.getElementById('editJobId').value;
-        
+
         if (!DataManager.validateJobData(formData)) {
             NotificationManager.show('Please fill in all required fields!', 'error');
             return;
@@ -167,12 +167,12 @@ class JobTracker {
         this.renderJobs();
         this.updateStats();
         this.closeEditModal();
-        
+
         // Update dashboard if it exists
         if (window.dashboard) {
             window.dashboard.refresh();
         }
-        
+
         NotificationManager.show('Job updated successfully!', 'success');
     }
 
@@ -186,12 +186,12 @@ class JobTracker {
             this.saveJobs();
             this.renderJobs();
             this.updateStats();
-            
+
             // Update dashboard if it exists
             if (window.dashboard) {
                 window.dashboard.refresh();
             }
-            
+
             NotificationManager.show('Job deleted successfully!', 'success');
         }
     }
@@ -211,6 +211,7 @@ class JobTracker {
         document.getElementById('editStatus').value = job.status;
         document.getElementById('editStage').value = job.stage || '';
         document.getElementById('editDateApplied').value = job.dateApplied;
+        document.getElementById('editApplicationSource').value = job.applicationSource || '';
         document.getElementById('editContactPerson').value = job.contactPerson || '';
         document.getElementById('editNotes').value = job.notes || '';
 
@@ -241,9 +242,9 @@ class JobTracker {
     renderJobs() {
         const jobsList = document.getElementById('jobsList');
         const noJobs = document.getElementById('noJobs');
-        
+
         let filteredJobs = this.jobs;
-        
+
         if (this.currentFilter) {
             filteredJobs = this.jobs.filter(job => job.status === this.currentFilter);
         }
@@ -255,7 +256,7 @@ class JobTracker {
         }
 
         noJobs.classList.add('hidden');
-        
+
         jobsList.innerHTML = filteredJobs.map(job => this.createJobCard(job)).join('');
     }
 
@@ -267,7 +268,7 @@ class JobTracker {
     createJobCard(job) {
         const statusClass = this.getStatusClass(job.status);
         const formattedDate = DataManager.formatDate(job.dateApplied);
-        
+
         return `
             <div class="job-card">
                 <div class="job-card-header">
@@ -283,6 +284,12 @@ class JobTracker {
                         <span class="job-detail-label">Applied:</span>
                         <span>${formattedDate}</span>
                     </div>
+                    ${job.applicationSource ? `
+                        <div class="job-detail">
+                            <span class="job-detail-label">Source:</span>
+                            <span>${DataManager.escapeHtml(job.applicationSource)}</span>
+                        </div>
+                    ` : ''}
                     ${job.stage ? `
                         <div class="job-detail">
                             <span class="job-detail-label">Stage:</span>
@@ -351,58 +358,109 @@ class JobTracker {
      */
     addSampleData() {
         if (this.jobs.length > 0) {
-            if (!confirm('This will add sample data. Continue?')) {
+            if (!confirm('This will add 6 sample jobs with diverse application sources to demonstrate the tracking features. Continue?')) {
                 return;
             }
         }
 
+        const baseTime = Date.now();
         const sampleJobs = [
             {
-                id: Date.now().toString() + '_1',
+                id: `${baseTime}_sample_1_${Math.random().toString(36).substr(2, 9)}`,
                 title: 'Frontend Developer',
                 company: 'Tech Corp',
                 status: 'Applied',
                 stage: 'Application Submitted',
-                dateApplied: '2024-01-15',
+                dateApplied: '2024-12-09',
+                applicationSource: 'LinkedIn',
                 contactPerson: 'John Smith',
                 notes: 'Applied through LinkedIn. Company looks promising with good benefits.',
-                createdAt: '2024-01-15T10:00:00.000Z'
+                createdAt: '2024-12-09T10:00:00.000Z'
             },
             {
-                id: Date.now().toString() + '_2',
+                id: `${baseTime}_sample_2_${Math.random().toString(36).substr(2, 9)}`,
                 title: 'Software Engineer',
                 company: 'Startup Inc',
                 status: 'Interview Scheduled',
                 stage: 'Phone Screen',
-                dateApplied: '2024-01-10',
+                dateApplied: '2024-12-08',
+                applicationSource: 'Indeed',
                 contactPerson: 'Sarah Johnson',
                 notes: 'Phone interview scheduled for next week. Excited about the role!',
-                createdAt: '2024-01-10T14:30:00.000Z'
+                createdAt: '2024-12-08T14:30:00.000Z'
             },
             {
-                id: Date.now().toString() + '_3',
+                id: `${baseTime}_sample_3_${Math.random().toString(36).substr(2, 9)}`,
                 title: 'Full Stack Developer',
                 company: 'Enterprise Solutions',
                 status: 'Rejected',
                 stage: 'Technical Interview',
-                dateApplied: '2024-01-05',
+                dateApplied: '2024-12-07',
+                applicationSource: 'Company Website',
                 contactPerson: 'Mike Wilson',
                 notes: 'Did well in technical interview but they went with another candidate.',
-                createdAt: '2024-01-05T09:15:00.000Z'
+                createdAt: '2024-12-07T09:15:00.000Z'
+            },
+            {
+                id: `${baseTime}_sample_4_${Math.random().toString(36).substr(2, 9)}`,
+                title: 'Backend Developer',
+                company: 'FinTech Solutions',
+                status: 'Interview Completed',
+                stage: 'Final Round',
+                dateApplied: '2024-12-06',
+                applicationSource: 'Referral',
+                contactPerson: 'Emma Davis',
+                notes: 'Referred by a former colleague. Great team culture and interesting projects.',
+                createdAt: '2024-12-06T11:20:00.000Z'
+            },
+            {
+                id: `${baseTime}_sample_5_${Math.random().toString(36).substr(2, 9)}`,
+                title: 'DevOps Engineer',
+                company: 'Cloud Innovations',
+                status: 'Applied',
+                stage: 'Application Submitted',
+                dateApplied: '2024-12-05',
+                applicationSource: 'Glassdoor',
+                contactPerson: '',
+                notes: 'Found this role on Glassdoor. Company has excellent reviews.',
+                createdAt: '2024-12-05T16:45:00.000Z'
+            },
+            {
+                id: `${baseTime}_sample_6_${Math.random().toString(36).substr(2, 9)}`,
+                title: 'Product Manager',
+                company: 'Growth Dynamics',
+                status: 'Offer Received',
+                stage: 'Negotiation',
+                dateApplied: '2024-12-04',
+                applicationSource: 'Recruiter',
+                contactPerson: 'Alex Chen',
+                notes: 'Contacted by recruiter. Received offer, negotiating salary and benefits.',
+                createdAt: '2024-12-04T09:30:00.000Z'
             }
         ];
+
+        // Debug: Check if all jobs are created properly
+        console.log('Sample jobs array length:', sampleJobs.length);
+        console.log('Sample jobs:', sampleJobs);
         
-        this.jobs.unshift(...sampleJobs);
+        // Add jobs one by one to avoid spread operator issues
+        sampleJobs.forEach((job, index) => {
+            console.log(`Adding job ${index + 1}:`, job.title, job.applicationSource);
+            this.jobs.unshift(job);
+        });
+        
+        console.log('Total jobs after adding:', this.jobs.length);
+        
         this.saveJobs();
         this.renderJobs();
         this.updateStats();
-        
+
         // Update dashboard if it exists
         if (window.dashboard) {
             window.dashboard.refresh();
         }
-        
-        NotificationManager.show('Sample data added successfully!', 'success');
+
+        NotificationManager.show(`${sampleJobs.length} sample jobs added with diverse application sources!`, 'success');
     }
 
     /**
@@ -416,7 +474,7 @@ class JobTracker {
         try {
             const text = await CsvManager.readFileAsText(file);
             const importedJobs = CsvManager.parseCsv(text);
-            
+
             if (importedJobs.length === 0) {
                 NotificationManager.show('No valid data found in CSV file', 'error');
                 return;
@@ -424,7 +482,7 @@ class JobTracker {
 
             // Validate and process imported jobs
             const validJobs = CsvManager.validateImportedJobs(importedJobs);
-            
+
             if (validJobs.length === 0) {
                 NotificationManager.show('No valid jobs found in CSV file', 'error');
                 return;
@@ -432,23 +490,23 @@ class JobTracker {
 
             // Deduplicate jobs based on title + company
             const newJobs = DataManager.deduplicateJobs(this.jobs, validJobs);
-            
+
             // Add imported jobs
             this.jobs.unshift(...newJobs);
             this.saveJobs();
             this.renderJobs();
             this.updateStats();
-            
+
             // Update dashboard if it exists
             if (window.dashboard) {
                 window.dashboard.refresh();
             }
-            
+
             NotificationManager.show(`Successfully imported ${newJobs.length} jobs from CSV`, 'success');
-            
+
             // Reset file input
             event.target.value = '';
-            
+
         } catch (error) {
             console.error('CSV import error:', error);
             NotificationManager.show(`Error importing CSV: ${error.message}`, 'error');
@@ -463,10 +521,10 @@ class JobTracker {
         try {
             const csvContent = CsvManager.generateCsv(this.jobs);
             const filename = `job_applications_${new Date().toISOString().split('T')[0]}.csv`;
-            
+
             CsvManager.downloadCsv(csvContent, filename);
             NotificationManager.show('CSV exported successfully!', 'success');
-            
+
         } catch (error) {
             console.error('CSV export error:', error);
             NotificationManager.show(`Error exporting CSV: ${error.message}`, 'error');
