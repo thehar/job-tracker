@@ -229,6 +229,21 @@ class Dashboard {
      * Calculate source performance (interview rate by source)
      */
     calculateSourcePerformance(jobs) {
+        const sourceStats = this.calculateSourceStats(jobs);
+        const performance = {};
+        
+        Object.entries(sourceStats).forEach(([source, stats]) => {
+            performance[source] = stats.total > 0 ? 
+                Math.round((stats.interviews / stats.total) * 100) : 0;
+        });
+
+        return performance;
+    }
+
+    /**
+     * Calculate detailed source statistics
+     */
+    calculateSourceStats(jobs) {
         const sourceStats = {};
         
         jobs.forEach(job => {
@@ -245,13 +260,7 @@ class Dashboard {
             }
         });
 
-        const performance = {};
-        Object.entries(sourceStats).forEach(([source, stats]) => {
-            performance[source] = stats.total > 0 ? 
-                Math.round((stats.interviews / stats.total) * 100) : 0;
-        });
-
-        return performance;
+        return sourceStats;
     }
 
     /**
@@ -291,6 +300,8 @@ class Dashboard {
             this.charts.statusChart.destroy();
         }
 
+        const totalJobs = jobs.length;
+        
         this.charts.statusChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -308,7 +319,37 @@ class Dashboard {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const count = data.datasets[0].data[i];
+                                        const percentage = totalJobs > 0 ? Math.round((count / totalJobs) * 100) : 0;
+                                        return {
+                                            text: `${label} (${count} - ${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].backgroundColor[i],
+                                            lineWidth: 0,
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const count = context.parsed;
+                                const percentage = totalJobs > 0 ? Math.round((count / totalJobs) * 100) : 0;
+                                return `${label}: ${count} jobs (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }
@@ -338,6 +379,8 @@ class Dashboard {
             this.charts.stageChart.destroy();
         }
 
+        const totalStageJobs = Object.values(stageCounts).reduce((sum, count) => sum + count, 0);
+        
         this.charts.stageChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -354,6 +397,15 @@ class Dashboard {
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.parsed.y;
+                                const percentage = totalStageJobs > 0 ? Math.round((count / totalStageJobs) * 100) : 0;
+                                return `${context.dataset.label}: ${count} jobs (${percentage}%)`;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -390,6 +442,8 @@ class Dashboard {
             this.charts.sourceChart.destroy();
         }
 
+        const totalSourceJobs = jobs.length;
+        
         this.charts.sourceChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -408,7 +462,37 @@ class Dashboard {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const count = data.datasets[0].data[i];
+                                        const percentage = totalSourceJobs > 0 ? Math.round((count / totalSourceJobs) * 100) : 0;
+                                        return {
+                                            text: `${label} (${count} - ${percentage}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].backgroundColor[i],
+                                            lineWidth: 0,
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const count = context.parsed;
+                                const percentage = totalSourceJobs > 0 ? Math.round((count / totalSourceJobs) * 100) : 0;
+                                return `${label}: ${count} jobs (${percentage}%)`;
+                            }
+                        }
                     }
                 }
             }
@@ -432,6 +516,9 @@ class Dashboard {
             this.charts.sourcePerformanceChart.destroy();
         }
 
+        // Calculate source stats for enhanced tooltips
+        const sourceStats = this.calculateSourceStats(jobs);
+        
         this.charts.sourcePerformanceChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -448,6 +535,23 @@ class Dashboard {
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const source = context.label;
+                                const percentage = context.parsed.y;
+                                const stats = sourceStats[source];
+                                if (stats) {
+                                    return [
+                                        `Interview Rate: ${percentage}%`,
+                                        `Interviews: ${stats.interviews}`,
+                                        `Total Applications: ${stats.total}`
+                                    ];
+                                }
+                                return `Interview Rate: ${percentage}%`;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -516,6 +620,15 @@ class Dashboard {
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.parsed.y;
+                                const month = context.label;
+                                return `${month}: ${count} application${count !== 1 ? 's' : ''}`;
+                            }
+                        }
                     }
                 },
                 scales: {
