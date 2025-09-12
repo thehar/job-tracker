@@ -1378,6 +1378,31 @@ body {
     max-height: 280px;
 }
 
+/* Timeline Trends Section */
+.timeline-trends-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #334155;
+}
+
+.timeline-trends-section h2 {
+    color: #e8f4fd;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.timeline-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.timeline-charts-grid .chart-container {
+    min-height: 300px;
+}
+
     .chart-wide canvas {
         max-height: 220px;
     }
@@ -1530,6 +1555,11 @@ body {
     
     .chart-container.chart-wide {
         min-height: 250px;
+    }
+    
+    .timeline-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
     
     .summary-card {

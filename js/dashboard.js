@@ -277,6 +277,11 @@ class Dashboard {
         this.updateSourceChart();
         this.updateSourcePerformanceChart();
         this.updateTimelineChart();
+        
+        // Update new timeline trend charts
+        this.updateSourceTimelineChart();
+        this.updateStageTimelineChart();
+        this.updateSubmissionRateChart();
     }
 
     /**
@@ -711,5 +716,324 @@ class Dashboard {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Update source timeline chart - shows top sources over time
+     */
+    updateSourceTimelineChart() {
+        const canvas = document.getElementById('sourceTimelineChart');
+        if (!canvas) return;
+
+        const jobs = this.jobTracker.jobs || [];
+        const monthlySourceData = this.calculateMonthlySourceData(jobs);
+
+        const ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart
+        if (this.charts.sourceTimelineChart) {
+            this.charts.sourceTimelineChart.destroy();
+        }
+
+        // Get top 3 sources for the legend
+        const allSources = {};
+        jobs.forEach(job => {
+            const source = job.applicationSource || 'Unknown';
+            allSources[source] = (allSources[source] || 0) + 1;
+        });
+        
+        const topSources = Object.entries(allSources)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3)
+            .map(([source]) => source);
+
+        const datasets = topSources.map((source, index) => ({
+            label: source,
+            data: monthlySourceData.months.map(month => monthlySourceData.sources[source]?.[month] || 0),
+            borderColor: ['#3b82f6', '#10b981', '#f59e0b'][index],
+            backgroundColor: ['rgba(59, 130, 246, 0.1)', 'rgba(16, 185, 129, 0.1)', 'rgba(245, 158, 11, 0.1)'][index],
+            fill: false,
+            tension: 0.4
+        }));
+
+        this.charts.sourceTimelineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlySourceData.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.parsed.y;
+                                const source = context.dataset.label;
+                                return `${source}: ${count} application${count !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Update stage timeline chart - shows stage distribution over time
+     */
+    updateStageTimelineChart() {
+        const canvas = document.getElementById('stageTimelineChart');
+        if (!canvas) return;
+
+        const jobs = this.jobTracker.jobs || [];
+        const monthlyStageData = this.calculateMonthlyStageData(jobs);
+
+        const ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart
+        if (this.charts.stageTimelineChart) {
+            this.charts.stageTimelineChart.destroy();
+        }
+
+        // Get top 3 stages for the legend
+        const allStages = {};
+        jobs.forEach(job => {
+            if (job.stage) {
+                allStages[job.stage] = (allStages[job.stage] || 0) + 1;
+            }
+        });
+        
+        const topStages = Object.entries(allStages)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3)
+            .map(([stage]) => stage);
+
+        const datasets = topStages.map((stage, index) => ({
+            label: stage,
+            data: monthlyStageData.months.map(month => monthlyStageData.stages[stage]?.[month] || 0),
+            borderColor: ['#8b5cf6', '#06b6d4', '#84cc16'][index],
+            backgroundColor: ['rgba(139, 92, 246, 0.1)', 'rgba(6, 182, 212, 0.1)', 'rgba(132, 204, 22, 0.1)'][index],
+            fill: false,
+            tension: 0.4
+        }));
+
+        this.charts.stageTimelineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthlyStageData.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.parsed.y;
+                                const stage = context.dataset.label;
+                                return `${stage}: ${count} application${count !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Update submission rate chart - shows applications per week/month
+     */
+    updateSubmissionRateChart() {
+        const canvas = document.getElementById('submissionRateChart');
+        if (!canvas) return;
+
+        const jobs = this.jobTracker.jobs || [];
+        const submissionRateData = this.calculateSubmissionRateData(jobs);
+
+        const ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart
+        if (this.charts.submissionRateChart) {
+            this.charts.submissionRateChart.destroy();
+        }
+
+        this.charts.submissionRateChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: submissionRateData.labels,
+                datasets: [{
+                    label: 'Applications per Week',
+                    data: submissionRateData.weeklyData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const count = context.parsed.y;
+                                const week = context.label;
+                                return `${week}: ${count} application${count !== 1 ? 's' : ''} submitted`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Calculate monthly source data for timeline chart
+     */
+    calculateMonthlySourceData(jobs) {
+        const monthlyData = {};
+        const sourceData = {};
+
+        jobs.forEach(job => {
+            const date = new Date(job.dateApplied);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const source = job.applicationSource || 'Unknown';
+
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = 0;
+            }
+            if (!sourceData[source]) {
+                sourceData[source] = {};
+            }
+            if (!sourceData[source][monthKey]) {
+                sourceData[source][monthKey] = 0;
+            }
+
+            monthlyData[monthKey]++;
+            sourceData[source][monthKey]++;
+        });
+
+        const sortedMonths = Object.keys(monthlyData).sort();
+        const labels = sortedMonths.map(month => {
+            const [year, monthNum] = month.split('-');
+            const date = new Date(year, monthNum - 1);
+            return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        });
+
+        return {
+            months: sortedMonths,
+            labels: labels,
+            sources: sourceData
+        };
+    }
+
+    /**
+     * Calculate monthly stage data for timeline chart
+     */
+    calculateMonthlyStageData(jobs) {
+        const monthlyData = {};
+        const stageData = {};
+
+        jobs.forEach(job => {
+            if (job.stage) {
+                const date = new Date(job.dateApplied);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                const stage = job.stage;
+
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = 0;
+                }
+                if (!stageData[stage]) {
+                    stageData[stage] = {};
+                }
+                if (!stageData[stage][monthKey]) {
+                    stageData[stage][monthKey] = 0;
+                }
+
+                monthlyData[monthKey]++;
+                stageData[stage][monthKey]++;
+            }
+        });
+
+        const sortedMonths = Object.keys(monthlyData).sort();
+        const labels = sortedMonths.map(month => {
+            const [year, monthNum] = month.split('-');
+            const date = new Date(year, monthNum - 1);
+            return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        });
+
+        return {
+            months: sortedMonths,
+            labels: labels,
+            stages: stageData
+        };
+    }
+
+    /**
+     * Calculate submission rate data (weekly applications)
+     */
+    calculateSubmissionRateData(jobs) {
+        const weeklyData = {};
+
+        jobs.forEach(job => {
+            const date = new Date(job.dateApplied);
+            // Get the start of the week (Sunday)
+            const startOfWeek = new Date(date);
+            startOfWeek.setDate(date.getDate() - date.getDay());
+            const weekKey = startOfWeek.toISOString().split('T')[0];
+
+            if (!weeklyData[weekKey]) {
+                weeklyData[weekKey] = 0;
+            }
+            weeklyData[weekKey]++;
+        });
+
+        const sortedWeeks = Object.keys(weeklyData).sort();
+        const labels = sortedWeeks.map(week => {
+            const date = new Date(week);
+            return `Week of ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        });
+        const data = sortedWeeks.map(week => weeklyData[week]);
+
+        return {
+            labels: labels,
+            weeklyData: data
+        };
     }
 }
