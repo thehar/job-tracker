@@ -13,8 +13,10 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Smart Filtering** - Filter applications by status or view all at once
 
 ### 📈 Analytics Dashboard
-- **Interactive Charts** - Status distribution, stage breakdown, timeline, and success metrics
-- **Summary Cards** - Total applications, success rate, active applications, and more
+- **Interactive Charts** - Status distribution, stage breakdown, application sources, and source performance
+- **Summary Cards** - Total applications, top source, active applications, interview rates, and more
+- **Application Source Tracking** - Monitor which platforms yield the best results
+- **Source Performance Analytics** - Interview rates by application source for strategic insights
 - **Company Status** - Track current status for each company you've applied to
 - **Visual Insights** - Beautiful Chart.js visualizations with responsive design
 
@@ -55,11 +57,11 @@ A modern, client-side job application tracking system with analytics, CSV import
 ## 📈 Current Status
 
 **Latest Updates (Latest Session):**
+- ✅ **Application Source Tracking** - Comprehensive tracking of job application sources with analytics
+- ✅ **Source Performance Analytics** - Interview rates by platform for strategic job search optimization
+- ✅ **Enhanced Dashboard** - Replaced success rate with actionable source metrics and performance insights
 - ✅ **Service Worker Implementation** - Full offline capability with intelligent caching strategies
 - ✅ **PWA Features** - Progressive Web App with manifest and offline-first architecture
-- ✅ **Cache Management UI** - Complete cache control interface in Settings
-- ✅ **Advanced Analytics Export** - Multiple export formats (CSV, JSON, Analytics, Summary)
-- ✅ **Offline Status Detection** - Real-time online/offline indicators and management
 
 **Project Health:**
 - **Code Quality**: Excellent - Modern practices, modular architecture, comprehensive error handling
@@ -190,9 +192,17 @@ See `sample_import.csv` for a complete example.
 4. **Cache Management** - Use Settings > Offline tab to manage cache
 5. **Automatic Sync** - Changes sync automatically when back online
 
+### 📍 Application Source Tracking
+- **Source Field** - Track where each application comes from (LinkedIn, Indeed, Company Website, etc.)
+- **Top Source Metric** - See your most-used application platform at a glance
+- **Source Distribution Chart** - Visual breakdown of applications by source
+- **Source Performance Analytics** - Interview rates by platform to optimize your strategy
+- **9 Predefined Sources** - LinkedIn, Indeed, Company Website, Glassdoor, AngelList, Referral, Recruiter, Job Fair, Other
+- **Strategic Insights** - Data-driven decisions on where to focus your job search efforts
+
 ### 🎯 Advanced Analytics & Export
 - **Multiple Export Formats** - CSV, JSON, Analytics Reports, Summary Reports
-- **Advanced Metrics** - Response times, success rates, application velocity
+- **Advanced Metrics** - Response times, application velocity, source performance
 - **Trend Analysis** - Monthly comparisons, performance insights
 - **Company Performance** - Track success rates by company
 - **Interactive Export Modal** - Choose format and download or copy to clipboard

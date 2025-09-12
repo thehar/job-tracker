@@ -5,6 +5,58 @@ All notable changes to Job Tracker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-12-09
+
+### 📍 Major Feature Release - Application Source Tracking & Analytics
+
+#### Added
+- **Application Source Tracking System**
+  - New applicationSource field in job forms (add/edit) with 9 predefined options
+  - Source dropdown: LinkedIn, Indeed, Company Website, Glassdoor, AngelList, Referral, Recruiter, Job Fair, Other
+  - Application source display in job cards with proper labeling
+  - Automatic data migration for existing jobs without breaking compatibility
+
+- **Enhanced Analytics Dashboard**
+  - Replaced success rate metric with "Top Source" summary card
+  - New "Application Sources" doughnut chart showing source distribution
+  - New "Source Performance" bar chart showing interview rates by source
+  - Source performance calculation based on interview conversion rates
+  - Strategic insights for optimizing job search channels
+
+- **Improved Sample Data System**
+  - Expanded sample jobs from 3 to 6 diverse examples with realistic application sources
+  - Enhanced sample data button with clear messaging "Add Sample Data (6 Jobs)"
+  - Updated CSV sample with comprehensive source examples
+  - Better demonstration of source tracking capabilities
+
+#### Changed
+- **Dashboard Metrics Overhaul**
+  - Removed success rate calculations and displays (less actionable metric)
+  - Enhanced summary cards with source-based analytics
+  - Improved chart organization focusing on actionable insights
+  - Better visual hierarchy and information architecture
+
+- **Data Structure Updates**
+  - Added applicationSource field to job object creation and updates
+  - Updated CSV import/export headers to include applicationSource
+  - Enhanced data validation and migration systems
+  - Backward compatibility maintained for existing user data
+
+#### Fixed
+- **UI/UX Improvements**
+  - Fixed text overflow in "Top Source" summary card with proper text wrapping
+  - Added text-metric CSS class for text-based summary cards
+  - Improved responsive design for source names and longer text
+  - Better visual balance and professional appearance
+
+#### Technical Improvements
+- **Data Migration System**
+  - Automatic migration for existing jobs without applicationSource field
+  - Seamless upgrade path preserving all existing user data
+  - Robust handling of missing fields with proper defaults
+
+---
+
 ## [1.1.0] - 2024-12-09
 
 ### 🚀 Major Feature Release - Full Offline Support & PWA
