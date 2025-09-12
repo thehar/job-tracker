@@ -134,6 +134,69 @@ body {
     opacity: 0.9;
 }
 
+/* Offline Indicator */
+.offline-indicator {
+    align-items: center;
+    animation: slideDown 0.3s ease-out;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    color: white;
+    display: flex;
+    font-size: 0.9rem;
+    font-weight: 500;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: -1px;
+    padding: 0.75rem 1.5rem;
+    position: relative;
+    text-align: center;
+    z-index: 10;
+}
+
+.offline-indicator.hidden {
+    display: none;
+}
+
+.offline-icon {
+    font-size: 1.1rem;
+}
+
+.offline-text {
+    flex: 1;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Online indicator (when coming back online) */
+.online-indicator {
+    align-items: center;
+    animation: slideDown 0.3s ease-out;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    color: white;
+    display: flex;
+    font-size: 0.9rem;
+    font-weight: 500;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: -1px;
+    padding: 0.75rem 1.5rem;
+    position: relative;
+    text-align: center;
+    z-index: 10;
+}
+
 /* Main content layout */
 .main-content {
     display: grid;
@@ -728,6 +791,173 @@ body {
 .add-item-form .btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+}
+
+/* Offline Settings Styles */
+.offline-settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cache-status-card,
+.cache-management-card,
+.offline-features-card,
+.network-status-card {
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.cache-status-card h5,
+.cache-management-card h5,
+.offline-features-card h5,
+.network-status-card h5 {
+    color: #e8f4fd;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #475569;
+}
+
+.status-item:last-child {
+    border-bottom: none;
+}
+
+.status-label {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.status-value {
+    color: #e8f4fd;
+    font-weight: 600;
+}
+
+.status-value.online {
+    color: #10b981;
+}
+
+.status-value.offline {
+    color: #f59e0b;
+}
+
+.status-value.error {
+    color: #ef4444;
+}
+
+.cache-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.cache-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-icon {
+    font-size: 1rem;
+}
+
+.cache-result {
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.cache-result.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    color: #10b981;
+}
+
+.cache-result.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+
+.cache-result.info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+}
+
+.feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.feature-icon {
+    font-size: 1rem;
+    color: #10b981;
+}
+
+.feature-text {
+    color: #e8f4fd;
+    font-size: 0.9rem;
+}
+
+.online-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.online-indicator .offline-icon {
+    font-size: 1rem;
+}
+
+.online-indicator .offline-text {
+    color: #10b981;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Authentication Modal */
