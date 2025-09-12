@@ -1450,6 +1450,41 @@ body {
         font-size: 1.1rem;
     }
 
+    .company-jobs {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .company-job {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 6px;
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    .company-job:hover {
+        background: rgba(30, 41, 59, 0.8);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .company-job .job-title {
+        color: #e8f4fd;
+        font-weight: 500;
+        font-size: 0.9rem;
+        flex: 1;
+        font-style: normal;
+    }
+
+    .company-job .job-status {
+        margin-left: 0.75rem;
+        white-space: nowrap;
+        font-size: 0.75rem;
+    }
+
     .company-details {
         display: flex;
         justify-content: space-between;
