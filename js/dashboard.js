@@ -120,6 +120,7 @@ class Dashboard {
         const topSourceElement = document.getElementById('topSource');
         if (topSourceElement) {
             topSourceElement.textContent = topSource;
+            topSourceElement.classList.add('text-metric');
         }
 
         // Active applications
