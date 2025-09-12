@@ -165,17 +165,23 @@ title,company,status,stage,dateApplied,contactPerson,notes,createdAt
 
 See `sample_import.csv` for a complete example.
 
+### 🎯 Advanced Analytics & Export
+- **Multiple Export Formats** - CSV, JSON, Analytics Reports, Summary Reports
+- **Advanced Metrics** - Response times, success rates, application velocity
+- **Trend Analysis** - Monthly comparisons, performance insights
+- **Company Performance** - Track success rates by company
+- **Interactive Export Modal** - Choose format and download or copy to clipboard
+
 ## 🚧 Future Enhancements
 
 - [ ] **Service Worker** - Full offline capability with caching
 - [ ] **Data Sync** - Optional cloud backup (keeping privacy focus)
 - [ ] **Email Integration** - Direct integration with email services
 - [ ] **Calendar Integration** - Sync interview dates with calendar apps
-- [ ] **AI Insights** - Advanced analytics and job market insights
+- [ ] **AI Insights** - Machine learning-powered job market insights
 - [ ] **Mobile App** - React Native or PWA mobile application
 - [ ] **Teams Support** - Collaborative job tracking for groups
-- [ ] **Advanced Analytics** - More detailed insights and trend analysis
-- [ ] **Export Formats** - Additional export options (PDF, JSON)
+- [ ] **Export Formats** - Additional export options (PDF, Excel)
 
 ## 🤝 Contributing
 
