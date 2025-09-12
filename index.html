@@ -14,6 +14,13 @@
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Job Tracker">
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
 
@@ -79,6 +86,11 @@
                     <button id="settingsBtn" class="btn btn-secondary">Settings</button>
                     <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
                 </div>
+            </div>
+            <!-- Offline Indicator -->
+            <div id="offlineIndicator" class="offline-indicator hidden" role="status" aria-live="polite">
+                <span class="offline-icon">📡</span>
+                <span class="offline-text">You're offline - changes will sync when reconnected</span>
             </div>
         </header>
 
@@ -397,6 +409,7 @@
                     <button type="button" class="settings-tab active" data-tab="password">Password</button>
                     <button type="button" class="settings-tab" data-tab="statuses">Statuses</button>
                     <button type="button" class="settings-tab" data-tab="stages">Stages</button>
+                    <button type="button" class="settings-tab" data-tab="offline">Offline</button>
                 </div>
 
                 <!-- Password Tab -->
@@ -475,6 +488,92 @@
                             <button type="button" id="saveStagesBtn" class="btn btn-primary">Save Stages</button>
                             <button type="button" id="resetStagesBtn" class="btn btn-secondary">Reset to
                                 Default</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offline Tab -->
+                <div class="settings-tab-content" id="offlineTab">
+                    <div class="offline-settings-section">
+                        <h4>Offline & Cache Management</h4>
+                        <p class="settings-description">Manage offline capabilities and cached data for better
+                            performance.</p>
+
+                        <!-- Service Worker Status -->
+                        <div class="cache-status-card">
+                            <h5>Service Worker Status</h5>
+                            <div class="status-info">
+                                <div class="status-item">
+                                    <span class="status-label">Status:</span>
+                                    <span id="swStatus" class="status-value">Checking...</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Version:</span>
+                                    <span id="swVersion" class="status-value">-</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Cached Assets:</span>
+                                    <span id="cachedAssets" class="status-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cache Management -->
+                        <div class="cache-management-card">
+                            <h5>Cache Management</h5>
+                            <div class="cache-actions">
+                                <button type="button" id="refreshCacheBtn" class="btn btn-secondary">
+                                    <span class="btn-icon">🔄</span>
+                                    Refresh Cache
+                                </button>
+                                <button type="button" id="clearCacheBtn" class="btn btn-secondary">
+                                    <span class="btn-icon">🗑️</span>
+                                    Clear Cache
+                                </button>
+                                <button type="button" id="checkCacheBtn" class="btn btn-secondary">
+                                    <span class="btn-icon">📊</span>
+                                    Check Status
+                                </button>
+                            </div>
+                            <div id="cacheActionResult" class="cache-result hidden"></div>
+                        </div>
+
+                        <!-- Offline Features -->
+                        <div class="offline-features-card">
+                            <h5>Offline Features</h5>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-icon">✅</span>
+                                    <span class="feature-text">Full app functionality when offline</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✅</span>
+                                    <span class="feature-text">Automatic data synchronization</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✅</span>
+                                    <span class="feature-text">Background cache updates</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">✅</span>
+                                    <span class="feature-text">Offline indicator in header</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Status -->
+                        <div class="network-status-card">
+                            <h5>Network Status</h5>
+                            <div class="status-info">
+                                <div class="status-item">
+                                    <span class="status-label">Connection:</span>
+                                    <span id="networkStatus" class="status-value">Checking...</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Last Online:</span>
+                                    <span id="lastOnline" class="status-value">-</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
