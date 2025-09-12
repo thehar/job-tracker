@@ -211,6 +211,7 @@ class JobTracker {
         document.getElementById('editStatus').value = job.status;
         document.getElementById('editStage').value = job.stage || '';
         document.getElementById('editDateApplied').value = job.dateApplied;
+        document.getElementById('editApplicationSource').value = job.applicationSource || '';
         document.getElementById('editContactPerson').value = job.contactPerson || '';
         document.getElementById('editNotes').value = job.notes || '';
 
@@ -283,6 +284,12 @@ class JobTracker {
                         <span class="job-detail-label">Applied:</span>
                         <span>${formattedDate}</span>
                     </div>
+                    ${job.applicationSource ? `
+                        <div class="job-detail">
+                            <span class="job-detail-label">Source:</span>
+                            <span>${DataManager.escapeHtml(job.applicationSource)}</span>
+                        </div>
+                    ` : ''}
                     ${job.stage ? `
                         <div class="job-detail">
                             <span class="job-detail-label">Stage:</span>
@@ -364,6 +371,7 @@ class JobTracker {
                 status: 'Applied',
                 stage: 'Application Submitted',
                 dateApplied: '2024-01-15',
+                applicationSource: 'LinkedIn',
                 contactPerson: 'John Smith',
                 notes: 'Applied through LinkedIn. Company looks promising with good benefits.',
                 createdAt: '2024-01-15T10:00:00.000Z'
@@ -375,6 +383,7 @@ class JobTracker {
                 status: 'Interview Scheduled',
                 stage: 'Phone Screen',
                 dateApplied: '2024-01-10',
+                applicationSource: 'Indeed',
                 contactPerson: 'Sarah Johnson',
                 notes: 'Phone interview scheduled for next week. Excited about the role!',
                 createdAt: '2024-01-10T14:30:00.000Z'
@@ -386,6 +395,7 @@ class JobTracker {
                 status: 'Rejected',
                 stage: 'Technical Interview',
                 dateApplied: '2024-01-05',
+                applicationSource: 'Company Website',
                 contactPerson: 'Mike Wilson',
                 notes: 'Did well in technical interview but they went with another candidate.',
                 createdAt: '2024-01-05T09:15:00.000Z'

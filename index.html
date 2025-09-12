@@ -142,8 +142,29 @@
                             <input type="date" id="dateApplied" name="dateApplied" required>
                         </div>
                         <div class="form-group">
+                            <label for="applicationSource">Application Source</label>
+                            <select id="applicationSource" name="applicationSource">
+                                <option value="">Select Source</option>
+                                <option value="LinkedIn">LinkedIn</option>
+                                <option value="Indeed">Indeed</option>
+                                <option value="Company Website">Company Website</option>
+                                <option value="Glassdoor">Glassdoor</option>
+                                <option value="AngelList">AngelList</option>
+                                <option value="Referral">Referral</option>
+                                <option value="Recruiter">Recruiter</option>
+                                <option value="Job Fair">Job Fair</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="contactPerson">Contact Person</label>
                             <input type="text" id="contactPerson" name="contactPerson">
+                        </div>
+                        <div class="form-group">
+                            <!-- Empty for spacing -->
                         </div>
                     </div>
 
@@ -222,10 +243,10 @@
                     </div>
 
                     <div class="summary-card">
-                        <div class="summary-icon">✅</div>
+                        <div class="summary-icon">📍</div>
                         <div class="summary-content">
-                            <div class="summary-number" id="successRate">0%</div>
-                            <div class="summary-label">Success Rate</div>
+                            <div class="summary-number" id="topSource">-</div>
+                            <div class="summary-label">Top Source</div>
                         </div>
                     </div>
 
@@ -291,8 +312,8 @@
                     </div>
 
                     <div class="chart-container">
-                        <h3>Success vs Rejection Rate</h3>
-                        <canvas id="successChart"></canvas>
+                        <h3>Application Sources</h3>
+                        <canvas id="sourceChart"></canvas>
                     </div>
 
                     <div class="chart-container chart-wide">
@@ -309,8 +330,8 @@
                     </div>
 
                     <div class="chart-container">
-                        <h3>Interview Success Rate</h3>
-                        <canvas id="interviewSuccessChart"></canvas>
+                        <h3>Source Performance</h3>
+                        <canvas id="sourcePerformanceChart"></canvas>
                     </div>
 
                     <div class="chart-container">
@@ -633,8 +654,29 @@
                         <input type="date" id="editDateApplied" name="dateApplied" required>
                     </div>
                     <div class="form-group">
+                        <label for="editApplicationSource">Application Source</label>
+                        <select id="editApplicationSource" name="applicationSource">
+                            <option value="">Select Source</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Indeed">Indeed</option>
+                            <option value="Company Website">Company Website</option>
+                            <option value="Glassdoor">Glassdoor</option>
+                            <option value="AngelList">AngelList</option>
+                            <option value="Referral">Referral</option>
+                            <option value="Recruiter">Recruiter</option>
+                            <option value="Job Fair">Job Fair</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="editContactPerson">Contact Person</label>
                         <input type="text" id="editContactPerson" name="contactPerson">
+                    </div>
+                    <div class="form-group">
+                        <!-- Empty for spacing -->
                     </div>
                 </div>
 

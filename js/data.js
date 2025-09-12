@@ -45,6 +45,7 @@ class DataManager {
             status: formData.status.trim(),
             stage: formData.stage ? formData.stage.trim() : '',
             dateApplied: formData.dateApplied.trim(),
+            applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
             createdAt: new Date().toISOString()
@@ -65,6 +66,7 @@ class DataManager {
             status: formData.status.trim(),
             stage: formData.stage ? formData.stage.trim() : '',
             dateApplied: formData.dateApplied.trim(),
+            applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
             updatedAt: new Date().toISOString()

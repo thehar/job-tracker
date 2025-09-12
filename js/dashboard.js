@@ -115,12 +115,11 @@ class Dashboard {
             totalElement.textContent = jobs.length;
         }
 
-        // Success rate
-        const successfulJobs = jobs.filter(job => job.status === 'Offer Received').length;
-        const successRate = jobs.length > 0 ? Math.round((successfulJobs / jobs.length) * 100) : 0;
-        const successElement = document.getElementById('successRate');
-        if (successElement) {
-            successElement.textContent = `${successRate}%`;
+        // Top application source
+        const topSource = this.calculateTopApplicationSource(jobs);
+        const topSourceElement = document.getElementById('topSource');
+        if (topSourceElement) {
+            topSourceElement.textContent = topSource;
         }
 
         // Active applications
@@ -208,6 +207,53 @@ class Dashboard {
     }
 
     /**
+     * Calculate top application source
+     */
+    calculateTopApplicationSource(jobs) {
+        if (jobs.length === 0) return 'None';
+        
+        const sourceCounts = {};
+        jobs.forEach(job => {
+            const source = job.applicationSource || 'Unknown';
+            sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+        });
+
+        const topSource = Object.entries(sourceCounts)
+            .sort(([,a], [,b]) => b - a)[0];
+        
+        return topSource ? topSource[0] : 'Unknown';
+    }
+
+    /**
+     * Calculate source performance (interview rate by source)
+     */
+    calculateSourcePerformance(jobs) {
+        const sourceStats = {};
+        
+        jobs.forEach(job => {
+            const source = job.applicationSource || 'Unknown';
+            if (!sourceStats[source]) {
+                sourceStats[source] = { total: 0, interviews: 0 };
+            }
+            
+            sourceStats[source].total++;
+            
+            // Count interviews (scheduled or completed)
+            if (['Interview Scheduled', 'Interview Completed', 'Offer Received'].includes(job.status)) {
+                sourceStats[source].interviews++;
+            }
+        });
+
+        const performance = {};
+        Object.entries(sourceStats).forEach(([source, stats]) => {
+            performance[source] = stats.total > 0 ? 
+                Math.round((stats.interviews / stats.total) * 100) : 0;
+        });
+
+        return performance;
+    }
+
+    /**
      * Update charts
      */
     updateCharts() {
@@ -218,7 +264,8 @@ class Dashboard {
 
         this.updateStatusChart();
         this.updateStageChart();
-        this.updateSuccessChart();
+        this.updateSourceChart();
+        this.updateSourcePerformanceChart();
         this.updateTimelineChart();
     }
 
@@ -321,31 +368,38 @@ class Dashboard {
     }
 
     /**
-     * Update success chart
+     * Update application source chart
      */
-    updateSuccessChart() {
-        const canvas = document.getElementById('successChart');
+    updateSourceChart() {
+        const canvas = document.getElementById('sourceChart');
         if (!canvas) return;
 
         const jobs = this.jobTracker.jobs || [];
-        const successfulJobs = jobs.filter(job => job.status === 'Offer Received').length;
-        const rejectedJobs = jobs.filter(job => job.status === 'Rejected').length;
-        const pendingJobs = jobs.length - successfulJobs - rejectedJobs;
+        const sourceCounts = {};
+        
+        jobs.forEach(job => {
+            const source = job.applicationSource || 'Unknown';
+            sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+        });
 
         const ctx = canvas.getContext('2d');
         
         // Destroy existing chart
-        if (this.charts.successChart) {
-            this.charts.successChart.destroy();
+        if (this.charts.sourceChart) {
+            this.charts.sourceChart.destroy();
         }
 
-        this.charts.successChart = new Chart(ctx, {
-            type: 'pie',
+        this.charts.sourceChart = new Chart(ctx, {
+            type: 'doughnut',
             data: {
-                labels: ['Success', 'Rejected', 'Pending'],
+                labels: Object.keys(sourceCounts),
                 datasets: [{
-                    data: [successfulJobs, rejectedJobs, pendingJobs],
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b']
+                    data: Object.values(sourceCounts),
+                    backgroundColor: [
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                        '#8b5cf6', '#6b7280', '#06b6d4', '#84cc16',
+                        '#f97316', '#ec4899'
+                    ]
                 }]
             },
             options: {
@@ -354,6 +408,56 @@ class Dashboard {
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Update source performance chart
+     */
+    updateSourcePerformanceChart() {
+        const canvas = document.getElementById('sourcePerformanceChart');
+        if (!canvas) return;
+
+        const jobs = this.jobTracker.jobs || [];
+        const sourcePerformance = this.calculateSourcePerformance(jobs);
+
+        const ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart
+        if (this.charts.sourcePerformanceChart) {
+            this.charts.sourcePerformanceChart.destroy();
+        }
+
+        this.charts.sourcePerformanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(sourcePerformance),
+                datasets: [{
+                    label: 'Interview Rate (%)',
+                    data: Object.values(sourcePerformance),
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
                     }
                 }
             }

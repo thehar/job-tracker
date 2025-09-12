@@ -68,7 +68,7 @@ class CsvManager {
      * @returns {string} CSV formatted string
      */
     static generateCsv(jobs) {
-        const headers = ['title', 'company', 'status', 'stage', 'dateApplied', 'contactPerson', 'notes', 'createdAt'];
+        const headers = ['title', 'company', 'status', 'stage', 'dateApplied', 'applicationSource', 'contactPerson', 'notes', 'createdAt'];
         const csvRows = [headers.join(',')];
         
         jobs.forEach(job => {
