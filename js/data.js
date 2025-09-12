@@ -9,7 +9,25 @@ class DataManager {
      */
     static loadJobs() {
         const storedJobs = localStorage.getItem('jobTracker_jobs');
-        return storedJobs ? JSON.parse(storedJobs) : [];
+        const jobs = storedJobs ? JSON.parse(storedJobs) : [];
+        
+        // Data migration: Add applicationSource field to existing jobs
+        const migratedJobs = jobs.map(job => {
+            if (!job.hasOwnProperty('applicationSource')) {
+                return {
+                    ...job,
+                    applicationSource: '' // Default to empty string for existing jobs
+                };
+            }
+            return job;
+        });
+        
+        // Save migrated data back if any migration occurred
+        if (migratedJobs.some((job, index) => !jobs[index].hasOwnProperty('applicationSource'))) {
+            this.saveJobs(migratedJobs);
+        }
+        
+        return migratedJobs;
     }
 
     /**

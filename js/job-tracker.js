@@ -399,6 +399,42 @@ class JobTracker {
                 contactPerson: 'Mike Wilson',
                 notes: 'Did well in technical interview but they went with another candidate.',
                 createdAt: '2024-01-05T09:15:00.000Z'
+            },
+            {
+                id: Date.now().toString() + '_4',
+                title: 'Backend Developer',
+                company: 'FinTech Solutions',
+                status: 'Interview Completed',
+                stage: 'Final Round',
+                dateApplied: '2024-01-08',
+                applicationSource: 'Referral',
+                contactPerson: 'Emma Davis',
+                notes: 'Referred by a former colleague. Great team culture and interesting projects.',
+                createdAt: '2024-01-08T11:20:00.000Z'
+            },
+            {
+                id: Date.now().toString() + '_5',
+                title: 'DevOps Engineer',
+                company: 'Cloud Innovations',
+                status: 'Applied',
+                stage: 'Application Submitted',
+                dateApplied: '2024-01-12',
+                applicationSource: 'Glassdoor',
+                contactPerson: '',
+                notes: 'Found this role on Glassdoor. Company has excellent reviews.',
+                createdAt: '2024-01-12T16:45:00.000Z'
+            },
+            {
+                id: Date.now().toString() + '_6',
+                title: 'Product Manager',
+                company: 'Growth Dynamics',
+                status: 'Offer Received',
+                stage: 'Negotiation',
+                dateApplied: '2024-01-03',
+                applicationSource: 'Recruiter',
+                contactPerson: 'Alex Chen',
+                notes: 'Contacted by recruiter. Received offer, negotiating salary and benefits.',
+                createdAt: '2024-01-03T09:30:00.000Z'
             }
         ];
         
