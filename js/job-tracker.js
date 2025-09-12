@@ -358,7 +358,7 @@ class JobTracker {
      */
     addSampleData() {
         if (this.jobs.length > 0) {
-            if (!confirm('This will add sample data. Continue?')) {
+            if (!confirm('This will add 6 sample jobs with diverse application sources to demonstrate the tracking features. Continue?')) {
                 return;
             }
         }
@@ -448,7 +448,7 @@ class JobTracker {
             window.dashboard.refresh();
         }
         
-        NotificationManager.show('Sample data added successfully!', 'success');
+        NotificationManager.show('6 sample jobs added with diverse application sources!', 'success');
     }
 
     /**
