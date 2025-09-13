@@ -40,6 +40,7 @@ npx serve .
 
 ## External Dependencies
 - **Chart.js**: Loaded via CDN (`https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js`)
+- **Service Worker**: Native browser API for offline functionality and PWA features
 - **No package.json**: Intentionally avoided to maintain zero-dependency approach
 - **No node_modules**: All dependencies are either vanilla JS or CDN-loaded
 
@@ -60,11 +61,12 @@ Scripts must be loaded in dependency order (see index.html):
 6. `dashboard.js` - Analytics (depends on Chart.js)
 7. `settings.js` - Settings management
 8. `weekly-report.js` - Report generation
-9. `advanced-analytics.js` - Extended analytics
-10. `app.js` - Application initialization (must be last)
+9. `advanced-analytics.js` - Extended analytics and export
+10. `app.js` - Application initialization, Service Worker registration (must be last)
 
 ## Development Workflow
 - **No compilation**: Edit files directly, refresh browser
-- **No hot reload**: Manual browser refresh required
-- **Debugging**: Browser DevTools, console logging
-- **Testing**: Manual testing in target browsers
+- **No hot reload**: Manual browser refresh required (Service Worker handles caching)
+- **Debugging**: Browser DevTools, console logging, Service Worker debugging
+- **Testing**: Manual testing in target browsers, offline testing
+- **Cache Management**: Use Settings > Offline tab for cache control during development

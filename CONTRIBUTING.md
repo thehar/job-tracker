@@ -36,10 +36,12 @@ Target browsers:
 - Edge 88+
 
 Required APIs:
-- Web Crypto API
-- Local Storage
-- File API
-- Clipboard API (with fallbacks)
+- Service Worker API (for offline functionality)
+- Web Crypto API (for password hashing)
+- Local Storage (for data persistence)
+- File API (for CSV import/export)
+- Clipboard API (with fallbacks for copy functionality)
+- Fetch API (for network requests and caching)
 
 ## 🐛 Reporting Bugs
 
@@ -126,6 +128,12 @@ For new features:
 - [ ] Responsive design works on mobile
 - [ ] Keyboard navigation is functional
 - [ ] Screen reader accessibility works
+- [ ] Service Worker installs and caches assets
+- [ ] Offline functionality works completely
+- [ ] PWA installation prompts appear
+- [ ] Application source tracking works
+- [ ] Advanced analytics export functions
+- [ ] Cache management controls work
 
 ### Browser Testing
 Test your changes in:
