@@ -84,7 +84,7 @@ class Dashboard {
             dashboardTab.classList.add('active');
             jobsSection.classList.add('hidden');
             dashboardSection.classList.remove('hidden');
-            
+
             // Refresh dashboard when switching to it
             this.refresh();
         }
@@ -108,7 +108,7 @@ class Dashboard {
      */
     updateSummaryCards() {
         const jobs = this.jobTracker.jobs || [];
-        
+
         // Total applications
         const totalElement = document.getElementById('totalApplications');
         if (totalElement) {
@@ -124,7 +124,7 @@ class Dashboard {
         }
 
         // Active applications
-        const activeJobs = jobs.filter(job => 
+        const activeJobs = jobs.filter(job =>
             !['Rejected', 'Withdrawn', 'Offer Received'].includes(job.status)
         ).length;
         const activeElement = document.getElementById('activeApplications');
@@ -140,7 +140,7 @@ class Dashboard {
         }
 
         // Interview rate
-        const interviewJobs = jobs.filter(job => 
+        const interviewJobs = jobs.filter(job =>
             ['Interview Scheduled', 'Interview Completed'].includes(job.status)
         ).length;
         const interviewRate = jobs.length > 0 ? Math.round((interviewJobs / jobs.length) * 100) : 0;
@@ -175,13 +175,13 @@ class Dashboard {
      */
     calculateDaysSinceLastApplication(jobs) {
         if (jobs.length === 0) return 0;
-        
+
         const sortedJobs = jobs.sort((a, b) => new Date(b.dateApplied) - new Date(a.dateApplied));
         const lastAppDate = new Date(sortedJobs[0].dateApplied);
         const today = new Date();
         const diffTime = Math.abs(today - lastAppDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         return diffDays;
     }
 
@@ -200,7 +200,7 @@ class Dashboard {
     calculateThisMonthApplications(jobs) {
         const thisMonth = new Date().getMonth();
         const thisYear = new Date().getFullYear();
-        
+
         return jobs.filter(job => {
             const jobDate = new Date(job.dateApplied);
             return jobDate.getMonth() === thisMonth && jobDate.getFullYear() === thisYear;
@@ -212,7 +212,7 @@ class Dashboard {
      */
     calculateTopApplicationSource(jobs) {
         if (jobs.length === 0) return 'None';
-        
+
         const sourceCounts = {};
         jobs.forEach(job => {
             const source = job.applicationSource || 'Unknown';
@@ -220,8 +220,8 @@ class Dashboard {
         });
 
         const topSource = Object.entries(sourceCounts)
-            .sort(([,a], [,b]) => b - a)[0];
-        
+            .sort(([, a], [, b]) => b - a)[0];
+
         return topSource ? topSource[0] : 'Unknown';
     }
 
@@ -231,9 +231,9 @@ class Dashboard {
     calculateSourcePerformance(jobs) {
         const sourceStats = this.calculateSourceStats(jobs);
         const performance = {};
-        
+
         Object.entries(sourceStats).forEach(([source, stats]) => {
-            performance[source] = stats.total > 0 ? 
+            performance[source] = stats.total > 0 ?
                 Math.round((stats.interviews / stats.total) * 100) : 0;
         });
 
@@ -245,15 +245,15 @@ class Dashboard {
      */
     calculateSourceStats(jobs) {
         const sourceStats = {};
-        
+
         jobs.forEach(job => {
             const source = job.applicationSource || 'Unknown';
             if (!sourceStats[source]) {
                 sourceStats[source] = { total: 0, interviews: 0 };
             }
-            
+
             sourceStats[source].total++;
-            
+
             // Count interviews (scheduled or completed)
             if (['Interview Scheduled', 'Interview Completed', 'Offer Received'].includes(job.status)) {
                 sourceStats[source].interviews++;
@@ -277,7 +277,7 @@ class Dashboard {
         this.updateSourceChart();
         this.updateSourcePerformanceChart();
         this.updateTimelineChart();
-        
+
         // Update new timeline trend charts
         this.updateSourceTimelineChart();
         this.updateStageTimelineChart();
@@ -293,20 +293,20 @@ class Dashboard {
 
         const jobs = this.jobTracker.jobs || [];
         const statusCounts = {};
-        
+
         jobs.forEach(job => {
             statusCounts[job.status] = (statusCounts[job.status] || 0) + 1;
         });
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.statusChart) {
             this.charts.statusChart.destroy();
         }
 
         const totalJobs = jobs.length;
-        
+
         this.charts.statusChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -314,7 +314,7 @@ class Dashboard {
                 datasets: [{
                     data: Object.values(statusCounts),
                     backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', 
+                        '#3b82f6', '#10b981', '#f59e0b',
                         '#ef4444', '#8b5cf6', '#6b7280'
                     ]
                 }]
@@ -326,7 +326,7 @@ class Dashboard {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            generateLabels: function(chart) {
+                            generateLabels: function (chart) {
                                 const data = chart.data;
                                 if (data.labels.length && data.datasets.length) {
                                     return data.labels.map((label, i) => {
@@ -348,7 +348,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const label = context.label || '';
                                 const count = context.parsed;
                                 const percentage = totalJobs > 0 ? Math.round((count / totalJobs) * 100) : 0;
@@ -370,7 +370,7 @@ class Dashboard {
 
         const jobs = this.jobTracker.jobs || [];
         const stageCounts = {};
-        
+
         jobs.forEach(job => {
             if (job.stage) {
                 stageCounts[job.stage] = (stageCounts[job.stage] || 0) + 1;
@@ -378,14 +378,14 @@ class Dashboard {
         });
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.stageChart) {
             this.charts.stageChart.destroy();
         }
 
         const totalStageJobs = Object.values(stageCounts).reduce((sum, count) => sum + count, 0);
-        
+
         this.charts.stageChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -405,7 +405,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const count = context.parsed.y;
                                 const percentage = totalStageJobs > 0 ? Math.round((count / totalStageJobs) * 100) : 0;
                                 return `${context.dataset.label}: ${count} jobs (${percentage}%)`;
@@ -434,21 +434,21 @@ class Dashboard {
 
         const jobs = this.jobTracker.jobs || [];
         const sourceCounts = {};
-        
+
         jobs.forEach(job => {
             const source = job.applicationSource || 'Unknown';
             sourceCounts[source] = (sourceCounts[source] || 0) + 1;
         });
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.sourceChart) {
             this.charts.sourceChart.destroy();
         }
 
         const totalSourceJobs = jobs.length;
-        
+
         this.charts.sourceChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -456,7 +456,7 @@ class Dashboard {
                 datasets: [{
                     data: Object.values(sourceCounts),
                     backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
                         '#8b5cf6', '#6b7280', '#06b6d4', '#84cc16',
                         '#f97316', '#ec4899'
                     ]
@@ -469,7 +469,7 @@ class Dashboard {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            generateLabels: function(chart) {
+                            generateLabels: function (chart) {
                                 const data = chart.data;
                                 if (data.labels.length && data.datasets.length) {
                                     return data.labels.map((label, i) => {
@@ -491,7 +491,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const label = context.label || '';
                                 const count = context.parsed;
                                 const percentage = totalSourceJobs > 0 ? Math.round((count / totalSourceJobs) * 100) : 0;
@@ -515,7 +515,7 @@ class Dashboard {
         const sourcePerformance = this.calculateSourcePerformance(jobs);
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.sourcePerformanceChart) {
             this.charts.sourcePerformanceChart.destroy();
@@ -523,7 +523,7 @@ class Dashboard {
 
         // Calculate source stats for enhanced tooltips
         const sourceStats = this.calculateSourceStats(jobs);
-        
+
         this.charts.sourcePerformanceChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -543,7 +543,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const source = context.label;
                                 const percentage = context.parsed.y;
                                 const stats = sourceStats[source];
@@ -564,7 +564,7 @@ class Dashboard {
                         beginAtZero: true,
                         max: 100,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value + '%';
                             }
                         }
@@ -583,7 +583,7 @@ class Dashboard {
 
         const jobs = this.jobTracker.jobs || [];
         const monthlyData = {};
-        
+
         jobs.forEach(job => {
             const date = new Date(job.dateApplied);
             const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -600,7 +600,7 @@ class Dashboard {
         const data = sortedMonths.map(month => monthlyData[month]);
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.timelineChart) {
             this.charts.timelineChart.destroy();
@@ -628,7 +628,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const count = context.parsed.y;
                                 const month = context.label;
                                 return `${month}: ${count} application${count !== 1 ? 's' : ''}`;
@@ -656,7 +656,7 @@ class Dashboard {
         if (!container) return;
 
         const jobs = this.jobTracker.jobs || [];
-        const activeJobs = jobs.filter(job => 
+        const activeJobs = jobs.filter(job =>
             !['Rejected', 'Withdrawn', 'Offer Received'].includes(job.status)
         );
 
@@ -729,7 +729,7 @@ class Dashboard {
         const monthlySourceData = this.calculateMonthlySourceData(jobs);
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.sourceTimelineChart) {
             this.charts.sourceTimelineChart.destroy();
@@ -741,9 +741,9 @@ class Dashboard {
             const source = job.applicationSource || 'Unknown';
             allSources[source] = (allSources[source] || 0) + 1;
         });
-        
+
         const topSources = Object.entries(allSources)
-            .sort(([,a], [,b]) => b - a)
+            .sort(([, a], [, b]) => b - a)
             .slice(0, 3)
             .map(([source]) => source);
 
@@ -771,7 +771,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const count = context.parsed.y;
                                 const source = context.dataset.label;
                                 return `${source}: ${count} application${count !== 1 ? 's' : ''}`;
@@ -802,7 +802,7 @@ class Dashboard {
         const monthlyStageData = this.calculateMonthlyStageData(jobs);
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.stageTimelineChart) {
             this.charts.stageTimelineChart.destroy();
@@ -815,9 +815,9 @@ class Dashboard {
                 allStages[job.stage] = (allStages[job.stage] || 0) + 1;
             }
         });
-        
+
         const topStages = Object.entries(allStages)
-            .sort(([,a], [,b]) => b - a)
+            .sort(([, a], [, b]) => b - a)
             .slice(0, 3)
             .map(([stage]) => stage);
 
@@ -845,7 +845,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const count = context.parsed.y;
                                 const stage = context.dataset.label;
                                 return `${stage}: ${count} application${count !== 1 ? 's' : ''}`;
@@ -876,7 +876,7 @@ class Dashboard {
         const submissionRateData = this.calculateSubmissionRateData(jobs);
 
         const ctx = canvas.getContext('2d');
-        
+
         // Destroy existing chart
         if (this.charts.submissionRateChart) {
             this.charts.submissionRateChart.destroy();
@@ -903,7 +903,7 @@ class Dashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 const count = context.parsed.y;
                                 const week = context.label;
                                 return `${week}: ${count} application${count !== 1 ? 's' : ''} submitted`;
