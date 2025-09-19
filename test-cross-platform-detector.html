@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrossPlatformDetector Tests - Job Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #404040;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background: #1976D2;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background: #1e1e1e;
+            border: 1px solid #404040;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .environment-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .info-card h3 {
+            margin: 0 0 10px 0;
+            color: #2196F3;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+        }
+        
+        .info-value {
+            color: #4CAF50;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-supported {
+            background-color: #4CAF50;
+        }
+        
+        .status-partial {
+            background-color: #FF9800;
+        }
+        
+        .status-unsupported {
+            background-color: #f44336;
+        }
+        
+        .test-result {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .test-passed {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .test-failed {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: #1e1e1e;
+            border: 1px solid #404040;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CrossPlatformDetector Tests</h1>
+        <p>Comprehensive testing for browser and platform detection accuracy</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Current Environment</h2>
+        <div class="environment-info" id="environmentInfo">
+            <!-- Environment info will be populated here -->
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <div class="test-controls">
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="runBrowserTests()">Browser Detection Tests</button>
+            <button onclick="runPlatformTests()">Platform Detection Tests</button>
+            <button onclick="runPWATests()">PWA Support Tests</button>
+            <button onclick="runEdgeCaseTests()">Edge Case Tests</button>
+            <button onclick="clearResults()">Clear Results</button>
+            <button onclick="exportResults()">Export Results</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div class="results" id="testResults">
+            Click "Run All Tests" to start testing...
+        </div>
+        <div class="summary-stats" id="summaryStats" style="display: none;">
+            <!-- Summary stats will be populated here -->
+        </div>
+    </div>
+
+    <!-- Load the CrossPlatformDetector and test files -->
+    <script src="js/cross-platform-detector.js"></script>
+    <script src="js/tests/cross-platform-detector.test.js"></script>
+
+    <script>
+        let currentDetector = null;
+        let currentTester = null;
+        let testResults = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEnvironmentInfo();
+            
+            // Override console methods to capture output
+            setupConsoleCapture();
+        });
+
+        /**
+         * Initialize and display current environment information
+         */
+        function initializeEnvironmentInfo() {
+            try {
+                currentDetector = new CrossPlatformDetector();
+                const summary = currentDetector.getEnvironmentSummary();
+                displayEnvironmentInfo(summary);
+            } catch (error) {
+                console.error('Error initializing environment info:', error);
+                document.getElementById('environmentInfo').innerHTML = 
+                    '<div class="info-card"><h3>Error</h3><p>Failed to load environment information</p></div>';
+            }
+        }
+
+        /**
+         * Display environment information in cards
+         */
+        function displayEnvironmentInfo(summary) {
+            const container = document.getElementById('environmentInfo');
+            
+            const platformCard = `
+                <div class="info-card">
+                    <h3>Platform Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Platform:</span>
+                        <span class="info-value">${summary.platform.name} ${summary.platform.version || ''}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Device Type:</span>
+                        <span class="info-value">${summary.platform.isMobile ? 'Mobile' : summary.platform.isTablet ? 'Tablet' : 'Desktop'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Screen:</span>
+                        <span class="info-value">${summary.platform.screen?.width}x${summary.platform.screen?.height}</span>
+                    </div>
+                </div>
+            `;
+
+            const browserCard = `
+                <div class="info-card">
+                    <h3>Browser Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">Browser:</span>
+                        <span class="info-value">${summary.browser.name} ${summary.browser.version || ''}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Engine:</span>
+                        <span class="info-value">${summary.browser.engine}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Language:</span>
+                        <span class="info-value">${summary.browser.language}</span>
+                    </div>
+                </div>
+            `;
+
+            const pwaCard = `
+                <div class="info-card">
+                    <h3>PWA Support</h3>
+                    <div class="info-item">
+                        <span class="info-label">Service Worker:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${summary.pwaSupport.serviceWorker ? 'status-supported' : 'status-unsupported'}"></span>
+                            ${summary.pwaSupport.serviceWorker ? 'Supported' : 'Not Supported'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Install Prompt:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${summary.pwaSupport.installPrompt ? 'status-supported' : 'status-unsupported'}"></span>
+                            ${summary.pwaSupport.installPrompt ? 'Supported' : 'Not Supported'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Readiness Score:</span>
+                        <span class="info-value">${summary.pwaSupport.readinessScore}%</span>
+                    </div>
+                </div>
+            `;
+
+            const capabilitiesCard = `
+                <div class="info-card">
+                    <h3>Installation Capabilities</h3>
+                    <div class="info-item">
+                        <span class="info-label">Can Install:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${summary.capabilities.canInstall ? 'status-supported' : 'status-unsupported'}"></span>
+                            ${summary.capabilities.canInstall ? 'Yes' : 'No'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Is Installed:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${summary.capabilities.isInstalled ? 'status-supported' : 'status-unsupported'}"></span>
+                            ${summary.capabilities.isInstalled ? 'Yes' : 'No'}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Manual Instructions:</span>
+                        <span class="info-value">
+                            <span class="status-indicator ${summary.capabilities.needsManualInstructions ? 'status-partial' : 'status-supported'}"></span>
+                            ${summary.capabilities.needsManualInstructions ? 'Required' : 'Not Required'}
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = platformCard + browserCard + pwaCard + capabilitiesCard;
+        }
+
+        /**
+         * Setup console capture to display test output
+         */
+        function setupConsoleCapture() {
+            const originalLog = console.log;
+            const originalError = console.error;
+            const resultsDiv = document.getElementById('testResults');
+
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                const message = args.join(' ');
+                if (message.includes('✅') || message.includes('❌') || message.includes('🧪') || message.includes('📊')) {
+                    appendToResults(message);
+                }
+            };
+
+            console.error = function(...args) {
+                originalError.apply(console, args);
+                const message = args.join(' ');
+                appendToResults(`ERROR: ${message}`, 'error');
+            };
+        }
+
+        /**
+         * Append message to test results
+         */
+        function appendToResults(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let className = '';
+            if (message.includes('✅') || message.includes('PASSED')) {
+                className = 'test-passed';
+            } else if (message.includes('❌') || message.includes('FAILED') || type === 'error') {
+                className = 'test-failed';
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `test-result ${className}`;
+            messageDiv.textContent = `[${timestamp}] ${message}`;
+            
+            resultsDiv.appendChild(messageDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        /**
+         * Run all tests
+         */
+        function runAllTests() {
+            clearResults();
+            appendToResults('Starting comprehensive test suite...');
+            
+            try {
+                currentTester = new CrossPlatformDetectorTest();
+                currentTester.runAllTests();
+                testResults = currentTester.getTestResults();
+                displayTestSummary(testResults.summary);
+            } catch (error) {
+                appendToResults(`Test execution failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Run browser detection tests only
+         */
+        function runBrowserTests() {
+            clearResults();
+            appendToResults('Running browser detection tests...');
+            
+            try {
+                currentTester = new CrossPlatformDetectorTest();
+                currentTester.testChromeDetection();
+                currentTester.testEdgeDetection();
+                currentTester.testFirefoxDetection();
+                currentTester.testSafariDetection();
+                currentTester.testSamsungDetection();
+                currentTester.testOperaDetection();
+                currentTester.testVersionParsing();
+                
+                testResults = currentTester.getTestResults();
+                displayTestSummary(testResults.summary);
+            } catch (error) {
+                appendToResults(`Browser tests failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Run platform detection tests only
+         */
+        function runPlatformTests() {
+            clearResults();
+            appendToResults('Running platform detection tests...');
+            
+            try {
+                currentTester = new CrossPlatformDetectorTest();
+                currentTester.testPlatformDetection();
+                currentTester.testStandaloneModeDetection();
+                
+                testResults = currentTester.getTestResults();
+                displayTestSummary(testResults.summary);
+            } catch (error) {
+                appendToResults(`Platform tests failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Run PWA support tests only
+         */
+        function runPWATests() {
+            clearResults();
+            appendToResults('Running PWA support tests...');
+            
+            try {
+                currentTester = new CrossPlatformDetectorTest();
+                currentTester.testPWASupport();
+                currentTester.testInstallationInstructions();
+                currentTester.testEnvironmentSummary();
+                
+                testResults = currentTester.getTestResults();
+                displayTestSummary(testResults.summary);
+            } catch (error) {
+                appendToResults(`PWA tests failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Run edge case tests only
+         */
+        function runEdgeCaseTests() {
+            clearResults();
+            appendToResults('Running edge case tests...');
+            
+            try {
+                currentTester = new CrossPlatformDetectorTest();
+                currentTester.testEdgeCases();
+                
+                testResults = currentTester.getTestResults();
+                displayTestSummary(testResults.summary);
+            } catch (error) {
+                appendToResults(`Edge case tests failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Display test summary statistics
+         */
+        function displayTestSummary(summary) {
+            const summaryDiv = document.getElementById('summaryStats');
+            
+            summaryDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${summary.total}</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #4CAF50">${summary.passed}</div>
+                    <div class="stat-label">Passed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: #f44336">${summary.failed}</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" style="color: ${summary.successRate >= 90 ? '#4CAF50' : summary.successRate >= 70 ? '#FF9800' : '#f44336'}">${summary.successRate}%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            `;
+            
+            summaryDiv.style.display = 'grid';
+        }
+
+        /**
+         * Clear test results
+         */
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('summaryStats').style.display = 'none';
+        }
+
+        /**
+         * Export test results
+         */
+        function exportResults() {
+            if (!testResults) {
+                alert('No test results to export. Run tests first.');
+                return;
+            }
+            
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                environment: currentDetector ? currentDetector.getEnvironmentSummary() : null,
+                testResults: testResults,
+                userAgent: navigator.userAgent
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cross-platform-detector-test-results-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            appendToResults('Test results exported successfully');
+        }
+
+        // Global functions for debugging
+        window.getDetector = () => currentDetector;
+        window.getTester = () => currentTester;
+        window.getResults = () => testResults;
+    </script>
+</body>
+</html>

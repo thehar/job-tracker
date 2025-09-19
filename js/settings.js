@@ -108,6 +108,19 @@ class SettingsManager {
         document.getElementById('newStageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addStage();
         });
+
+        // Installation management
+        document.getElementById('manualInstallBtn').addEventListener('click', () => {
+            this.triggerManualInstall();
+        });
+
+        document.getElementById('resetInstallPrefsBtn').addEventListener('click', () => {
+            this.resetInstallationPreferences();
+        });
+
+        document.getElementById('checkInstallStatusBtn').addEventListener('click', () => {
+            this.checkInstallationStatus();
+        });
     }
 
     /**
@@ -132,6 +145,8 @@ class SettingsManager {
             this.renderStatuses();
         } else if (tabName === 'stages') {
             this.renderStages();
+        } else if (tabName === 'installation') {
+            this.renderInstallationTab();
         }
     }
 
@@ -403,5 +418,170 @@ class SettingsManager {
         if (window.jobTracker) {
             window.jobTracker.updateValidationLists();
         }
+    }
+
+    /**
+     * Render installation tab content
+     */
+    renderInstallationTab() {
+        try {
+            const pwaManager = window.getPWAInstallManager();
+            
+            if (!pwaManager) {
+                this.showInstallationError('PWA Install Manager not available');
+                return;
+            }
+
+            // Update installation status
+            const installStatus = pwaManager.getInstallationStatus();
+            const isInstalled = pwaManager.isInstalled || installStatus.isInstalled;
+            
+            document.getElementById('installationStatus').textContent = 
+                isInstalled ? 'Installed' : installStatus.status || 'Not Installed';
+
+            // Update platform support
+            const detector = pwaManager.detector;
+            if (detector) {
+                const browserInfo = detector.getBrowserInfo();
+                const platformInfo = detector.getPlatformInfo();
+                
+                document.getElementById('platformSupport').textContent = 
+                    detector.supportsInstallPrompt() ? 'Supported' : 'Limited Support';
+                
+                document.getElementById('browserInfo').textContent = 
+                    `${browserInfo.name} ${browserInfo.version} on ${platformInfo.os}`;
+            }
+
+            // Update installation preferences
+            const storage = pwaManager.storage;
+            if (storage) {
+                document.getElementById('promptCount').textContent = storage.getPromptCount() || '0';
+                
+                const lastPrompt = storage.getLastPromptDate();
+                document.getElementById('lastPromptDate').textContent = 
+                    lastPrompt ? new Date(lastPrompt).toLocaleDateString() : 'Never';
+                
+                const dontAsk = storage.getDontAskAgain();
+                document.getElementById('dontAskAgain').textContent = dontAsk ? 'Yes' : 'No';
+            }
+
+            // Update button states
+            const manualInstallBtn = document.getElementById('manualInstallBtn');
+            if (isInstalled) {
+                manualInstallBtn.textContent = 'Already Installed';
+                manualInstallBtn.disabled = true;
+                manualInstallBtn.classList.add('btn-disabled');
+            } else {
+                manualInstallBtn.innerHTML = '<span class="btn-icon">📱</span>Install App';
+                manualInstallBtn.disabled = false;
+                manualInstallBtn.classList.remove('btn-disabled');
+            }
+
+        } catch (error) {
+            console.error('[Settings] Error rendering installation tab:', error);
+            this.showInstallationError('Error loading installation information');
+        }
+    }
+
+    /**
+     * Trigger manual installation
+     */
+    triggerManualInstall() {
+        try {
+            const result = window.triggerPWAInstall();
+            
+            if (result && result.success) {
+                this.showInstallationResult('Installation triggered successfully!', 'success');
+                // Refresh the tab after a short delay
+                setTimeout(() => {
+                    this.renderInstallationTab();
+                }, 1000);
+            } else {
+                const message = result && result.message ? result.message : 'Installation not available';
+                this.showInstallationResult(message, 'warning');
+            }
+        } catch (error) {
+            console.error('[Settings] Error triggering manual install:', error);
+            this.showInstallationResult('Error triggering installation', 'error');
+        }
+    }
+
+    /**
+     * Reset installation preferences
+     */
+    resetInstallationPreferences() {
+        if (confirm('Reset installation preferences? This will clear all installation history and re-enable prompts.')) {
+            try {
+                window.resetPWAInstallPreferences();
+                this.showInstallationResult('Installation preferences reset successfully!', 'success');
+                // Refresh the tab
+                setTimeout(() => {
+                    this.renderInstallationTab();
+                }, 500);
+            } catch (error) {
+                console.error('[Settings] Error resetting installation preferences:', error);
+                this.showInstallationResult('Error resetting preferences', 'error');
+            }
+        }
+    }
+
+    /**
+     * Check installation status
+     */
+    checkInstallationStatus() {
+        try {
+            const status = window.getPWAInstallStatus();
+            
+            if (status) {
+                console.log('[Settings] Installation Status:', status);
+                this.showInstallationResult('Status checked - see console for details', 'info');
+                // Refresh the tab to show updated information
+                this.renderInstallationTab();
+            } else {
+                this.showInstallationResult('Unable to check installation status', 'warning');
+            }
+        } catch (error) {
+            console.error('[Settings] Error checking installation status:', error);
+            this.showInstallationResult('Error checking status', 'error');
+        }
+    }
+
+    /**
+     * Show installation result message
+     * @param {string} message - Message to display
+     * @param {string} type - Type of message (success, error, warning, info)
+     */
+    showInstallationResult(message, type = 'info') {
+        const resultDiv = document.getElementById('installationActionResult');
+        resultDiv.textContent = message;
+        resultDiv.className = `installation-result ${type}`;
+        resultDiv.classList.remove('hidden');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            resultDiv.classList.add('hidden');
+        }, 5000);
+    }
+
+    /**
+     * Show installation error message
+     * @param {string} message - Error message to display
+     */
+    showInstallationError(message) {
+        // Update all status fields to show error state
+        document.getElementById('installationStatus').textContent = 'Error';
+        document.getElementById('platformSupport').textContent = 'Unknown';
+        document.getElementById('browserInfo').textContent = 'Unknown';
+        document.getElementById('promptCount').textContent = '-';
+        document.getElementById('lastPromptDate').textContent = '-';
+        document.getElementById('dontAskAgain').textContent = '-';
+        
+        // Disable install button
+        const manualInstallBtn = document.getElementById('manualInstallBtn');
+        manualInstallBtn.textContent = 'Not Available';
+        manualInstallBtn.disabled = true;
+        manualInstallBtn.classList.add('btn-disabled');
+        
+        this.showInstallationResult(message, 'error');
     }
 }

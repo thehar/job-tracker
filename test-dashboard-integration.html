@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Integration Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Integration Test</h1>
+        
+        <!-- Installation Analytics Section (copied from main dashboard) -->
+        <div class="installation-analytics-section">
+            <h2>PWA Installation Analytics</h2>
+            <div class="installation-summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">📱</div>
+                    <div class="summary-content">
+                        <div class="summary-number" id="totalInstallPrompts">0</div>
+                        <div class="summary-label">Prompts Shown</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">👆</div>
+                    <div class="summary-content">
+                        <div class="summary-number" id="installClicks">0</div>
+                        <div class="summary-label">Install Clicks</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">📊</div>
+                    <div class="summary-content">
+                        <div class="summary-number" id="conversionRate">0%</div>
+                        <div class="summary-label">Conversion Rate</div>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon">✅</div>
+                    <div class="summary-content">
+                        <div class="summary-number" id="installSuccess">No</div>
+                        <div class="summary-label">Installed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="installation-charts-grid">
+                <div class="chart-container">
+                    <h3>Installation Funnel</h3>
+                    <canvas id="installFunnelChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Platform Breakdown</h3>
+                    <canvas id="platformBreakdownChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Browser Breakdown</h3>
+                    <canvas id="browserBreakdownChart"></canvas>
+                </div>
+
+                <div class="chart-container chart-wide">
+                    <h3>Installation Events Timeline</h3>
+                    <canvas id="installTimelineChart"></canvas>
+                </div>
+            </div>
+
+            <div class="installation-actions">
+                <button id="exportInstallAnalyticsBtn" class="btn btn-secondary">📤 Export Installation Data</button>
+                <button id="resetInstallAnalyticsBtn" class="btn btn-secondary">🔄 Reset Analytics</button>
+                <button id="testDataBtn" class="btn btn-primary">🧪 Add Test Data</button>
+                <button id="refreshBtn" class="btn btn-primary">🔄 Refresh Dashboard</button>
+            </div>
+        </div>
+
+        <div class="test-results" style="margin-top: 2rem; padding: 1rem; background: #1e293b; border-radius: 8px;">
+            <h3>Test Results</h3>
+            <div id="testOutput"></div>
+        </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
+    <script src="js/install-analytics.js"></script>
+    <script>
+        // Mock JobTracker for testing
+        const mockJobTracker = {
+            jobs: []
+        };
+
+        // Create dashboard instance with installation analytics methods only
+        class TestDashboard {
+            constructor() {
+                this.charts = {
+                    installFunnelChart: null,
+                    platformBreakdownChart: null,
+                    browserBreakdownChart: null,
+                    installTimelineChart: null
+                };
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                const exportBtn = document.getElementById('exportInstallAnalyticsBtn');
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', () => this.exportInstallationAnalytics());
+                }
+
+                const resetBtn = document.getElementById('resetInstallAnalyticsBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => this.resetInstallationAnalytics());
+                }
+
+                const testDataBtn = document.getElementById('testDataBtn');
+                if (testDataBtn) {
+                    testDataBtn.addEventListener('click', () => this.addTestData());
+                }
+
+                const refreshBtn = document.getElementById('refreshBtn');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => this.updateInstallationAnalytics());
+                }
+            }
+
+            addTestData() {
+                const analytics = new InstallAnalytics();
+                
+                // Add some test events
+                analytics.trackPromptShown({ trigger: 'eligibility_met' });
+                analytics.trackPromptShown({ trigger: 'manual' });
+                analytics.trackInstallClick({ promptType: 'custom' });
+                analytics.trackDismiss({ reason: 'not_now' });
+                analytics.trackPromptShown({ trigger: 'eligibility_met' });
+                analytics.trackInstallClick({ promptType: 'custom' });
+                analytics.trackInstallSuccess({ method: 'browser_prompt' });
+
+                this.logTest('Test data added successfully');
+                this.updateInstallationAnalytics();
+            }
+
+            logTest(message) {
+                const output = document.getElementById('testOutput');
+                const timestamp = new Date().toLocaleTimeString();
+                output.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            }
+
+            // Copy the installation analytics methods from dashboard.js
+            updateInstallationAnalytics() {
+                const installSection = document.querySelector('.installation-analytics-section');
+                if (!installSection) {
+                    this.logTest('❌ Installation analytics section not found in DOM');
+                    return;
+                }
+
+                if (!window.InstallAnalytics) {
+                    this.logTest('❌ InstallAnalytics not available');
+                    return;
+                }
+
+                try {
+                    const analytics = new window.InstallAnalytics();
+                    const metrics = analytics.getInstallMetrics();
+
+                    this.updateInstallationSummaryCards(metrics);
+                    this.updateInstallationCharts(metrics);
+                    
+                    this.logTest('✅ Installation analytics updated successfully');
+                } catch (error) {
+                    this.logTest('❌ Error updating installation analytics: ' + error.message);
+                }
+            }
+
+            updateInstallationSummaryCards(metrics) {
+                const totalPromptsElement = document.getElementById('totalInstallPrompts');
+                if (totalPromptsElement) {
+                    totalPromptsElement.textContent = metrics.summary.totalPrompts;
+                }
+
+                const installClicksElement = document.getElementById('installClicks');
+                if (installClicksElement) {
+                    installClicksElement.textContent = metrics.summary.installClicks;
+                }
+
+                const conversionRateElement = document.getElementById('conversionRate');
+                if (conversionRateElement) {
+                    conversionRateElement.textContent = `${metrics.summary.conversionRate.toFixed(1)}%`;
+                }
+
+                const installSuccessElement = document.getElementById('installSuccess');
+                if (installSuccessElement) {
+                    installSuccessElement.textContent = metrics.summary.installSuccess ? 'Yes' : 'No';
+                    installSuccessElement.style.color = metrics.summary.installSuccess ? '#10b981' : '#ef4444';
+                }
+            }
+
+            updateInstallationCharts(metrics) {
+                if (typeof Chart === 'undefined') {
+                    this.logTest('❌ Chart.js not loaded');
+                    return;
+                }
+
+                this.updateInstallFunnelChart(metrics);
+                this.updatePlatformBreakdownChart(metrics);
+                this.updateBrowserBreakdownChart(metrics);
+                this.updateInstallTimelineChart(metrics);
+            }
+
+            updateInstallFunnelChart(metrics) {
+                const canvas = document.getElementById('installFunnelChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+
+                if (this.charts.installFunnelChart) {
+                    this.charts.installFunnelChart.destroy();
+                }
+
+                const funnelData = [
+                    { label: 'Prompts Shown', value: metrics.funnel.promptsShown },
+                    { label: 'Install Clicks', value: metrics.funnel.installClicks },
+                    { label: 'Install Success', value: metrics.funnel.installSuccess }
+                ];
+
+                this.charts.installFunnelChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: funnelData.map(item => item.label),
+                        datasets: [{
+                            label: 'Count',
+                            data: funnelData.map(item => item.value),
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            updatePlatformBreakdownChart(metrics) {
+                const canvas = document.getElementById('platformBreakdownChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+
+                if (this.charts.platformBreakdownChart) {
+                    this.charts.platformBreakdownChart.destroy();
+                }
+
+                const platforms = Object.keys(metrics.platformBreakdown.platforms);
+                const promptCounts = platforms.map(platform => 
+                    metrics.platformBreakdown.platforms[platform].prompts
+                );
+
+                if (platforms.length === 0) {
+                    this.charts.platformBreakdownChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['No Data'],
+                            datasets: [{ data: [1], backgroundColor: ['#6b7280'] }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }
+                    });
+                    return;
+                }
+
+                this.charts.platformBreakdownChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: platforms,
+                        datasets: [{
+                            data: promptCounts,
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            updateBrowserBreakdownChart(metrics) {
+                const canvas = document.getElementById('browserBreakdownChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+
+                if (this.charts.browserBreakdownChart) {
+                    this.charts.browserBreakdownChart.destroy();
+                }
+
+                const browsers = Object.keys(metrics.platformBreakdown.browsers);
+                const promptCounts = browsers.map(browser => 
+                    metrics.platformBreakdown.browsers[browser].prompts
+                );
+
+                if (browsers.length === 0) {
+                    this.charts.browserBreakdownChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['No Data'],
+                            datasets: [{ data: [1], backgroundColor: ['#6b7280'] }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }
+                    });
+                    return;
+                }
+
+                this.charts.browserBreakdownChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: browsers,
+                        datasets: [{
+                            data: promptCounts,
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            updateInstallTimelineChart(metrics) {
+                const canvas = document.getElementById('installTimelineChart');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+
+                if (this.charts.installTimelineChart) {
+                    this.charts.installTimelineChart.destroy();
+                }
+
+                const timelineData = metrics.timelineData;
+
+                if (timelineData.length === 0) {
+                    this.charts.installTimelineChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['No Data'],
+                            datasets: [{
+                                label: 'No Events',
+                                data: [0],
+                                borderColor: '#6b7280'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                    return;
+                }
+
+                const labels = timelineData.map(item => {
+                    const date = new Date(item.date);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+
+                this.charts.installTimelineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Prompts',
+                                data: timelineData.map(item => item.prompts),
+                                borderColor: '#3b82f6',
+                                fill: false,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Installs',
+                                data: timelineData.map(item => item.installs),
+                                borderColor: '#10b981',
+                                fill: false,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top' } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            exportInstallationAnalytics() {
+                if (!window.InstallAnalytics) {
+                    this.logTest('❌ InstallAnalytics not available');
+                    return;
+                }
+
+                try {
+                    const analytics = new window.InstallAnalytics();
+                    const exportData = analytics.exportAnalytics('json');
+                    
+                    const blob = new Blob([exportData], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `test-installation-analytics-${new Date().toISOString().split('T')[0]}.json`;
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    this.logTest('✅ Installation analytics exported successfully');
+                } catch (error) {
+                    this.logTest('❌ Error exporting installation analytics: ' + error.message);
+                }
+            }
+
+            resetInstallationAnalytics() {
+                if (!window.InstallAnalytics) {
+                    this.logTest('❌ InstallAnalytics not available');
+                    return;
+                }
+
+                const confirmed = confirm('Reset all installation analytics data?');
+                if (confirmed) {
+                    try {
+                        const analytics = new window.InstallAnalytics();
+                        analytics.resetAnalytics();
+                        this.updateInstallationAnalytics();
+                        this.logTest('✅ Installation analytics reset successfully');
+                    } catch (error) {
+                        this.logTest('❌ Error resetting installation analytics: ' + error.message);
+                    }
+                }
+            }
+        }
+
+        // Initialize test dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const testDashboard = new TestDashboard();
+            testDashboard.logTest('✅ Test dashboard initialized');
+            testDashboard.updateInstallationAnalytics();
+        });
+    </script>
+</body>
+</html>

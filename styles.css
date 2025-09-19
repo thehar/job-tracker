@@ -1,3 +1,50 @@
+/* CSS Custom Properties for High Contrast and Theming */
+:root {
+    /* Primary colors */
+    --primary-color: #1976d2;
+    --primary-hover: #1565c0;
+    --primary-light: #42a5f5;
+    
+    /* Text colors */
+    --text-color: #e8f4fd;
+    --text-secondary: #b0bec5;
+    --text-muted: #78909c;
+    
+    /* Background colors */
+    --bg-primary: #0a1929;
+    --bg-secondary: #1e293b;
+    --card-bg: #1e293b;
+    --secondary-bg: #334155;
+    
+    /* Border colors */
+    --border-color: #334155;
+    --border-light: #475569;
+    --border-focus: #1976d2;
+    
+    /* Status colors */
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --error-color: #f44336;
+    --info-color: #2196f3;
+    
+    /* Interactive colors */
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --active-bg: rgba(255, 255, 255, 0.1);
+    --focus-outline: 2px solid var(--primary-color);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --text-color: #ffffff;
+        --text-secondary: #ffffff;
+        --border-color: #ffffff;
+        --primary-color: #00bcd4;
+        --bg-primary: #000000;
+        --card-bg: #1a1a1a;
+    }
+}
+
 /* Reset and base styles */
 * {
     box-sizing: border-box;
@@ -36,8 +83,8 @@
 }
 
 body {
-    background-color: #0a1929;
-    color: #e8f4fd;
+    background-color: var(--bg-primary);
+    color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
 }
@@ -949,6 +996,117 @@ body {
     font-weight: 500;
 }
 
+/* Installation Settings Styles */
+.installation-settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.installation-status-card,
+.installation-actions-card,
+.installation-benefits-card,
+.installation-preferences-card {
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.installation-status-card h5,
+.installation-actions-card h5,
+.installation-benefits-card h5,
+.installation-preferences-card h5 {
+    color: #e8f4fd;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.installation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.installation-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.installation-result {
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.installation-result.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid #10b981;
+    color: #10b981;
+}
+
+.installation-result.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+}
+
+.installation-result.warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid #f59e0b;
+    color: #f59e0b;
+}
+
+.installation-result.info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+}
+
+.preference-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #475569;
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+.preference-label {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.preference-value {
+    color: #e8f4fd;
+    font-weight: 600;
+}
+
+.btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-disabled:hover {
+    background-color: #475569;
+    transform: none;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -1407,6 +1565,45 @@ body {
         max-height: 220px;
     }
 
+    /* Installation Analytics Section */
+    .installation-analytics-section {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .installation-analytics-section h2 {
+        color: #e8f4fd;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .installation-summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .installation-charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .installation-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
     /* Company Status Section */
     .company-status-section {
         background: #1e293b;
@@ -1513,6 +1710,596 @@ body {
     .company-status-badge.offer-received { background: #e8f5e8; color: #2e7d32; }
 
     .company-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(71, 85, 105, 0.3);
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+
+
+/* Header Section */
+.install-prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #334155;
+}
+
+.install-prompt-icon {
+    font-size: 2.5rem;
+    min-width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.install-prompt-title-section {
+    flex: 1;
+}
+
+.install-prompt-title {
+    color: #e8f4fd;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+}
+
+.install-prompt-subtitle {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Benefits Section */
+.install-prompt-benefits {
+    padding: 1.5rem;
+}
+
+.install-benefits-title {
+    color: #e8f4fd;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.install-benefits-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.install-benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.install-benefit-item:hover {
+    border-color: #3b82f6;
+    background: #3a4a5c;
+    transform: translateX(4px);
+}
+
+.install-benefit-icon {
+    font-size: 1.25rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.install-benefit-text {
+    color: #e8f4fd;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Instructions Section */
+.install-prompt-instructions {
+    padding: 1.5rem;
+}
+
+.install-instructions-title {
+    color: #e8f4fd;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.install-steps-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.install-step-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.install-step-item:hover {
+    border-color: #3b82f6;
+    background: #3a4a5c;
+}
+
+.install-step-number {
+    min-width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3b82f6;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 50%;
+}
+
+.install-step-icon {
+    font-size: 1.25rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.install-step-text {
+    color: #e8f4fd;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.4;
+    flex: 1;
+}
+
+/* Notes Section */
+.install-notes-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+}
+
+.install-notes-title {
+    color: #3b82f6;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.install-notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.install-note-item {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.install-note-item::before {
+    content: '•';
+    color: #3b82f6;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* Unsupported Browser Styles */
+.install-unsupported-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.install-message-icon {
+    font-size: 1.5rem;
+    min-width: 1.5rem;
+}
+
+.install-message-text {
+    color: #e8f4fd;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.install-alternatives-section,
+.install-browsers-section {
+    margin-top: 1.5rem;
+}
+
+.install-alternatives-title,
+.install-browsers-title {
+    color: #e8f4fd;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.install-alternatives-list,
+.install-browsers-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.install-alternative-item,
+.install-browser-item {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.install-alternative-item:last-child,
+.install-browser-item:last-child {
+    border-bottom: none;
+}
+
+.install-alternative-title {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.install-alternative-desc {
+    color: #94a3b8;
+}
+
+/* Actions Section */
+.install-prompt-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #334155;
+}
+
+.install-prompt-actions .btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.install-prompt-actions .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.install-prompt-actions .btn:hover::before {
+    left: 100%;
+}
+
+.install-prompt-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.install-prompt-actions .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.install-prompt-actions .btn:active {
+    transform: translateY(0);
+}
+
+.install-prompt-actions .btn-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+}
+
+.install-prompt-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.install-prompt-actions .btn-secondary {
+    background: #475569;
+    color: #e8f4fd;
+    border: 1px solid #64748b;
+}
+
+.install-prompt-actions .btn-secondary:hover {
+    background: #64748b;
+    border-color: #94a3b8;
+    box-shadow: 0 8px 25px rgba(71, 85, 105, 0.3);
+}
+
+.install-prompt-actions .btn-text {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid transparent;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+}
+
+.install-prompt-actions .btn-text:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes slideOutDown {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+}
+
+/* Exit animation */
+.pwa-install-prompt:not(.visible) .install-prompt-container {
+    animation: slideOutDown 0.3s ease-in forwards;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .install-prompt-container {
+        max-width: 95%;
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+    
+    .install-prompt-header {
+        padding: 1rem 1rem 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .install-prompt-icon {
+        font-size: 2rem;
+        min-width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .install-prompt-title {
+        font-size: 1.25rem;
+    }
+    
+    .install-prompt-benefits,
+    .install-prompt-instructions {
+        padding: 1rem;
+    }
+    
+    .install-prompt-actions {
+        padding: 0.75rem 1rem 1rem;
+    }
+    
+    .install-benefit-item,
+    .install-step-item {
+        padding: 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .install-step-item {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .pwa-install-prompt {
+        padding: 0.5rem;
+    }
+    
+    .install-prompt-container {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 12px;
+    }
+    
+    .install-prompt-header {
+        padding: 0.75rem 0.75rem 0.5rem;
+    }
+    
+    .install-prompt-benefits,
+    .install-prompt-instructions {
+        padding: 0.75rem;
+    }
+    
+    .install-prompt-actions {
+        padding: 0.5rem 0.75rem 0.75rem;
+    }
+    
+    .install-prompt-title {
+        font-size: 1.1rem;
+    }
+    
+    .install-prompt-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .install-benefit-text,
+    .install-step-text {
+        font-size: 0.85rem;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .install-prompt-container {
+        border: 2px solid #3b82f6;
+    }
+    
+    .install-benefit-item,
+    .install-step-item {
+        border: 2px solid #475569;
+    }
+    
+    .install-benefit-item:hover,
+    .install-step-item:hover {
+        border-color: #3b82f6;
+    }
+    
+    .install-prompt-actions .btn:focus {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .pwa-install-prompt,
+    .install-prompt-backdrop,
+    .install-prompt-container,
+    .install-benefit-item,
+    .install-step-item,
+    .install-prompt-actions .btn {
+        animation: none;
+        transition: none;
+    }
+    
+    .install-benefit-item:hover,
+    .install-step-item:hover {
+        transform: none;
+    }
+    
+    .install-prompt-actions .btn:hover {
+        transform: none;
+    }
+    
+    .install-prompt-actions .btn::before {
+        display: none;
+    }
+}
+
+/* Focus Indicators for Keyboard Navigation */
+.install-prompt-container *:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.install-prompt-actions .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* Dark Theme Enhancements */
+.install-prompt-container {
+    background: linear-gradient(135deg, #1e293b 0%, #1a2332 100%);
+}
+
+.install-benefit-item,
+.install-step-item {
+    background: linear-gradient(135deg, #334155 0%, #2d3748 100%);
+}
+
+.install-benefit-item:hover,
+.install-step-item:hover {
+    background: linear-gradient(135deg, #3a4a5c 0%, #374151 100%);
+}
+
+/* Loading State for Dynamic Content */
+.install-prompt-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.install-prompt-loading .loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #334155;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Error State */
+.install-prompt-error {
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #f87171;
+    text-align: center;
+    margin: 1rem;
+}
+
+.company-meta {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -2028,6 +2815,30 @@ body {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
     }
+
+    /* Installation Analytics Responsive */
+    .installation-summary-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .installation-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .installation-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .installation-analytics-section {
+        padding: 1rem;
+    }
+
+    .installation-analytics-section h2 {
+        font-size: 1.25rem;
+    }
     
     .summary-card {
         padding: 1rem;
@@ -2081,5 +2892,1199 @@ body {
     
     .summary-label {
         font-size: 0.8rem;
+    }
+}
+
+/* PWA Installation Prompt Styles */
+.pwa-install-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.pwa-install-prompt.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.install-prompt-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 25, 41, 0.85);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+}
+
+.install-prompt-container {
+    position: relative;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1);
+    max-width: 420px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    cursor: default;
+}
+
+.pwa-install-prompt.visible .install-prompt-container {
+    transform: scale(1) translateY(0);
+}
+
+.install-prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #475569;
+}
+
+.install-prompt-icon {
+    font-size: 2.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.install-prompt-title-section {
+    flex: 1;
+}
+
+.install-prompt-title {
+    color: #e8f4fd;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+}
+
+.install-prompt-subtitle {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.install-prompt-benefits {
+    padding: 1rem 1.5rem;
+}
+
+.install-benefits-title {
+    color: #e8f4fd;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.install-benefits-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.install-benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.install-benefit-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    transform: translateX(4px);
+}
+
+.install-benefit-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    width: 1.5rem;
+    text-align: center;
+}
+
+.install-benefit-text {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.install-prompt-actions {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.install-prompt-actions .btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.install-prompt-actions .install-btn {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    order: 1;
+}
+
+.install-prompt-actions .install-btn:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+.install-prompt-actions .install-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.install-prompt-actions .not-now-btn {
+    background: #6c757d;
+    color: white;
+    order: 2;
+}
+
+.install-prompt-actions .not-now-btn:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.install-prompt-actions .not-now-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.3);
+}
+
+.install-prompt-actions .dont-ask-btn {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #475569;
+    order: 3;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.install-prompt-actions .dont-ask-btn:hover {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    border-color: #64748b;
+}
+
+.install-prompt-actions .dont-ask-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+    .pwa-install-prompt {
+        padding: 0.5rem;
+    }
+    
+    .install-prompt-container {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+    
+    .install-prompt-header {
+        padding: 1rem 1rem 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+    
+    .install-prompt-icon {
+        font-size: 2rem;
+        width: 3rem;
+        height: 3rem;
+    }
+    
+    .install-prompt-title {
+        font-size: 1.1rem;
+    }
+    
+    .install-prompt-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .install-prompt-benefits {
+        padding: 0.75rem 1rem;
+    }
+    
+    .install-benefits-title {
+        font-size: 0.95rem;
+    }
+    
+    .install-benefit-item {
+        padding: 0.4rem;
+        gap: 0.5rem;
+    }
+    
+    .install-benefit-icon {
+        font-size: 1rem;
+        width: 1.25rem;
+    }
+    
+    .install-benefit-text {
+        font-size: 0.85rem;
+    }
+    
+    .install-prompt-actions {
+        padding: 0.75rem 1rem 1rem;
+        gap: 0.5rem;
+    }
+    
+    .install-prompt-actions .btn {
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .install-prompt-actions .dont-ask-btn {
+        font-size: 0.85rem;
+        padding: 0.45rem 0.75rem;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+    .install-prompt-container {
+        max-width: 380px;
+    }
+    
+    .install-prompt-header {
+        padding: 1.25rem 1.25rem 0.875rem;
+    }
+    
+    .install-prompt-benefits {
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .install-prompt-actions {
+        padding: 0.875rem 1.25rem 1.25rem;
+    }
+}
+
+/* Enhanced high contrast mode support */
+@media (prefers-contrast: high) {
+    .install-prompt-container {
+        border: 3px solid #3b82f6;
+        background: #000000;
+    }
+    
+    .install-prompt-backdrop {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    .install-prompt-title {
+        color: #ffffff;
+    }
+    
+    .install-prompt-subtitle {
+        color: #ffffff;
+    }
+    
+    .install-benefit-item {
+        border: 2px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.2);
+    }
+    
+    .install-benefit-text {
+        color: #ffffff;
+    }
+    
+    .install-prompt-actions .install-btn {
+        border: 2px solid #3b82f6;
+        background: #3b82f6;
+        color: #ffffff;
+    }
+    
+    .install-prompt-actions .not-now-btn {
+        border: 2px solid #ffffff;
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .install-prompt-actions .dont-ask-btn {
+        border: 2px solid #ffffff;
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .install-prompt-actions .btn:focus-visible {
+        outline: 3px solid #ffff00;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 6px rgba(255, 255, 0, 0.3);
+    }
+    
+    /* High contrast for instruction elements */
+    .install-step-text,
+    .install-message-text,
+    .install-alternative-item,
+    .install-browser-item {
+        color: #ffffff;
+    }
+    
+    .install-step-number {
+        border: 2px solid #ffffff;
+        background: #3b82f6;
+        color: #ffffff;
+    }
+    
+    .install-unsupported-message {
+        border: 2px solid #ff0000;
+        background: rgba(255, 0, 0, 0.2);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .pwa-install-prompt,
+    .install-prompt-container,
+    .install-benefit-item,
+    .install-prompt-actions .btn {
+        transition: none;
+    }
+    
+    .install-benefit-item:hover {
+        transform: none;
+    }
+    
+    .install-prompt-actions .install-btn:hover,
+    .install-prompt-actions .not-now-btn:hover {
+        transform: none;
+    }
+}
+
+/* Enhanced focus indicators for better keyboard navigation */
+.install-prompt-actions .btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Focus indicators for all interactive elements */
+.install-prompt-container button:focus-visible,
+.install-prompt-container [tabindex]:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Animation keyframes for smooth entrance */
+@keyframes installPromptSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes installPromptFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Enhanced animations when motion is allowed */
+@media (prefers-reduced-motion: no-preference) {
+    .pwa-install-prompt.visible .install-prompt-container {
+        animation: installPromptSlideIn 0.3s ease-out;
+    }
+    
+    .pwa-install-prompt.visible {
+        animation: installPromptFadeIn 0.3s ease-out;
+    }
+}
+
+/* Enhanced keyboard navigation styles */
+.install-prompt-actions .btn {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.install-prompt-actions .btn:focus {
+    z-index: 1;
+}
+
+/* Admin Panel Section Styles */
+.admin-section {
+    background: var(--bg-primary);
+    padding: 2rem 0;
+    min-height: 100vh;
+}
+
+.admin-section.hidden {
+    display: none;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.admin-header h2 {
+    color: var(--text-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.admin-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.admin-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Admin Panel Cards and Sections */
+.admin-content .installation-analytics-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.admin-content .installation-analytics-section:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+.admin-content .installation-analytics-section h3 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+/* Admin Panel Summary Cards */
+.admin-content .installation-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-content .summary-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-content .summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.admin-content .summary-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.admin-content .summary-number {
+    color: var(--primary-color);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.admin-content .summary-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Admin Panel Charts Grid */
+.admin-content .installation-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-content .chart-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    min-height: 350px;
+}
+
+.admin-content .chart-container:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+}
+
+.admin-content .chart-container h3 {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.admin-content .chart-container.chart-wide {
+    grid-column: 1 / -1;
+    min-height: 300px;
+}
+
+.admin-content .chart-container canvas {
+    max-height: 280px;
+}
+
+/* Admin Panel Actions */
+.admin-content .installation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-content .installation-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-content .installation-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.admin-content .installation-actions .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Focus States and Accessibility */
+.admin-section *:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.admin-section button:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+/* High Contrast Mode Support for Admin Panel */
+@media (prefers-contrast: high) {
+    .admin-section {
+        background: var(--bg-primary);
+    }
+    
+    .admin-content .installation-analytics-section {
+        border: 2px solid var(--primary-color);
+        background: var(--card-bg);
+    }
+    
+    .admin-content .summary-card {
+        border: 2px solid var(--border-color);
+    }
+    
+    .admin-content .summary-card:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .admin-content .chart-container {
+        border: 2px solid var(--border-color);
+    }
+    
+    .admin-content .chart-container:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .admin-header h2 {
+        color: var(--text-color);
+    }
+    
+    .admin-subtitle {
+        color: var(--text-color);
+    }
+}
+
+/* Responsive Design for Admin Panel */
+@media (max-width: 768px) {
+    .admin-section {
+        padding: 1.5rem 0;
+    }
+    
+    .admin-header {
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .admin-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .admin-subtitle {
+        font-size: 1rem;
+    }
+    
+    .admin-content {
+        padding: 0 0.5rem;
+    }
+    
+    .admin-content .installation-analytics-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-content .installation-analytics-section h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-content .installation-summary-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-content .summary-card {
+        padding: 1rem;
+    }
+    
+    .admin-content .summary-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .admin-content .summary-number {
+        font-size: 1.5rem;
+    }
+    
+    .admin-content .summary-label {
+        font-size: 0.8rem;
+    }
+    
+    .admin-content .installation-charts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-content .chart-container {
+        padding: 1rem;
+        min-height: 300px;
+    }
+    
+    .admin-content .chart-container.chart-wide {
+        min-height: 250px;
+    }
+    
+    .admin-content .chart-container h3 {
+        font-size: 1rem;
+    }
+    
+    .admin-content .chart-container canvas {
+        max-height: 220px;
+    }
+    
+    .admin-content .installation-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .admin-content .installation-actions .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-section {
+        padding: 1rem 0;
+    }
+    
+    .admin-header {
+        margin-bottom: 1rem;
+    }
+    
+    .admin-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .admin-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .admin-content {
+        padding: 0 0.25rem;
+    }
+    
+    .admin-content .installation-analytics-section {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-content .installation-analytics-section h3 {
+        font-size: 1.1rem;
+    }
+    
+    .admin-content .installation-summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-content .summary-card {
+        padding: 0.75rem;
+    }
+    
+    .admin-content .summary-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .admin-content .summary-number {
+        font-size: 1.25rem;
+    }
+    
+    .admin-content .summary-label {
+        font-size: 0.75rem;
+    }
+    
+    .admin-content .installation-charts-grid {
+        gap: 0.75rem;
+    }
+    
+    .admin-content .chart-container {
+        padding: 0.75rem;
+        min-height: 250px;
+    }
+    
+    .admin-content .chart-container.chart-wide {
+        min-height: 200px;
+    }
+    
+    .admin-content .chart-container canvas {
+        max-height: 180px;
+    }
+    
+    .admin-content .installation-actions .btn {
+        padding: 0.65rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Reduced Motion Support for Admin Panel */
+@media (prefers-reduced-motion: reduce) {
+    .admin-content .summary-card,
+    .admin-content .chart-container,
+    .admin-content .installation-actions .btn {
+        transition: none;
+    }
+    
+    .admin-content .summary-card:hover {
+        transform: none;
+    }
+    
+    .admin-content .installation-actions .btn:hover {
+        transform: none;
+    }
+}
+
+/* Dark Theme Enhancements for Admin Panel */
+.admin-content .installation-analytics-section {
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+}
+
+.admin-content .summary-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+}
+
+.admin-content .chart-container {
+    background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+}
+
+/* Loading State for Admin Panel */
+.admin-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.admin-loading h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.admin-loading .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+/* Empty State for Admin Panel */
+.admin-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.admin-empty h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.admin-empty p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Hover states that respect user preferences */
+@media (hover: hover) {
+    .install-benefit-item:hover {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.2);
+        transform: translateX(4px);
+    }
+    
+    .install-prompt-actions .install-btn:hover {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .install-prompt-actions .not-now-btn:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+    
+    .install-prompt-actions .dont-ask-btn:hover {
+        background: rgba(148, 163, 184, 0.1);
+        color: #cbd5e1;
+        border-color: #64748b;
+    }
+}
+
+/* Remove hover effects for touch devices */
+@media (hover: none) {
+    .install-benefit-item:hover {
+        background: rgba(59, 130, 246, 0.05);
+        border-color: rgba(59, 130, 246, 0.1);
+        transform: none;
+    }
+    
+    .install-prompt-actions .install-btn:hover {
+        box-shadow: none;
+        transform: none;
+    }
+    
+    .install-prompt-actions .not-now-btn:hover {
+        background: #6c757d;
+        transform: none;
+    }
+    
+    .install-prompt-actions .dont-ask-btn:hover {
+        background: transparent;
+        color: #94a3b8;
+        border-color: #475569;
+    }
+}
+
+/* Installation Instructions Styles */
+.install-prompt-instructions {
+    padding: 1rem 1.5rem;
+}
+
+.install-instructions-title {
+    color: #e8f4fd;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.install-steps-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: step-counter;
+}
+
+.install-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.install-step-item:last-child {
+    border-bottom: none;
+}
+
+.install-step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.install-step-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.install-step-text {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    flex: 1;
+}
+
+/* Notes section */
+.install-notes-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.install-notes-title {
+    color: #e8f4fd;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.install-notes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.install-note-item {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.install-note-item::before {
+    content: '•';
+    color: #3b82f6;
+    position: absolute;
+    left: 0;
+}
+
+/* Unsupported browser styles */
+.install-unsupported-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.install-message-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.install-message-text {
+    color: #fecaca;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Alternatives section */
+.install-alternatives-section,
+.install-browsers-section {
+    margin-top: 1rem;
+}
+
+.install-alternatives-title,
+.install-browsers-title {
+    color: #e8f4fd;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+}
+
+.install-alternatives-list,
+.install-browsers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.install-alternative-item,
+.install-browser-item {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.install-alternative-item::before,
+.install-browser-item::before {
+    content: '→';
+    color: #3b82f6;
+    position: absolute;
+    left: 0;
+}
+
+.install-alternative-title {
+    color: #e8f4fd;
+}
+
+.install-alternative-desc {
+    color: #94a3b8;
+}
+
+/* Mobile responsive adjustments for instructions */
+@media (max-width: 480px) {
+    .install-prompt-instructions {
+        padding: 0.75rem 1rem;
+    }
+    
+    .install-step-item {
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+    
+    .install-step-number {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 0.7rem;
+    }
+    
+    .install-step-icon {
+        font-size: 1rem;
+    }
+    
+    .install-step-text {
+        font-size: 0.85rem;
+    }
+    
+    .install-unsupported-message {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .install-message-icon {
+        font-size: 1.25rem;
+    }
+    
+    .install-message-text {
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablet responsive adjustments for instructions */
+@media (min-width: 481px) and (max-width: 768px) {
+    .install-prompt-instructions {
+        padding: 0.875rem 1.25rem;
     }
 }

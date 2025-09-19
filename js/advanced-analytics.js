@@ -222,6 +222,7 @@ class AdvancedAnalyticsExporter {
      */
     generateAnalyticsExport(jobs) {
         const analytics = this.calculateAdvancedAnalytics(jobs);
+        const installationAnalytics = this.getInstallationAnalytics();
         
         return {
             exportDate: new Date().toISOString(),
@@ -237,12 +238,45 @@ class AdvancedAnalyticsExporter {
             trends: analytics.trends,
             insights: analytics.insights,
             charts: analytics.charts,
+            installationAnalytics: installationAnalytics,
             metadata: {
                 version: '1.0',
                 format: 'analytics',
                 source: 'Job Tracker Advanced Analytics'
             }
         };
+    }
+
+    /**
+     * Get installation analytics data for export
+     * @returns {Object} Installation analytics data
+     */
+    getInstallationAnalytics() {
+        if (!window.InstallAnalytics) {
+            return {
+                available: false,
+                message: 'Installation analytics not available'
+            };
+        }
+
+        try {
+            const analytics = new window.InstallAnalytics();
+            const metrics = analytics.getInstallMetrics();
+            
+            return {
+                available: true,
+                summary: metrics.summary,
+                funnel: metrics.funnel,
+                platformBreakdown: metrics.platformBreakdown,
+                timelineData: metrics.timelineData,
+                recentActivity: metrics.recentActivity
+            };
+        } catch (error) {
+            return {
+                available: false,
+                error: error.message
+            };
+        }
     }
 
     /**

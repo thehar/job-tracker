@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Components Unit Tests - Job Tracker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2d2d2d;
+            border-radius: 8px;
+            border: 1px solid #404040;
+        }
+
+        .header h1 {
+            color: #4a9eff;
+            margin: 0 0 10px 0;
+        }
+
+        .header p {
+            color: #b0b0b0;
+            margin: 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #404040;
+        }
+
+        .control-group h3 {
+            margin: 0 0 15px 0;
+            color: #4a9eff;
+            font-size: 1.1em;
+        }
+
+        .btn {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background: #357abd;
+        }
+
+        .btn.secondary {
+            background: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .btn.success {
+            background: #28a745;
+        }
+
+        .btn.success:hover {
+            background: #1e7e34;
+        }
+
+        .btn.danger {
+            background: #dc3545;
+        }
+
+        .btn.danger:hover {
+            background: #c82333;
+        }
+
+        .checkbox-group {
+            margin: 10px 0;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .output {
+            background: #1e1e1e;
+            border: 1px solid #404040;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .output pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+
+        .status.error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .status.info {
+            background: rgba(74, 158, 255, 0.2);
+            border: 1px solid #4a9eff;
+            color: #4a9eff;
+        }
+
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #404040;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4a9eff;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .test-suite-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #404040;
+            border-radius: 50%;
+            border-top-color: #4a9eff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #404040;
+        }
+
+        /* Console output styling */
+        .console-line {
+            margin: 2px 0;
+        }
+
+        .console-line.success {
+            color: #28a745;
+        }
+
+        .console-line.error {
+            color: #dc3545;
+        }
+
+        .console-line.info {
+            color: #4a9eff;
+        }
+
+        .console-line.warning {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 PWA Components Unit Tests</h1>
+            <p>Comprehensive testing suite for Job Tracker PWA installation components</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>🚀 Quick Actions</h3>
+                <button class="btn" onclick="runAllTests()">Run All Tests</button>
+                <button class="btn secondary" onclick="runSelectedTests()">Run Selected</button>
+                <button class="btn secondary" onclick="clearOutput()">Clear Output</button>
+            </div>
+
+            <div class="control-group">
+                <h3>📊 Reports</h3>
+                <button class="btn success" onclick="generateReport('json')">Download JSON</button>
+                <button class="btn success" onclick="generateReport('html')">Download HTML</button>
+                <button class="btn success" onclick="showSummary()">Show Summary</button>
+            </div>
+
+            <div class="control-group">
+                <h3>⚙️ Options</h3>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="verboseMode" checked>
+                        Verbose Output
+                    </label>
+                    <label>
+                        <input type="checkbox" id="stopOnError">
+                        Stop on First Error
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoSave">
+                        Auto-save Reports
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>🎯 Test Suites</h3>
+                <div class="test-suite-selector" id="testSuiteSelector">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div id="statusContainer"></div>
+        <div id="progressContainer" class="hidden">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="output" id="output">
+            <pre id="consoleOutput">Ready to run tests. Click "Run All Tests" to begin.</pre>
+        </div>
+
+        <div class="footer">
+            <p>Job Tracker PWA Components Test Suite | Built with ❤️ for reliable PWA functionality</p>
+        </div>
+    </div>
+
+    <!-- Load PWA Components -->
+    <script src="js/cross-platform-detector.js"></script>
+    <script src="js/install-analytics.js"></script>
+    <script src="js/pwa-install.js"></script>
+    <script src="js/install-prompt-ui.js"></script>
+
+    <!-- Load Test Suites -->
+    <script src="js/tests/cross-platform-detector.test.js"></script>
+    <script src="js/tests/install-analytics.test.js"></script>
+    <script src="js/tests/installation-storage.test.js"></script>
+    <script src="js/tests/pwa-install-manager.test.js"></script>
+    <script src="js/tests/install-prompt-ui.test.js"></script>
+    <script src="js/tests/pwa-components-test-runner.js"></script>
+
+    <script>
+        // Global test runner instance
+        let testRunner = null;
+        let currentResults = null;
+
+        // Initialize the test environment
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTestEnvironment();
+            populateTestSuiteSelector();
+            
+            // Check for auto-run parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autorun') === 'true') {
+                setTimeout(() => runAllTests(), 1000);
+            }
+        });
+
+        function initializeTestEnvironment() {
+            // Override console methods to capture output
+            const originalConsole = {
+                log: console.log,
+                error: console.error,
+                warn: console.warn,
+                info: console.info
+            };
+
+            console.log = (...args) => {
+                originalConsole.log(...args);
+                appendToOutput(args.join(' '), 'info');
+            };
+
+            console.error = (...args) => {
+                originalConsole.error(...args);
+                appendToOutput(args.join(' '), 'error');
+            };
+
+            console.warn = (...args) => {
+                originalConsole.warn(...args);
+                appendToOutput(args.join(' '), 'warning');
+            };
+
+            console.info = (...args) => {
+                originalConsole.info(...args);
+                appendToOutput(args.join(' '), 'info');
+            };
+
+            // Initialize test runner
+            testRunner = initializePWATestRunner();
+        }
+
+        function populateTestSuiteSelector() {
+            const selector = document.getElementById('testSuiteSelector');
+            const testSuites = [
+                'PWAInstallManager',
+                'InstallPromptUI', 
+                'InstallAnalytics',
+                'CrossPlatformDetector',
+                'InstallationStorage'
+            ];
+
+            testSuites.forEach(suite => {
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" value="${suite}" checked>
+                    ${suite}
+                `;
+                selector.appendChild(label);
+            });
+        }
+
+        function getSelectedTestSuites() {
+            const checkboxes = document.querySelectorAll('#testSuiteSelector input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function appendToOutput(message, type = 'info') {
+            const output = document.getElementById('consoleOutput');
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            // Append to pre element
+            output.appendChild(line);
+            
+            // Auto-scroll to bottom
+            const outputContainer = document.getElementById('output');
+            outputContainer.scrollTop = outputContainer.scrollHeight;
+        }
+
+        function clearOutput() {
+            const output = document.getElementById('consoleOutput');
+            output.innerHTML = 'Output cleared. Ready for new tests.';
+            hideStatus();
+            hideProgress();
+        }
+
+        function showStatus(message, type = 'info') {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function hideStatus() {
+            document.getElementById('statusContainer').innerHTML = '';
+        }
+
+        function showProgress(current, total) {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            
+            container.classList.remove('hidden');
+            
+            const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+            bar.style.width = `${percentage}%`;
+            bar.textContent = `${current}/${total} (${percentage}%)`;
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').classList.add('hidden');
+        }
+
+        async function runAllTests() {
+            if (!testRunner) {
+                showStatus('Test runner not initialized', 'error');
+                return;
+            }
+
+            showStatus('🚀 Running all PWA component tests...', 'info');
+            clearOutput();
+            
+            try {
+                const verbose = document.getElementById('verboseMode').checked;
+                const results = await testRunner.runAllTests({ verbose });
+                
+                currentResults = results;
+                
+                if (results.passedTests === results.totalTests) {
+                    showStatus(`✅ All tests passed! (${results.passedTests}/${results.totalTests})`, 'success');
+                } else {
+                    showStatus(`❌ Some tests failed (${results.passedTests}/${results.totalTests})`, 'error');
+                }
+
+                // Auto-save if enabled
+                if (document.getElementById('autoSave').checked) {
+                    generateReport('json');
+                }
+
+            } catch (error) {
+                showStatus(`💥 Test execution failed: ${error.message}`, 'error');
+                console.error('Test execution error:', error);
+            }
+        }
+
+        async function runSelectedTests() {
+            if (!testRunner) {
+                showStatus('Test runner not initialized', 'error');
+                return;
+            }
+
+            const selectedSuites = getSelectedTestSuites();
+            
+            if (selectedSuites.length === 0) {
+                showStatus('Please select at least one test suite', 'error');
+                return;
+            }
+
+            showStatus(`🎯 Running selected tests: ${selectedSuites.join(', ')}`, 'info');
+            clearOutput();
+            
+            try {
+                const results = await testRunner.runSpecificTests(selectedSuites);
+                currentResults = results;
+                
+                if (results.passedTests === results.totalTests) {
+                    showStatus(`✅ Selected tests passed! (${results.passedTests}/${results.totalTests})`, 'success');
+                } else {
+                    showStatus(`❌ Some selected tests failed (${results.passedTests}/${results.totalTests})`, 'error');
+                }
+
+            } catch (error) {
+                showStatus(`💥 Selected test execution failed: ${error.message}`, 'error');
+                console.error('Selected test execution error:', error);
+            }
+        }
+
+        function generateReport(format) {
+            if (!testRunner || !currentResults) {
+                showStatus('No test results available. Run tests first.', 'error');
+                return;
+            }
+
+            try {
+                testRunner.saveReport(format);
+                showStatus(`📄 ${format.toUpperCase()} report downloaded successfully`, 'success');
+            } catch (error) {
+                showStatus(`Failed to generate ${format} report: ${error.message}`, 'error');
+            }
+        }
+
+        function showSummary() {
+            if (!testRunner || !currentResults) {
+                showStatus('No test results available. Run tests first.', 'error');
+                return;
+            }
+
+            const report = testRunner.generateReport('console');
+            clearOutput();
+            appendToOutput('='.repeat(50), 'info');
+            appendToOutput('TEST SUMMARY REPORT', 'info');
+            appendToOutput('='.repeat(50), 'info');
+            
+            report.split('\n').forEach(line => {
+                if (line.includes('✅')) {
+                    appendToOutput(line, 'success');
+                } else if (line.includes('❌')) {
+                    appendToOutput(line, 'error');
+                } else {
+                    appendToOutput(line, 'info');
+                }
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        runAllTests();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        runSelectedTests();
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        clearOutput();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        showSummary();
+                        break;
+                }
+            }
+        });
+
+        // Add keyboard shortcut hints
+        document.addEventListener('DOMContentLoaded', () => {
+            const footer = document.querySelector('.footer p');
+            footer.innerHTML += '<br><small>Keyboard shortcuts: Ctrl+Enter (Run All), Ctrl+R (Run Selected), Ctrl+L (Clear), Ctrl+S (Summary)</small>';
+        });
+    </script>
+</body>
+</html>

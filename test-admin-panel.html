@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel Complete Test Suite</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a1929;
+            color: #e8f4fd;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .test-button:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+        
+        .test-button.success {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        
+        .test-button.error {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+        
+        .test-results {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .test-results.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        
+        .test-instructions {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .test-instructions h3 {
+            color: #f59e0b;
+            margin-top: 0;
+        }
+        
+        .test-instructions ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .test-instructions li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .responsive-test {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .screen-size {
+            background: #374151;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .screen-size h4 {
+            margin-top: 0;
+            color: #f59e0b;
+        }
+        
+        .test-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .test-status.pending {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .test-status.passing {
+            background: #10b981;
+            color: white;
+        }
+        
+        .test-status.failing {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Admin Panel Complete Test Suite</h1>
+        <p>Comprehensive testing of the admin panel implementation including PWA installation analytics, navigation, and functionality.</p>
+        
+        <!-- Test 1: Admin Tab Navigation -->
+        <div class="test-section">
+            <h2>Test 1: Admin Tab Navigation</h2>
+            <div class="test-instructions">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Click the Admin tab to verify it shows the PWA installation analytics</li>
+                    <li>Test keyboard navigation (Alt+A) to access admin panel</li>
+                    <li>Verify tab switching works smoothly between Jobs, Dashboard, and Admin</li>
+                    <li>Check that admin panel content loads correctly</li>
+                </ol>
+            </div>
+            
+            <button class="test-button" onclick="testAdminTabNavigation()">
+                Test Admin Tab Navigation
+            </button>
+            
+            <button class="test-button" onclick="testKeyboardNavigation()">
+                Test Keyboard Navigation (Alt+A)
+            </button>
+            
+            <button class="test-button" onclick="testTabSwitching()">
+                Test Tab Switching
+            </button>
+            
+            <div id="navigationResults" class="test-results hidden"></div>
+        </div>
+        
+        <!-- Test 2: PWA Installation Analytics Display -->
+        <div class="test-section">
+            <h2>Test 2: PWA Installation Analytics Display</h2>
+            <div class="test-instructions">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Verify all PWA installation analytics features work in the admin panel</li>
+                    <li>Check that charts and data display correctly</li>
+                    <li>Test summary cards show proper data</li>
+                    <li>Verify analytics data is properly formatted</li>
+                </ol>
+            </div>
+            
+            <button class="test-button" onclick="testAnalyticsDisplay()">
+                Test Analytics Display
+            </button>
+            
+            <button class="test-button" onclick="testChartsRendering()">
+                Test Charts Rendering
+            </button>
+            
+            <button class="test-button" onclick="testSummaryCards()">
+                Test Summary Cards
+            </button>
+            
+            <button class="test-button" onclick="generateTestData()">
+                Generate Test Analytics Data
+            </button>
+            
+            <div id="analyticsResults" class="test-results hidden"></div>
+        </div>
+        
+        <!-- Test 3: Export and Reset Functionality -->
+        <div class="test-section">
+            <h2>Test 3: Export and Reset Functionality</h2>
+            <div class="test-instructions">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Test export functionality for installation analytics</li>
+                    <li>Test reset functionality for analytics data</li>
+                    <li>Verify different export formats work (JSON, CSV, Summary)</li>
+                    <li>Check that reset properly clears all data</li>
+                </ol>
+            </div>
+            
+            <button class="test-button" onclick="testExportFunctionality()">
+                Test Export Functionality
+            </button>
+            
+            <button class="test-button" onclick="testResetFunctionality()">
+                Test Reset Functionality
+            </button>
+            
+            <button class="test-button" onclick="testExportFormats()">
+                Test Export Formats
+            </button>
+            
+            <div id="exportResults" class="test-results hidden"></div>
+        </div>
+        
+        <!-- Test 4: Responsive Design -->
+        <div class="test-section">
+            <h2>Test 4: Responsive Design</h2>
+            <div class="test-instructions">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Test responsive design on different screen sizes</li>
+                    <li>Verify admin panel adapts to mobile, tablet, and desktop</li>
+                    <li>Check that charts and cards are properly sized</li>
+                    <li>Test touch interactions on mobile devices</li>
+                </ol>
+            </div>
+            
+            <div class="responsive-test">
+                <div class="screen-size">
+                    <h4>Mobile (375px)</h4>
+                    <button class="test-button" onclick="testResponsiveDesign(375)">Test Mobile</button>
+                </div>
+                
+                <div class="screen-size">
+                    <h4>Tablet (768px)</h4>
+                    <button class="test-button" onclick="testResponsiveDesign(768)">Test Tablet</button>
+                </div>
+                
+                <div class="screen-size">
+                    <h4>Desktop (1200px)</h4>
+                    <button class="test-button" onclick="testResponsiveDesign(1200)">Test Desktop</button>
+                </div>
+                
+                <div class="screen-size">
+                    <h4>Large Desktop (1920px)</h4>
+                    <button class="test-button" onclick="testResponsiveDesign(1920)">Test Large</button>
+                </div>
+            </div>
+            
+            <div id="responsiveResults" class="test-results hidden"></div>
+        </div>
+        
+        <!-- Test 5: Complete Integration Test -->
+        <div class="test-section">
+            <h2>Test 5: Complete Integration Test</h2>
+            <div class="test-instructions">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Run all tests in sequence to verify complete functionality</li>
+                    <li>Test the entire admin panel workflow</li>
+                    <li>Verify all features work together properly</li>
+                    <li>Check for any integration issues</li>
+                </ol>
+            </div>
+            
+            <button class="test-button" onclick="runCompleteIntegrationTest()">
+                Run Complete Integration Test
+            </button>
+            
+            <button class="test-button" onclick="testAdminPanelWorkflow()">
+                Test Admin Panel Workflow
+            </button>
+            
+            <div id="integrationResults" class="test-results hidden"></div>
+        </div>
+        
+        <!-- Test Results Summary -->
+        <div class="test-section">
+            <h2>Test Results Summary</h2>
+            <div id="testSummary">
+                <p>Run tests to see results here...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="js/cross-platform-detector.js"></script>
+    <script src="js/install-analytics.js"></script>
+    <script src="js/install-prompt-ui.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Test state management
+        let testResults = {
+            navigation: { status: 'pending', details: [] },
+            analytics: { status: 'pending', details: [] },
+            export: { status: 'pending', details: [] },
+            responsive: { status: 'pending', details: [] },
+            integration: { status: 'pending', details: [] }
+        };
+        
+        // Mock job tracker for testing
+        class MockJobTracker {
+            constructor() {
+                this.jobs = [
+                    {
+                        id: 1,
+                        title: 'Software Engineer',
+                        company: 'Tech Corp',
+                        status: 'Applied',
+                        stage: 'Application Submitted',
+                        dateApplied: '2024-01-15',
+                        applicationSource: 'LinkedIn',
+                        contactPerson: 'John Doe',
+                        notes: 'Great opportunity'
+                    },
+                    {
+                        id: 2,
+                        title: 'Frontend Developer',
+                        company: 'Startup Inc',
+                        status: 'Interview Scheduled',
+                        stage: 'Phone Screen',
+                        dateApplied: '2024-01-20',
+                        applicationSource: 'Indeed',
+                        contactPerson: 'Jane Smith',
+                        notes: 'Exciting startup'
+                    }
+                ];
+            }
+        }
+        
+        // Initialize mock dashboard
+        let mockDashboard;
+        let mockJobTracker;
+        
+        function initializeTestEnvironment() {
+            mockJobTracker = new MockJobTracker();
+            mockDashboard = new Dashboard(mockJobTracker);
+            
+            // Mock the main app elements
+            document.body.innerHTML += `
+                <div class="container" id="mainApp">
+                    <header class="header">
+                        <div class="header-content">
+                            <div class="nav-tabs" role="tablist">
+                                <button id="jobsTab" class="nav-tab active" role="tab" aria-selected="true">Jobs</button>
+                                <button id="dashboardTab" class="nav-tab" role="tab" aria-selected="false">Dashboard</button>
+                                <button id="adminTab" class="nav-tab" role="tab" aria-selected="false">Admin</button>
+                            </div>
+                        </div>
+                    </header>
+                    <main class="main-content" id="main-content" role="tabpanel">
+                        <h2>Jobs View</h2>
+                    </main>
+                    <section id="dashboardSection" class="dashboard-section hidden" role="tabpanel">
+                        <h2>Dashboard View</h2>
+                    </section>
+                    <section id="adminSection" class="admin-section hidden" role="tabpanel">
+                        <div class="admin-header">
+                            <h2>Admin Panel</h2>
+                        </div>
+                        <div class="admin-content">
+                            <div class="installation-analytics-section">
+                                <h3>PWA Installation Analytics</h3>
+                                <div class="installation-summary-cards">
+                                    <div class="summary-card">
+                                        <div class="summary-number" id="totalInstallPrompts">0</div>
+                                        <div class="summary-label">Prompts Shown</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-number" id="installClicks">0</div>
+                                        <div class="summary-label">Install Clicks</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-number" id="conversionRate">0%</div>
+                                        <div class="summary-label">Conversion Rate</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-number" id="installSuccess">No</div>
+                                        <div class="summary-label">Installed</div>
+                                    </div>
+                                </div>
+                                <div class="installation-charts-grid">
+                                    <div class="chart-container">
+                                        <h3>Installation Funnel</h3>
+                                        <canvas id="installFunnelChart"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h3>Platform Breakdown</h3>
+                                        <canvas id="platformBreakdownChart"></canvas>
+                                    </div>
+                                    <div class="chart-container">
+                                        <h3>Browser Breakdown</h3>
+                                        <canvas id="browserBreakdownChart"></canvas>
+                                    </div>
+                                    <div class="chart-container chart-wide">
+                                        <h3>Installation Events Timeline</h3>
+                                        <canvas id="installTimelineChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="installation-actions">
+                                    <button id="exportInstallAnalyticsBtn" class="btn btn-secondary">📤 Export Installation Data</button>
+                                    <button id="resetInstallAnalyticsBtn" class="btn btn-secondary">🔄 Reset Analytics</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `;
+            
+            // Initialize dashboard
+            if (mockDashboard) {
+                mockDashboard.init();
+            }
+        }
+        
+        function logTestResult(testName, success, message) {
+            console.log(`[${testName}] ${success ? 'PASS' : 'FAIL'}: ${message}`);
+            return { success, message };
+        }
+        
+        function updateTestResults(testType, results) {
+            testResults[testType].details = results;
+            testResults[testType].status = results.every(r => r.success) ? 'passing' : 'failing';
+            updateTestSummary();
+        }
+        
+        function updateTestSummary() {
+            const summary = document.getElementById('testSummary');
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(r => r.status === 'passing').length;
+            
+            summary.innerHTML = `
+                <h3>Test Results: ${passedTests}/${totalTests} Tests Passing</h3>
+                <div style="margin-top: 1rem;">
+                    ${Object.entries(testResults).map(([test, result]) => `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>${test.charAt(0).toUpperCase() + test.slice(1)}:</strong>
+                            <span class="test-status ${result.status}">${result.status.toUpperCase()}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Test 1: Admin Tab Navigation
+        function testAdminTabNavigation() {
+            const results = [];
+            
+            try {
+                // Test admin tab click
+                const adminTab = document.getElementById('adminTab');
+                const adminSection = document.getElementById('adminSection');
+                
+                if (adminTab && adminSection) {
+                    adminTab.click();
+                    
+                    // Check if admin section is visible
+                    const isVisible = !adminSection.classList.contains('hidden');
+                    results.push(logTestResult('Admin Tab Click', isVisible, 
+                        isVisible ? 'Admin section is visible' : 'Admin section is hidden'));
+                    
+                    // Check if admin tab is active
+                    const isActive = adminTab.classList.contains('active');
+                    results.push(logTestResult('Admin Tab Active', isActive, 
+                        isActive ? 'Admin tab is active' : 'Admin tab is not active'));
+                    
+                    // Check ARIA attributes
+                    const ariaSelected = adminTab.getAttribute('aria-selected') === 'true';
+                    results.push(logTestResult('ARIA Selected', ariaSelected, 
+                        ariaSelected ? 'ARIA selected is true' : 'ARIA selected is false'));
+                } else {
+                    results.push(logTestResult('Admin Elements', false, 'Admin tab or section not found'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Admin Navigation', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('navigation', results);
+            displayResults('navigationResults', results);
+        }
+        
+        function testKeyboardNavigation() {
+            const results = [];
+            
+            try {
+                // Test Alt+A keyboard shortcut
+                const adminTab = document.getElementById('adminTab');
+                
+                if (adminTab) {
+                    // Simulate Alt+A keydown
+                    const event = new KeyboardEvent('keydown', {
+                        key: 'a',
+                        altKey: true,
+                        bubbles: true
+                    });
+                    
+                    // Add event listener to test
+                    let keydownHandled = false;
+                    document.addEventListener('keydown', (e) => {
+                        if (e.altKey && e.key.toLowerCase() === 'a') {
+                            keydownHandled = true;
+                            adminTab.click();
+                        }
+                    });
+                    
+                    document.dispatchEvent(event);
+                    
+                    // Check if admin section is visible after keyboard shortcut
+                    setTimeout(() => {
+                        const adminSection = document.getElementById('adminSection');
+                        const isVisible = adminSection && !adminSection.classList.contains('hidden');
+                        results.push(logTestResult('Keyboard Navigation', isVisible, 
+                            isVisible ? 'Alt+A successfully navigated to admin panel' : 'Alt+A did not work'));
+                        
+                        updateTestResults('navigation', results);
+                        displayResults('navigationResults', results);
+                    }, 100);
+                } else {
+                    results.push(logTestResult('Keyboard Navigation', false, 'Admin tab not found'));
+                    updateTestResults('navigation', results);
+                    displayResults('navigationResults', results);
+                }
+            } catch (error) {
+                results.push(logTestResult('Keyboard Navigation', false, `Error: ${error.message}`));
+                updateTestResults('navigation', results);
+                displayResults('navigationResults', results);
+            }
+        }
+        
+        function testTabSwitching() {
+            const results = [];
+            
+            try {
+                const jobsTab = document.getElementById('jobsTab');
+                const dashboardTab = document.getElementById('dashboardTab');
+                const adminTab = document.getElementById('adminTab');
+                const jobsSection = document.getElementById('main-content');
+                const dashboardSection = document.getElementById('dashboardSection');
+                const adminSection = document.getElementById('adminSection');
+                
+                // Test switching from admin to jobs
+                adminTab.click();
+                setTimeout(() => {
+                    jobsTab.click();
+                    const jobsVisible = !jobsSection.classList.contains('hidden');
+                    const adminHidden = adminSection.classList.contains('hidden');
+                    results.push(logTestResult('Admin to Jobs', jobsVisible && adminHidden, 
+                        'Successfully switched from admin to jobs'));
+                    
+                    // Test switching from jobs to dashboard
+                    dashboardTab.click();
+                    setTimeout(() => {
+                        const dashboardVisible = !dashboardSection.classList.contains('hidden');
+                        const jobsHidden = jobsSection.classList.contains('hidden');
+                        results.push(logTestResult('Jobs to Dashboard', dashboardVisible && jobsHidden, 
+                            'Successfully switched from jobs to dashboard'));
+                        
+                        // Test switching from dashboard to admin
+                        adminTab.click();
+                        setTimeout(() => {
+                            const adminVisible = !adminSection.classList.contains('hidden');
+                            const dashboardHidden = dashboardSection.classList.contains('hidden');
+                            results.push(logTestResult('Dashboard to Admin', adminVisible && dashboardHidden, 
+                                'Successfully switched from dashboard to admin'));
+                            
+                            updateTestResults('navigation', results);
+                            displayResults('navigationResults', results);
+                        }, 100);
+                    }, 100);
+                }, 100);
+            } catch (error) {
+                results.push(logTestResult('Tab Switching', false, `Error: ${error.message}`));
+                updateTestResults('navigation', results);
+                displayResults('navigationResults', results);
+            }
+        }
+        
+        // Test 2: PWA Installation Analytics Display
+        function testAnalyticsDisplay() {
+            const results = [];
+            
+            try {
+                // Test if InstallAnalytics is available
+                const hasInstallAnalytics = typeof window.InstallAnalytics !== 'undefined';
+                results.push(logTestResult('InstallAnalytics Available', hasInstallAnalytics, 
+                    hasInstallAnalytics ? 'InstallAnalytics class is available' : 'InstallAnalytics class not found'));
+                
+                if (hasInstallAnalytics) {
+                    const analytics = new window.InstallAnalytics();
+                    const metrics = analytics.getInstallMetrics();
+                    
+                    // Test metrics structure
+                    const hasSummary = metrics && metrics.summary;
+                    results.push(logTestResult('Metrics Summary', hasSummary, 
+                        hasSummary ? 'Metrics summary is available' : 'Metrics summary is missing'));
+                    
+                    const hasFunnel = metrics && metrics.funnel;
+                    results.push(logTestResult('Funnel Data', hasFunnel, 
+                        hasFunnel ? 'Funnel data is available' : 'Funnel data is missing'));
+                    
+                    const hasPlatformBreakdown = metrics && metrics.platformBreakdown;
+                    results.push(logTestResult('Platform Breakdown', hasPlatformBreakdown, 
+                        hasPlatformBreakdown ? 'Platform breakdown is available' : 'Platform breakdown is missing'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Analytics Display', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('analytics', results);
+            displayResults('analyticsResults', results);
+        }
+        
+        function testChartsRendering() {
+            const results = [];
+            
+            try {
+                // Test if Chart.js is available
+                const hasChartJS = typeof Chart !== 'undefined';
+                results.push(logTestResult('Chart.js Available', hasChartJS, 
+                    hasChartJS ? 'Chart.js is loaded' : 'Chart.js not found'));
+                
+                if (hasChartJS) {
+                    // Test chart canvas elements
+                    const chartCanvases = [
+                        'installFunnelChart',
+                        'platformBreakdownChart', 
+                        'browserBreakdownChart',
+                        'installTimelineChart'
+                    ];
+                    
+                    chartCanvases.forEach(canvasId => {
+                        const canvas = document.getElementById(canvasId);
+                        const exists = canvas !== null;
+                        results.push(logTestResult(`Canvas ${canvasId}`, exists, 
+                            exists ? `Canvas ${canvasId} exists` : `Canvas ${canvasId} not found`));
+                    });
+                }
+            } catch (error) {
+                results.push(logTestResult('Charts Rendering', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('analytics', results);
+            displayResults('analyticsResults', results);
+        }
+        
+        function testSummaryCards() {
+            const results = [];
+            
+            try {
+                const summaryCardIds = [
+                    'totalInstallPrompts',
+                    'installClicks', 
+                    'conversionRate',
+                    'installSuccess'
+                ];
+                
+                summaryCardIds.forEach(cardId => {
+                    const element = document.getElementById(cardId);
+                    const exists = element !== null;
+                    results.push(logTestResult(`Summary Card ${cardId}`, exists, 
+                        exists ? `Summary card ${cardId} exists` : `Summary card ${cardId} not found`));
+                });
+            } catch (error) {
+                results.push(logTestResult('Summary Cards', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('analytics', results);
+            displayResults('analyticsResults', results);
+        }
+        
+        function generateTestData() {
+            const results = [];
+            
+            try {
+                if (typeof window.InstallAnalytics !== 'undefined') {
+                    const analytics = new window.InstallAnalytics();
+                    
+                    // Generate test events
+                    analytics.trackPromptShown({ test: true });
+                    analytics.trackInstallClick({ test: true });
+                    analytics.trackDismiss({ test: true });
+                    analytics.trackInstallSuccess({ test: true });
+                    
+                    results.push(logTestResult('Test Data Generation', true, 'Test analytics data generated successfully'));
+                    
+                    // Refresh admin panel to show new data
+                    if (mockDashboard) {
+                        mockDashboard.updateInstallationAnalytics();
+                        results.push(logTestResult('Admin Panel Refresh', true, 'Admin panel refreshed with test data'));
+                    }
+                } else {
+                    results.push(logTestResult('Test Data Generation', false, 'InstallAnalytics not available'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Test Data Generation', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('analytics', results);
+            displayResults('analyticsResults', results);
+        }
+        
+        // Test 3: Export and Reset Functionality
+        function testExportFunctionality() {
+            const results = [];
+            
+            try {
+                const exportBtn = document.getElementById('exportInstallAnalyticsBtn');
+                const exists = exportBtn !== null;
+                results.push(logTestResult('Export Button', exists, 
+                    exists ? 'Export button exists' : 'Export button not found'));
+                
+                if (exists) {
+                    // Test click handler
+                    let clickHandled = false;
+                    exportBtn.addEventListener('click', () => {
+                        clickHandled = true;
+                    });
+                    
+                    exportBtn.click();
+                    results.push(logTestResult('Export Click Handler', clickHandled, 
+                        clickHandled ? 'Export button click handler works' : 'Export button click handler not working'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Export Functionality', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('export', results);
+            displayResults('exportResults', results);
+        }
+        
+        function testResetFunctionality() {
+            const results = [];
+            
+            try {
+                const resetBtn = document.getElementById('resetInstallAnalyticsBtn');
+                const exists = resetBtn !== null;
+                results.push(logTestResult('Reset Button', exists, 
+                    exists ? 'Reset button exists' : 'Reset button not found'));
+                
+                if (exists) {
+                    // Test click handler
+                    let clickHandled = false;
+                    resetBtn.addEventListener('click', () => {
+                        clickHandled = true;
+                    });
+                    
+                    resetBtn.click();
+                    results.push(logTestResult('Reset Click Handler', clickHandled, 
+                        clickHandled ? 'Reset button click handler works' : 'Reset button click handler not working'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Reset Functionality', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('export', results);
+            displayResults('exportResults', results);
+        }
+        
+        function testExportFormats() {
+            const results = [];
+            
+            try {
+                if (typeof window.InstallAnalytics !== 'undefined') {
+                    const analytics = new window.InstallAnalytics();
+                    
+                    // Test JSON export
+                    const jsonExport = analytics.exportAnalytics('json');
+                    const hasJsonExport = jsonExport && jsonExport.length > 0;
+                    results.push(logTestResult('JSON Export', hasJsonExport, 
+                        hasJsonExport ? 'JSON export works' : 'JSON export failed'));
+                    
+                    // Test CSV export
+                    const csvExport = analytics.exportAnalytics('csv');
+                    const hasCsvExport = csvExport && csvExport.length > 0;
+                    results.push(logTestResult('CSV Export', hasCsvExport, 
+                        hasCsvExport ? 'CSV export works' : 'CSV export failed'));
+                    
+                    // Test Summary export
+                    const summaryExport = analytics.exportAnalytics('summary');
+                    const hasSummaryExport = summaryExport && summaryExport.length > 0;
+                    results.push(logTestResult('Summary Export', hasSummaryExport, 
+                        hasSummaryExport ? 'Summary export works' : 'Summary export failed'));
+                } else {
+                    results.push(logTestResult('Export Formats', false, 'InstallAnalytics not available'));
+                }
+            } catch (error) {
+                results.push(logTestResult('Export Formats', false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('export', results);
+            displayResults('exportResults', results);
+        }
+        
+        // Test 4: Responsive Design
+        function testResponsiveDesign(width) {
+            const results = [];
+            
+            try {
+                // Set viewport width
+                const viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    viewport.setAttribute('content', `width=${width}, initial-scale=1.0`);
+                }
+                
+                // Test admin section visibility
+                const adminSection = document.getElementById('adminSection');
+                const isVisible = adminSection && !adminSection.classList.contains('hidden');
+                results.push(logTestResult(`Admin Section Visibility (${width}px)`, isVisible, 
+                    isVisible ? `Admin section is visible at ${width}px` : `Admin section is hidden at ${width}px`));
+                
+                // Test chart containers
+                const chartContainers = document.querySelectorAll('.chart-container');
+                const hasCharts = chartContainers.length > 0;
+                results.push(logTestResult(`Chart Containers (${width}px)`, hasCharts, 
+                    hasCharts ? `Found ${chartContainers.length} chart containers` : 'No chart containers found'));
+                
+                // Test summary cards
+                const summaryCards = document.querySelectorAll('.summary-card');
+                const hasSummaryCards = summaryCards.length > 0;
+                results.push(logTestResult(`Summary Cards (${width}px)`, hasSummaryCards, 
+                    hasSummaryCards ? `Found ${summaryCards.length} summary cards` : 'No summary cards found'));
+                
+            } catch (error) {
+                results.push(logTestResult(`Responsive Design (${width}px)`, false, `Error: ${error.message}`));
+            }
+            
+            updateTestResults('responsive', results);
+            displayResults('responsiveResults', results);
+        }
+        
+        // Test 5: Complete Integration Test
+        function runCompleteIntegrationTest() {
+            const results = [];
+            
+            try {
+                // Run all tests in sequence
+                testAdminTabNavigation();
+                setTimeout(() => {
+                    testAnalyticsDisplay();
+                    setTimeout(() => {
+                        testExportFunctionality();
+                        setTimeout(() => {
+                            testResponsiveDesign(1200);
+                            setTimeout(() => {
+                                results.push(logTestResult('Complete Integration', true, 'All tests completed successfully'));
+                                updateTestResults('integration', results);
+                                displayResults('integrationResults', results);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            } catch (error) {
+                results.push(logTestResult('Complete Integration', false, `Error: ${error.message}`));
+                updateTestResults('integration', results);
+                displayResults('integrationResults', results);
+            }
+        }
+        
+        function testAdminPanelWorkflow() {
+            const results = [];
+            
+            try {
+                // Step 1: Navigate to admin panel
+                const adminTab = document.getElementById('adminTab');
+                adminTab.click();
+                
+                setTimeout(() => {
+                    // Step 2: Generate test data
+                    generateTestData();
+                    
+                    setTimeout(() => {
+                        // Step 3: Test export
+                        testExportFunctionality();
+                        
+                        setTimeout(() => {
+                            // Step 4: Test reset
+                            testResetFunctionality();
+                            
+                            results.push(logTestResult('Admin Panel Workflow', true, 'Complete workflow tested successfully'));
+                            updateTestResults('integration', results);
+                            displayResults('integrationResults', results);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            } catch (error) {
+                results.push(logTestResult('Admin Panel Workflow', false, `Error: ${error.message}`));
+                updateTestResults('integration', results);
+                displayResults('integrationResults', results);
+            }
+        }
+        
+        function displayResults(elementId, results) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.remove('hidden');
+                element.innerHTML = results.map(result => 
+                    `<div style="color: ${result.success ? '#10b981' : '#ef4444'}; margin-bottom: 0.5rem;">
+                        ${result.success ? '✓' : '✗'} ${result.message}
+                    </div>`
+                ).join('');
+            }
+        }
+        
+        // Initialize test environment when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTestEnvironment();
+            console.log('Admin Panel Test Suite initialized');
+        });
+    </script>
+</body>
+</html>

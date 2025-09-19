@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Installation Integration Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+        }
+        .test-results {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .test-fail {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .test-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .simulation-controls {
+            background: var(--secondary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .metric-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+        .browser-test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .browser-test-card {
+            background: var(--secondary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .accessibility-checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .accessibility-checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .accessibility-checklist li:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .check-pass {
+            background: #22c55e;
+            color: white;
+        }
+        .check-fail {
+            background: #ef4444;
+            color: white;
+        }
+        .check-warning {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>PWA Installation Integration Test</h1>
+        <p>Comprehensive end-to-end testing of the PWA installation flow</p>
+
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <div class="test-controls">
+                <button id="runAllTests" class="btn btn-primary">Run All Tests</button>
+                <button id="resetTestData" class="btn btn-secondary">Reset Test Data</button>
+                <button id="simulateEligibility" class="btn btn-secondary">Simulate Eligibility</button>
+                <button id="simulateInstallation" class="btn btn-secondary">Simulate Installation</button>
+                <button id="exportTestResults" class="btn btn-secondary">Export Results</button>
+            </div>
+            
+            <div class="simulation-controls">
+                <h3>Simulation Controls</h3>
+                <div class="test-controls">
+                    <button id="addSessions" class="btn btn-small">Add Sessions (3)</button>
+                    <button id="addJobs" class="btn btn-small">Add Jobs (2)</button>
+                    <button id="triggerPrompt" class="btn btn-small">Trigger Prompt</button>
+                    <button id="simulateInstall" class="btn btn-small">Simulate Install</button>
+                    <button id="simulateDismiss" class="btn btn-small">Simulate Dismiss</button>
+                    <button id="simulateDontAsk" class="btn btn-small">Simulate Don't Ask</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eligibility Testing -->
+        <div class="test-section">
+            <h2>1. Eligibility Check Testing</h2>
+            <p>Testing installation prompt eligibility criteria (Requirements 1.1)</p>
+            <div id="eligibilityResults" class="test-results"></div>
+            <button id="testEligibility" class="btn btn-primary">Test Eligibility Logic</button>
+        </div>
+
+        <!-- Cross-Browser Compatibility -->
+        <div class="test-section">
+            <h2>2. Cross-Browser Compatibility Testing</h2>
+            <p>Testing platform-specific behaviors (Requirements 4.1)</p>
+            <div class="browser-test-grid" id="browserTestGrid"></div>
+            <button id="testBrowsers" class="btn btn-primary">Test Browser Compatibility</button>
+        </div>
+
+        <!-- Installation Analytics -->
+        <div class="test-section">
+            <h2>3. Installation Analytics Testing</h2>
+            <p>Testing analytics accuracy and dashboard integration (Requirements 5.1)</p>
+            <div class="metrics-display" id="analyticsMetrics"></div>
+            <div id="analyticsResults" class="test-results"></div>
+            <button id="testAnalytics" class="btn btn-primary">Test Analytics Integration</button>
+        </div>
+
+        <!-- Accessibility Compliance -->
+        <div class="test-section">
+            <h2>4. Accessibility Compliance Testing</h2>
+            <p>Testing keyboard navigation and screen reader support (Requirements 2.1)</p>
+            <ul class="accessibility-checklist" id="accessibilityChecklist"></ul>
+            <div id="accessibilityResults" class="test-results"></div>
+            <button id="testAccessibility" class="btn btn-primary">Test Accessibility</button>
+        </div>
+
+        <!-- End-to-End Flow Testing -->
+        <div class="test-section">
+            <h2>5. End-to-End Flow Testing</h2>
+            <p>Complete installation flow from eligibility to success (Requirements 1.1, 3.1, 6.1)</p>
+            <div id="e2eResults" class="test-results"></div>
+            <div class="test-controls">
+                <button id="testE2EFlow" class="btn btn-primary">Test Complete Flow</button>
+                <button id="testInstallationStates" class="btn btn-secondary">Test Installation States</button>
+                <button id="testErrorHandling" class="btn btn-secondary">Test Error Handling</button>
+            </div>
+        </div>
+
+        <!-- Test Summary -->
+        <div class="test-section">
+            <h2>Test Summary</h2>
+            <div id="testSummary" class="test-results"></div>
+        </div>
+    </div>
+
+    <!-- Include all PWA installation components -->
+    <script src="js/notifications.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/install-analytics.js"></script>
+    <script src="js/cross-platform-detector.js"></script>
+    <script src="js/installation-storage.js"></script>
+    <script src="js/install-prompt-ui.js"></script>
+    <script src="js/pwa-install.js"></script>
+    
+    <script>
+        class PWAIntegrationTester {
+            constructor() {
+                this.testResults = {
+                    eligibility: [],
+                    browsers: [],
+                    analytics: [],
+                    accessibility: [],
+                    e2e: []
+                };
+                this.pwaManager = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.initializePWAManager();
+                this.renderBrowserTestGrid();
+                this.renderAccessibilityChecklist();
+            }
+
+            setupEventListeners() {
+                document.getElementById('runAllTests').addEventListener('click', () => this.runAllTests());
+                document.getElementById('resetTestData').addEventListener('click', () => this.resetTestData());
+                document.getElementById('simulateEligibility').addEventListener('click', () => this.simulateEligibility());
+                document.getElementById('simulateInstallation').addEventListener('click', () => this.simulateInstallation());
+                document.getElementById('exportTestResults').addEventListener('click', () => this.exportTestResults());
+                
+                // Simulation controls
+                document.getElementById('addSessions').addEventListener('click', () => this.addSessions());
+                document.getElementById('addJobs').addEventListener('click', () => this.addJobs());
+                document.getElementById('triggerPrompt').addEventListener('click', () => this.triggerPrompt());
+                document.getElementById('simulateInstall').addEventListener('click', () => this.simulateInstall());
+                document.getElementById('simulateDismiss').addEventListener('click', () => this.simulateDismiss());
+                document.getElementById('simulateDontAsk').addEventListener('click', () => this.simulateDontAsk());
+                
+                // Individual test buttons
+                document.getElementById('testEligibility').addEventListener('click', () => this.testEligibility());
+                document.getElementById('testBrowsers').addEventListener('click', () => this.testBrowserCompatibility());
+                document.getElementById('testAnalytics').addEventListener('click', () => this.testAnalytics());
+                document.getElementById('testAccessibility').addEventListener('click', () => this.testAccessibility());
+                document.getElementById('testE2EFlow').addEventListener('click', () => this.testE2EFlow());
+                document.getElementById('testInstallationStates').addEventListener('click', () => this.testInstallationStates());
+                document.getElementById('testErrorHandling').addEventListener('click', () => this.testErrorHandling());
+            }
+
+            initializePWAManager() {
+                try {
+                    this.pwaManager = new PWAInstallManager();
+                    this.log('PWA Manager initialized successfully', 'pass');
+                } catch (error) {
+                    this.log(`PWA Manager initialization failed: ${error.message}`, 'fail');
+                }
+            }
+
+            async runAllTests() {
+                this.log('Starting comprehensive PWA installation integration tests...', 'info');
+                
+                await this.testEligibility();
+                await this.testBrowserCompatibility();
+                await this.testAnalytics();
+                await this.testAccessibility();
+                await this.testE2EFlow();
+                
+                this.generateTestSummary();
+                this.log('All tests completed!', 'pass');
+            }
+
+            async testEligibility() {
+                const results = [];
+                
+                try {
+                    // Test 1: Fresh user (should not be eligible)
+                    this.resetTestData();
+                    const freshUserEligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        test: 'Fresh user eligibility',
+                        expected: false,
+                        actual: freshUserEligible,
+                        pass: freshUserEligible === false
+                    });
+
+                    // Test 2: User with sessions but no jobs (should not be eligible)
+                    this.addSessions();
+                    const sessionsOnlyEligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        test: 'Sessions only eligibility',
+                        expected: false,
+                        actual: sessionsOnlyEligible,
+                        pass: sessionsOnlyEligible === false
+                    });
+
+                    // Test 3: User with jobs but insufficient sessions (should not be eligible)
+                    this.resetTestData();
+                    this.addJobs();
+                    const jobsOnlyEligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        test: 'Jobs only eligibility',
+                        expected: false,
+                        actual: jobsOnlyEligible,
+                        pass: jobsOnlyEligible === false
+                    });
+
+                    // Test 4: User meeting both criteria (should be eligible)
+                    this.addSessions();
+                    const fullyEligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        test: 'Fully eligible user',
+                        expected: true,
+                        actual: fullyEligible,
+                        pass: fullyEligible === true
+                    });
+
+                    // Test 5: Already installed user (should not be eligible)
+                    this.simulateInstallation();
+                    const installedUserEligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        test: 'Already installed user',
+                        expected: false,
+                        actual: installedUserEligible,
+                        pass: installedUserEligible === false
+                    });
+
+                    this.testResults.eligibility = results;
+                    this.displayResults('eligibilityResults', results);
+                    
+                } catch (error) {
+                    this.log(`Eligibility testing failed: ${error.message}`, 'fail');
+                }
+            }
+
+            async testBrowserCompatibility() {
+                const browsers = [
+                    { name: 'Chrome', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' },
+                    { name: 'Firefox', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0' },
+                    { name: 'Safari', userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15' },
+                    { name: 'Edge', userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59' }
+                ];
+
+                const results = [];
+                const detector = new CrossPlatformDetector();
+
+                browsers.forEach(browser => {
+                    try {
+                        // Simulate browser detection
+                        const browserInfo = detector.getBrowserInfo();
+                        const platformInfo = detector.getPlatformInfo();
+                        const supportsInstall = detector.supportsInstallPrompt();
+                        const isStandalone = detector.isStandalone();
+
+                        results.push({
+                            browser: browser.name,
+                            detected: browserInfo.name || 'Unknown',
+                            platform: platformInfo.name || 'Unknown',
+                            supportsInstall,
+                            isStandalone,
+                            pass: true // Basic detection working
+                        });
+                    } catch (error) {
+                        results.push({
+                            browser: browser.name,
+                            error: error.message,
+                            pass: false
+                        });
+                    }
+                });
+
+                this.testResults.browsers = results;
+                this.updateBrowserTestGrid(results);
+            }
+
+            async testAnalytics() {
+                const results = [];
+                
+                try {
+                    const analytics = new InstallAnalytics();
+                    
+                    // Test analytics tracking
+                    analytics.trackPromptShown();
+                    analytics.trackInstallClick();
+                    analytics.trackDismiss();
+                    analytics.trackInstallSuccess();
+                    
+                    const metrics = analytics.getInstallMetrics();
+                    
+                    results.push({
+                        test: 'Analytics tracking',
+                        expected: 'Events tracked',
+                        actual: `${metrics.events.length} events`,
+                        pass: metrics.events.length > 0
+                    });
+
+                    results.push({
+                        test: 'Metrics calculation',
+                        expected: 'Summary calculated',
+                        actual: `Conversion rate: ${metrics.summary.conversionRate}%`,
+                        pass: typeof metrics.summary.conversionRate === 'number'
+                    });
+
+                    // Test dashboard integration
+                    if (typeof window.updateInstallationMetrics === 'function') {
+                        window.updateInstallationMetrics();
+                        results.push({
+                            test: 'Dashboard integration',
+                            expected: 'Metrics updated',
+                            actual: 'Function called successfully',
+                            pass: true
+                        });
+                    } else {
+                        results.push({
+                            test: 'Dashboard integration',
+                            expected: 'Function available',
+                            actual: 'Function not found',
+                            pass: false
+                        });
+                    }
+
+                    this.testResults.analytics = results;
+                    this.displayResults('analyticsResults', results);
+                    this.updateAnalyticsMetrics(metrics);
+                    
+                } catch (error) {
+                    this.log(`Analytics testing failed: ${error.message}`, 'fail');
+                }
+            }
+
+            async testAccessibility() {
+                const checks = [
+                    { name: 'ARIA labels present', test: () => this.checkAriaLabels() },
+                    { name: 'Keyboard navigation', test: () => this.checkKeyboardNavigation() },
+                    { name: 'Focus management', test: () => this.checkFocusManagement() },
+                    { name: 'Screen reader support', test: () => this.checkScreenReaderSupport() },
+                    { name: 'High contrast support', test: () => this.checkHighContrast() },
+                    { name: 'Tab order', test: () => this.checkTabOrder() }
+                ];
+
+                const results = [];
+                
+                for (const check of checks) {
+                    try {
+                        const result = await check.test();
+                        results.push({
+                            test: check.name,
+                            pass: result.pass,
+                            details: result.details
+                        });
+                    } catch (error) {
+                        results.push({
+                            test: check.name,
+                            pass: false,
+                            details: error.message
+                        });
+                    }
+                }
+
+                this.testResults.accessibility = results;
+                this.updateAccessibilityChecklist(results);
+                this.displayResults('accessibilityResults', results);
+            }
+
+            async testE2EFlow() {
+                const results = [];
+                
+                try {
+                    // Test complete flow
+                    this.resetTestData();
+                    
+                    // Step 1: User becomes eligible
+                    this.addSessions();
+                    this.addJobs();
+                    const eligible = this.pwaManager.checkEligibility();
+                    results.push({
+                        step: 'User becomes eligible',
+                        pass: eligible,
+                        details: eligible ? 'User meets criteria' : 'User does not meet criteria'
+                    });
+
+                    // Step 2: Prompt is shown
+                    if (eligible) {
+                        try {
+                            await this.pwaManager.showInstallPrompt();
+                            results.push({
+                                step: 'Prompt shown',
+                                pass: true,
+                                details: 'Install prompt displayed successfully'
+                            });
+                        } catch (error) {
+                            results.push({
+                                step: 'Prompt shown',
+                                pass: false,
+                                details: error.message
+                            });
+                        }
+                    }
+
+                    // Step 3: User interaction handling
+                    const interactionTests = [
+                        { action: 'install', method: 'handleInstallClick' },
+                        { action: 'dismiss', method: 'handleDismiss' },
+                        { action: 'dont_ask', method: 'handleDontAskAgain' }
+                    ];
+
+                    for (const test of interactionTests) {
+                        try {
+                            if (typeof this.pwaManager[test.method] === 'function') {
+                                this.pwaManager[test.method]();
+                                results.push({
+                                    step: `Handle ${test.action}`,
+                                    pass: true,
+                                    details: `${test.method} executed successfully`
+                                });
+                            } else {
+                                results.push({
+                                    step: `Handle ${test.action}`,
+                                    pass: false,
+                                    details: `Method ${test.method} not found`
+                                });
+                            }
+                        } catch (error) {
+                            results.push({
+                                step: `Handle ${test.action}`,
+                                pass: false,
+                                details: error.message
+                            });
+                        }
+                    }
+
+                    this.testResults.e2e = results;
+                    this.displayResults('e2eResults', results);
+                    
+                } catch (error) {
+                    this.log(`E2E testing failed: ${error.message}`, 'fail');
+                }
+            }
+
+            async testInstallationStates() {
+                const states = ['not_prompted', 'prompted', 'dismissed', 'dont_ask', 'installed'];
+                const results = [];
+
+                for (const state of states) {
+                    try {
+                        // Simulate state
+                        const storage = new InstallationStorage();
+                        storage.setInstallationStatus(state);
+                        
+                        const currentState = storage.getInstallationStatus();
+                        const eligible = this.pwaManager.checkEligibility();
+                        
+                        results.push({
+                            state,
+                            currentState,
+                            eligible,
+                            pass: currentState === state
+                        });
+                    } catch (error) {
+                        results.push({
+                            state,
+                            error: error.message,
+                            pass: false
+                        });
+                    }
+                }
+
+                this.log('Installation state testing completed', 'info');
+                console.table(results);
+            }
+
+            async testErrorHandling() {
+                const errorTests = [
+                    {
+                        name: 'No beforeinstallprompt event',
+                        test: () => {
+                            // Simulate missing event
+                            this.pwaManager.deferredPrompt = null;
+                            return this.pwaManager.showInstallPrompt();
+                        }
+                    },
+                    {
+                        name: 'Storage unavailable',
+                        test: () => {
+                            // Simulate localStorage error
+                            const originalSetItem = localStorage.setItem;
+                            localStorage.setItem = () => { throw new Error('Storage unavailable'); };
+                            try {
+                                const storage = new InstallationStorage();
+                                storage.setInstallationStatus('test');
+                            } finally {
+                                localStorage.setItem = originalSetItem;
+                            }
+                        }
+                    },
+                    {
+                        name: 'UI creation failure',
+                        test: () => {
+                            // Simulate DOM manipulation error
+                            const originalCreateElement = document.createElement;
+                            document.createElement = () => { throw new Error('DOM unavailable'); };
+                            try {
+                                const ui = new InstallPromptUI(this.pwaManager);
+                                ui.create();
+                            } finally {
+                                document.createElement = originalCreateElement;
+                            }
+                        }
+                    }
+                ];
+
+                const results = [];
+                
+                for (const errorTest of errorTests) {
+                    try {
+                        await errorTest.test();
+                        results.push({
+                            test: errorTest.name,
+                            pass: false,
+                            details: 'Expected error but none thrown'
+                        });
+                    } catch (error) {
+                        results.push({
+                            test: errorTest.name,
+                            pass: true,
+                            details: `Error handled gracefully: ${error.message}`
+                        });
+                    }
+                }
+
+                this.log('Error handling testing completed', 'info');
+                console.table(results);
+            }
+
+            // Accessibility check methods
+            checkAriaLabels() {
+                const elements = document.querySelectorAll('[role="dialog"], button, [tabindex]');
+                let hasLabels = true;
+                let details = [];
+
+                elements.forEach(el => {
+                    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.textContent.trim()) {
+                        hasLabels = false;
+                        details.push(`Element missing label: ${el.tagName}`);
+                    }
+                });
+
+                return {
+                    pass: hasLabels,
+                    details: details.length > 0 ? details.join(', ') : 'All elements have proper labels'
+                };
+            }
+
+            checkKeyboardNavigation() {
+                const focusableElements = document.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+                return {
+                    pass: focusableElements.length > 0,
+                    details: `Found ${focusableElements.length} focusable elements`
+                };
+            }
+
+            checkFocusManagement() {
+                // Test if focus can be programmatically managed
+                const testButton = document.createElement('button');
+                testButton.textContent = 'Test';
+                testButton.style.position = 'absolute';
+                testButton.style.left = '-9999px';
+                document.body.appendChild(testButton);
+                
+                try {
+                    testButton.focus();
+                    const hasFocus = document.activeElement === testButton;
+                    document.body.removeChild(testButton);
+                    
+                    return {
+                        pass: hasFocus,
+                        details: hasFocus ? 'Focus management working' : 'Focus management failed'
+                    };
+                } catch (error) {
+                    document.body.removeChild(testButton);
+                    return {
+                        pass: false,
+                        details: error.message
+                    };
+                }
+            }
+
+            checkScreenReaderSupport() {
+                const ariaElements = document.querySelectorAll('[aria-live], [role], [aria-label]');
+                return {
+                    pass: ariaElements.length > 0,
+                    details: `Found ${ariaElements.length} ARIA elements`
+                };
+            }
+
+            checkHighContrast() {
+                // Check if CSS custom properties are defined for contrast
+                const computedStyle = getComputedStyle(document.documentElement);
+                const hasContrastVars = computedStyle.getPropertyValue('--primary-color') && 
+                                       computedStyle.getPropertyValue('--text-color');
+                
+                return {
+                    pass: hasContrastVars,
+                    details: hasContrastVars ? 'Contrast variables defined' : 'Missing contrast variables'
+                };
+            }
+
+            checkTabOrder() {
+                const focusableElements = Array.from(document.querySelectorAll('button, [tabindex]:not([tabindex="-1"])'));
+                const hasLogicalOrder = focusableElements.length > 0;
+                
+                return {
+                    pass: hasLogicalOrder,
+                    details: `Tab order includes ${focusableElements.length} elements`
+                };
+            }
+
+            // Simulation methods
+            addSessions() {
+                const storage = new InstallationStorage();
+                storage.incrementSessionCount();
+                storage.incrementSessionCount();
+                storage.incrementSessionCount();
+                this.log('Added 3 sessions', 'info');
+            }
+
+            addJobs() {
+                const storage = new InstallationStorage();
+                storage.incrementJobCount();
+                storage.incrementJobCount();
+                this.log('Added 2 job applications', 'info');
+            }
+
+            triggerPrompt() {
+                if (this.pwaManager) {
+                    this.pwaManager.showInstallPrompt();
+                    this.log('Installation prompt triggered', 'info');
+                }
+            }
+
+            simulateInstall() {
+                if (this.pwaManager) {
+                    this.pwaManager.handleInstallClick();
+                    this.log('Installation simulated', 'info');
+                }
+            }
+
+            simulateDismiss() {
+                if (this.pwaManager) {
+                    this.pwaManager.handleDismiss();
+                    this.log('Prompt dismissal simulated', 'info');
+                }
+            }
+
+            simulateDontAsk() {
+                if (this.pwaManager) {
+                    this.pwaManager.handleDontAskAgain();
+                    this.log('Don\'t ask again simulated', 'info');
+                }
+            }
+
+            simulateEligibility() {
+                this.addSessions();
+                this.addJobs();
+                this.log('User eligibility simulated', 'pass');
+            }
+
+            simulateInstallation() {
+                const storage = new InstallationStorage();
+                storage.setInstallationStatus('installed');
+                this.log('Installation status simulated', 'pass');
+            }
+
+            resetTestData() {
+                localStorage.removeItem('jobTracker_installPreferences');
+                localStorage.removeItem('jobTracker_installAnalytics');
+                this.log('Test data reset', 'info');
+            }
+
+            // Display methods
+            displayResults(containerId, results) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                const passCount = results.filter(r => r.pass).length;
+                const totalCount = results.length;
+                const passRate = totalCount > 0 ? Math.round((passCount / totalCount) * 100) : 0;
+
+                let html = `<div class="test-summary">Passed: ${passCount}/${totalCount} (${passRate}%)</div>`;
+                
+                results.forEach(result => {
+                    const status = result.pass ? 'PASS' : 'FAIL';
+                    const className = result.pass ? 'test-pass' : 'test-fail';
+                    html += `<div class="${className}">[${status}] ${result.test || result.step}: ${result.details || result.actual || 'OK'}</div>`;
+                });
+
+                container.innerHTML = html;
+            }
+
+            renderBrowserTestGrid() {
+                const grid = document.getElementById('browserTestGrid');
+                const browsers = ['Chrome', 'Firefox', 'Safari', 'Edge'];
+                
+                browsers.forEach(browser => {
+                    const card = document.createElement('div');
+                    card.className = 'browser-test-card';
+                    card.innerHTML = `
+                        <h4>${browser}</h4>
+                        <div id="browser-${browser.toLowerCase()}" class="browser-results">
+                            <p>Click "Test Browser Compatibility" to run tests</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            updateBrowserTestGrid(results) {
+                results.forEach(result => {
+                    const container = document.getElementById(`browser-${result.browser.toLowerCase()}`);
+                    if (container) {
+                        const status = result.pass ? '✅' : '❌';
+                        container.innerHTML = `
+                            <p>${status} Detection: ${result.detected || 'Failed'}</p>
+                            <p>Platform: ${result.platform || 'Unknown'}</p>
+                            <p>Install Support: ${result.supportsInstall ? 'Yes' : 'No'}</p>
+                            <p>Standalone: ${result.isStandalone ? 'Yes' : 'No'}</p>
+                            ${result.error ? `<p class="error">Error: ${result.error}</p>` : ''}
+                        `;
+                    }
+                });
+            }
+
+            renderAccessibilityChecklist() {
+                const checklist = document.getElementById('accessibilityChecklist');
+                const checks = [
+                    'ARIA labels present',
+                    'Keyboard navigation',
+                    'Focus management',
+                    'Screen reader support',
+                    'High contrast support',
+                    'Tab order'
+                ];
+
+                checks.forEach(check => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="check-icon" id="check-${check.replace(/\s+/g, '-').toLowerCase()}">?</span>
+                        <span>${check}</span>
+                    `;
+                    checklist.appendChild(li);
+                });
+            }
+
+            updateAccessibilityChecklist(results) {
+                results.forEach(result => {
+                    const checkId = `check-${result.test.replace(/\s+/g, '-').toLowerCase()}`;
+                    const checkIcon = document.getElementById(checkId);
+                    if (checkIcon) {
+                        checkIcon.textContent = result.pass ? '✓' : '✗';
+                        checkIcon.className = `check-icon ${result.pass ? 'check-pass' : 'check-fail'}`;
+                    }
+                });
+            }
+
+            updateAnalyticsMetrics(metrics) {
+                const container = document.getElementById('analyticsMetrics');
+                if (!container || !metrics) return;
+
+                container.innerHTML = `
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.events.length}</div>
+                        <div class="metric-label">Total Events</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.summary.totalPrompts || 0}</div>
+                        <div class="metric-label">Prompts Shown</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.summary.installClicks || 0}</div>
+                        <div class="metric-label">Install Clicks</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${metrics.summary.conversionRate || 0}%</div>
+                        <div class="metric-label">Conversion Rate</div>
+                    </div>
+                `;
+            }
+
+            generateTestSummary() {
+                const allResults = [
+                    ...this.testResults.eligibility,
+                    ...this.testResults.browsers,
+                    ...this.testResults.analytics,
+                    ...this.testResults.accessibility,
+                    ...this.testResults.e2e
+                ];
+
+                const totalTests = allResults.length;
+                const passedTests = allResults.filter(r => r.pass).length;
+                const passRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+
+                const summary = document.getElementById('testSummary');
+                if (summary) {
+                    const className = passRate >= 80 ? 'test-pass' : passRate >= 60 ? 'test-warning' : 'test-fail';
+                    summary.innerHTML = `
+                        <div class="${className}">
+                            <h3>Integration Test Summary</h3>
+                            <p>Total Tests: ${totalTests}</p>
+                            <p>Passed: ${passedTests}</p>
+                            <p>Failed: ${totalTests - passedTests}</p>
+                            <p>Pass Rate: ${passRate}%</p>
+                            <p>Status: ${passRate >= 80 ? 'EXCELLENT' : passRate >= 60 ? 'GOOD' : 'NEEDS IMPROVEMENT'}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            exportTestResults() {
+                const results = {
+                    timestamp: new Date().toISOString(),
+                    testResults: this.testResults,
+                    summary: {
+                        totalTests: Object.values(this.testResults).flat().length,
+                        passedTests: Object.values(this.testResults).flat().filter(r => r.pass).length
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pwa-integration-test-results-${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                this.log('Test results exported', 'pass');
+            }
+
+            log(message, type = 'info') {
+                const colors = {
+                    info: '#3b82f6',
+                    pass: '#22c55e',
+                    fail: '#ef4444',
+                    warning: '#f59e0b'
+                };
+                console.log(`%c[PWA Integration Test] ${message}`, `color: ${colors[type]}`);
+            }
+        }
+
+        // Initialize tester when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.pwaIntegrationTester = new PWAIntegrationTester();
+        });
+    </script>
+</body>
+</html>

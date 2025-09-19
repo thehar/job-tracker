@@ -29,6 +29,14 @@
 </head>
 
 <body>
+    <!-- Skip Navigation for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#dashboardSection" class="skip-link">Skip to dashboard</a>
+    <a href="#adminSection" class="skip-link">Skip to admin panel</a>
+    
+    <!-- Tab Announcement Region for Screen Readers -->
+    <div id="tab-announcement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
     <!-- Authentication Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content auth-modal">
@@ -78,10 +86,25 @@
                     <p>Keep track of your job applications</p>
                 </div>
                 <div class="header-actions">
-                    <div class="nav-tabs">
-                        <button id="jobsTab" class="nav-tab active" title="Switch to Jobs view (Alt+J)">Jobs</button>
+                    <div class="nav-tabs" role="tablist" aria-label="Main navigation">
+                        <button id="jobsTab" class="nav-tab active" 
+                            role="tab" 
+                            aria-selected="true" 
+                            aria-controls="main-content" 
+                            aria-label="Switch to Jobs view"
+                            title="Switch to Jobs view (Alt+J)">Jobs</button>
                         <button id="dashboardTab" class="nav-tab"
+                            role="tab" 
+                            aria-selected="false" 
+                            aria-controls="dashboardSection" 
+                            aria-label="Switch to Dashboard view"
                             title="Switch to Dashboard view (Alt+D)">Dashboard</button>
+                        <button id="adminTab" class="nav-tab" 
+                            role="tab" 
+                            aria-selected="false" 
+                            aria-controls="adminSection" 
+                            aria-label="Switch to Admin panel view"
+                            title="Switch to Admin view (Alt+A)">Admin</button>
                     </div>
                     <button id="settingsBtn" class="btn btn-secondary">Settings</button>
                     <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
@@ -94,7 +117,7 @@
             </div>
         </header>
 
-        <main class="main-content">
+        <main class="main-content" id="main-content" role="tabpanel" aria-labelledby="jobsTab" aria-label="Jobs view">
             <section class="add-job-section">
                 <h2>Add New Job</h2>
                 <form id="jobForm" class="job-form">
@@ -221,7 +244,7 @@
         </main>
 
         <!-- Dashboard Section -->
-        <section id="dashboardSection" class="dashboard-section hidden">
+        <section id="dashboardSection" class="dashboard-section hidden" role="tabpanel" aria-labelledby="dashboardTab" aria-label="Dashboard view">
             <div class="dashboard-header">
                 <h2>Analytics Dashboard</h2>
                 <p>Insights into your job application journey</p>
@@ -392,11 +415,87 @@
                     </div>
                 </div>
 
+
                 <!-- Company Status Section -->
                 <div class="company-status-section">
                     <h3>Active Company Applications</h3>
                     <div id="companyStatusList" class="company-status-list">
                         <!-- Company status items will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel Section -->
+        <section id="adminSection" class="admin-section hidden" role="tabpanel" aria-labelledby="adminTab" aria-label="Admin panel view">
+            <div class="admin-header">
+                <h2>Admin Panel</h2>
+                <p>System administration and analytics</p>
+            </div>
+            
+            <div class="admin-content">
+                <!-- PWA Installation Analytics Section -->
+                <div class="installation-analytics-section">
+                    <h3>PWA Installation Analytics</h3>
+                    <div class="installation-summary-cards">
+                        <div class="summary-card">
+                            <div class="summary-icon">📱</div>
+                            <div class="summary-content">
+                                <div class="summary-number" id="totalInstallPrompts">0</div>
+                                <div class="summary-label">Prompts Shown</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon">👆</div>
+                            <div class="summary-content">
+                                <div class="summary-number" id="installClicks">0</div>
+                                <div class="summary-label">Install Clicks</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon">📊</div>
+                            <div class="summary-content">
+                                <div class="summary-number" id="conversionRate">0%</div>
+                                <div class="summary-label">Conversion Rate</div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-icon">✅</div>
+                            <div class="summary-content">
+                                <div class="summary-number" id="installSuccess">No</div>
+                                <div class="summary-label">Installed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="installation-charts-grid">
+                        <div class="chart-container">
+                            <h3>Installation Funnel</h3>
+                            <canvas id="installFunnelChart"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Platform Breakdown</h3>
+                            <canvas id="platformBreakdownChart"></canvas>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3>Browser Breakdown</h3>
+                            <canvas id="browserBreakdownChart"></canvas>
+                        </div>
+
+                        <div class="chart-container chart-wide">
+                            <h3>Installation Events Timeline</h3>
+                            <canvas id="installTimelineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="installation-actions">
+                        <button id="exportInstallAnalyticsBtn" class="btn btn-secondary">📤 Export Installation Data</button>
+                        <button id="resetInstallAnalyticsBtn" class="btn btn-secondary">🔄 Reset Analytics</button>
                     </div>
                 </div>
             </div>
@@ -451,6 +550,7 @@
                     <button type="button" class="settings-tab active" data-tab="password">Password</button>
                     <button type="button" class="settings-tab" data-tab="statuses">Statuses</button>
                     <button type="button" class="settings-tab" data-tab="stages">Stages</button>
+                    <button type="button" class="settings-tab" data-tab="installation">Installation</button>
                     <button type="button" class="settings-tab" data-tab="offline">Offline</button>
                 </div>
 
@@ -530,6 +630,95 @@
                             <button type="button" id="saveStagesBtn" class="btn btn-primary">Save Stages</button>
                             <button type="button" id="resetStagesBtn" class="btn btn-secondary">Reset to
                                 Default</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Installation Tab -->
+                <div class="settings-tab-content" id="installationTab">
+                    <div class="installation-settings-section">
+                        <h4>App Installation</h4>
+                        <p class="settings-description">Install Job Tracker as a Progressive Web App for a better experience with offline access, faster loading, and desktop integration.</p>
+
+                        <!-- Installation Status -->
+                        <div class="installation-status-card">
+                            <h5>Installation Status</h5>
+                            <div class="status-info">
+                                <div class="status-item">
+                                    <span class="status-label">Status:</span>
+                                    <span id="installationStatus" class="status-value">Checking...</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Platform Support:</span>
+                                    <span id="platformSupport" class="status-value">-</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Browser:</span>
+                                    <span id="browserInfo" class="status-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Installation Actions -->
+                        <div class="installation-actions-card">
+                            <h5>Installation Actions</h5>
+                            <div class="installation-actions">
+                                <button type="button" id="manualInstallBtn" class="btn btn-primary">
+                                    <span class="btn-icon">📱</span>
+                                    Install App
+                                </button>
+                                <button type="button" id="resetInstallPrefsBtn" class="btn btn-secondary">
+                                    <span class="btn-icon">🔄</span>
+                                    Reset Preferences
+                                </button>
+                                <button type="button" id="checkInstallStatusBtn" class="btn btn-secondary">
+                                    <span class="btn-icon">📊</span>
+                                    Check Status
+                                </button>
+                            </div>
+                            <div id="installationActionResult" class="installation-result hidden"></div>
+                        </div>
+
+                        <!-- Installation Benefits -->
+                        <div class="installation-benefits-card">
+                            <h5>Installation Benefits</h5>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-icon">🚀</span>
+                                    <span class="feature-text">Faster loading and better performance</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">📱</span>
+                                    <span class="feature-text">Desktop and mobile app icon</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">🔌</span>
+                                    <span class="feature-text">Full offline access to your data</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-icon">🪟</span>
+                                    <span class="feature-text">No browser tabs - runs as standalone app</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Installation Preferences -->
+                        <div class="installation-preferences-card">
+                            <h5>Installation Preferences</h5>
+                            <div class="preference-info">
+                                <div class="preference-item">
+                                    <span class="preference-label">Prompt Count:</span>
+                                    <span id="promptCount" class="preference-value">-</span>
+                                </div>
+                                <div class="preference-item">
+                                    <span class="preference-label">Last Prompt:</span>
+                                    <span id="lastPromptDate" class="preference-value">-</span>
+                                </div>
+                                <div class="preference-item">
+                                    <span class="preference-label">Don't Ask Again:</span>
+                                    <span id="dontAskAgain" class="preference-value">-</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -764,6 +953,10 @@
     <script src="js/settings.js"></script>
     <script src="js/weekly-report.js"></script>
     <script src="js/advanced-analytics.js"></script>
+    <script src="js/cross-platform-detector.js"></script>
+    <script src="js/install-analytics.js"></script>
+    <script src="js/install-prompt-ui.js"></script>
+    <script src="js/pwa-install.js"></script>
     <script src="js/app.js"></script>
 </body>
 
