@@ -1,0 +1,187 @@
+# Job Tracker - Cursor AI Development Rules
+
+## Project Overview
+This is a client-side job application tracking system built with vanilla HTML, CSS, and JavaScript. The application features a comprehensive admin panel with PWA installation analytics, offline functionality, and full accessibility support.
+
+## Core Architecture
+- **Client-Side Only**: No backend, all data stored in localStorage
+- **Modular Design**: Each feature in its own JavaScript file
+- **PWA Ready**: Progressive Web App with offline functionality and installation analytics
+- **Accessibility First**: WCAG 2.1 AA compliance with ARIA attributes and keyboard navigation
+- **Mobile Responsive**: Mobile-first design with responsive admin panel
+
+## Key Features
+- **Job Tracking**: Complete CRUD operations for job applications
+- **Analytics Dashboard**: Interactive charts and insights with Chart.js
+- **Admin Panel**: PWA installation analytics with real-time metrics
+- **PWA Installation**: Cross-platform installation prompts and tracking
+- **Offline Support**: Full offline functionality with Service Worker caching
+- **Accessibility**: Comprehensive keyboard navigation and screen reader support
+- **Export/Import**: CSV import/export and multiple analytics export formats
+
+## File Structure
+```
+job-tracker/
+├── index.html              # Main HTML with admin panel and accessibility features
+├── styles.css              # Complete styling with CSS custom properties
+├── sw.js                   # Service Worker for offline functionality
+├── manifest.json           # PWA manifest
+├── js/                     # Modular JavaScript (15 files)
+│   ├── app.js              # Application entry point, PWA installation, admin panel
+│   ├── auth.js             # Authentication and security
+│   ├── data.js             # Data utilities and localStorage
+│   ├── csv.js              # CSV import/export
+│   ├── job-tracker.js      # Core job CRUD operations
+│   ├── dashboard.js        # Analytics, admin panel, Chart.js visualizations
+│   ├── settings.js         # Settings, customization, PWA preferences
+│   ├── weekly-report.js    # Weekly report generation
+│   ├── notifications.js    # Toast notification system
+│   ├── advanced-analytics.js # Advanced export and analytics
+│   ├── cross-platform-detector.js # Cross-platform detection
+│   ├── install-analytics.js # PWA installation analytics
+│   ├── install-prompt-ui.js # Installation prompt UI
+│   ├── pwa-install.js      # PWA installation manager
+│   └── tests/              # Comprehensive test suite (10 files)
+├── test-*.html             # Test files for comprehensive coverage
+└── .cursor/                # Cursor AI development rules
+```
+
+## Development Guidelines
+
+### JavaScript Standards
+- Use ES6+ features (classes, arrow functions, async/await)
+- Follow consistent naming conventions (camelCase for variables, PascalCase for classes)
+- Add JSDoc comments for all public methods
+- Use event delegation for dynamic content
+- Implement proper error handling with try/catch blocks
+- Maintain modular architecture with single responsibility principle
+
+### CSS Standards
+- Use CSS custom properties for theming and high contrast support
+- Follow alphabetical property ordering
+- Use mobile-first responsive design approach
+- Implement proper focus indicators and accessibility styling
+- Use semantic class names and maintain consistent naming
+- Support high contrast mode and screen reader accessibility
+
+### HTML Standards
+- Use semantic HTML elements with proper ARIA attributes
+- Implement keyboard navigation support (Alt+A for admin panel)
+- Add skip navigation links for accessibility
+- Use proper heading hierarchy and landmark roles
+- Ensure all interactive elements are keyboard accessible
+- Include proper labels and descriptions for screen readers
+
+### Accessibility Requirements
+- WCAG 2.1 AA compliance throughout the application
+- Full keyboard navigation support
+- Screen reader compatibility with proper ARIA labels
+- High contrast mode support
+- Focus management and visible focus indicators
+- Skip navigation links for main content areas
+- Tab announcement region for screen reader users
+
+### PWA Features
+- Cross-platform installation prompts (Chrome, iOS Safari, Firefox, Edge)
+- Installation analytics tracking with comprehensive metrics
+- Offline functionality with Service Worker caching
+- Responsive design for all screen sizes
+- Installation settings and preferences management
+
+### Admin Panel Features
+- PWA installation analytics dashboard
+- Real-time metrics and funnel charts
+- Platform and browser breakdown analytics
+- Export functionality (JSON, CSV, Summary formats)
+- Reset functionality with confirmation
+- Keyboard navigation (Alt+A shortcut)
+- Responsive design for mobile, tablet, desktop
+
+### Testing Requirements
+- Comprehensive test suite with 5 essential test files
+- Unit tests for individual components
+- Integration tests for PWA functionality
+- Accessibility testing for admin panel
+- Cross-platform detection testing
+- Dashboard integration testing
+
+### Code Quality
+- No duplicate code or functions
+- Proper error handling and user feedback
+- Consistent code formatting and structure
+- Comprehensive documentation and comments
+- Performance optimization with efficient data structures
+- Security best practices with client-side encryption
+
+### Browser Support
+- Chrome 88+ (with Service Worker and PWA support)
+- Firefox 85+ (with custom installation instructions)
+- Safari 14+ (with iOS installation instructions)
+- Edge 88+ (with native installation prompts)
+
+## Common Patterns
+
+### Event Handling
+```javascript
+// Use event delegation for dynamic content
+document.addEventListener('click', (e) => {
+    if (e.target.matches('.button-class')) {
+        handleButtonClick(e);
+    }
+});
+```
+
+### Error Handling
+```javascript
+try {
+    // Risky operation
+    const result = await riskyOperation();
+    return result;
+} catch (error) {
+    console.error('Operation failed:', error);
+    showUserError('Operation failed. Please try again.');
+    return null;
+}
+```
+
+### Accessibility
+```javascript
+// Proper ARIA attributes
+button.setAttribute('aria-label', 'Close dialog');
+button.setAttribute('aria-expanded', 'false');
+button.setAttribute('role', 'button');
+```
+
+### CSS Custom Properties
+```css
+:root {
+    --primary-color: #1976d2;
+    --text-color: #e8f4fd;
+    --bg-primary: #0a1929;
+    --border-color: #334155;
+}
+```
+
+## When Making Changes
+1. **Test Thoroughly**: Run all test files to ensure functionality
+2. **Check Accessibility**: Verify keyboard navigation and screen reader support
+3. **Update Documentation**: Update README, CHANGELOG, and cursor rules
+4. **Maintain Consistency**: Follow established patterns and naming conventions
+5. **Consider Mobile**: Ensure responsive design works on all screen sizes
+6. **Validate PWA**: Test installation prompts and analytics tracking
+
+## Prohibited Practices
+- Don't add external dependencies beyond Chart.js
+- Don't break existing functionality when adding features
+- Don't ignore accessibility requirements
+- Don't create duplicate code or functions
+- Don't skip error handling and user feedback
+- Don't forget to update documentation
+
+## Success Criteria
+- All features work offline with Service Worker
+- Admin panel is fully accessible with keyboard navigation
+- PWA installation analytics track all events correctly
+- Responsive design works on mobile, tablet, and desktop
+- All tests pass and provide comprehensive coverage
+- Code is clean, documented, and follows established patterns

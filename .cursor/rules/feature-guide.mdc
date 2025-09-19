@@ -18,10 +18,12 @@
 
 ### Analytics Dashboard
 - **Location**: [js/dashboard.js](mdc:js/dashboard.js)
-- **Purpose**: Data visualization and insights
+- **Purpose**: Data visualization, insights, and admin panel management
 - **Charts**: Status distribution, stage breakdown, timeline, success metrics
+- **Admin Panel**: PWA installation analytics with funnel, platform, and browser charts
 - **Library**: Chart.js via CDN
 - **Updates**: Automatically refreshes when job data changes
+- **Navigation**: Tab switching between Jobs, Dashboard, and Admin panels
 
 ### CSV Operations
 - **Location**: [js/csv.js](mdc:js/csv.js)
@@ -39,10 +41,37 @@
 
 ### Settings Management
 - **Location**: [js/settings.js](mdc:js/settings.js)
-- **Purpose**: Customize statuses and stages
+- **Purpose**: Customize statuses, stages, and PWA installation preferences
 - **Features**: Add, edit, delete, reorder with drag & drop
+- **PWA Settings**: Installation preferences, offline management, cache control
 - **Persistence**: Saves to localStorage
 - **Integration**: Updates all forms and validation dynamically
+
+### PWA Installation System
+- **Location**: [js/pwa-install.js](mdc:js/pwa-install.js)
+- **Purpose**: PWA installation prompts and management
+- **Features**: Cross-platform installation, analytics tracking, settings integration
+- **Key Methods**: `handleInstallClick()`, `showInstallPrompt()`, `trackInstallation()`
+- **Integration**: Works with InstallAnalytics and CrossPlatformDetector
+
+### Installation Analytics
+- **Location**: [js/install-analytics.js](mdc:js/install-analytics.js)
+- **Purpose**: Track PWA installation events and metrics
+- **Features**: Event tracking, metrics calculation, export functionality
+- **Key Methods**: `trackPromptShown()`, `trackInstallClick()`, `getInstallMetrics()`
+- **Storage**: Analytics data stored in localStorage
+
+### Cross-Platform Detection
+- **Location**: [js/cross-platform-detector.js](mdc:js/cross-platform-detector.js)
+- **Purpose**: Detect platform and browser for appropriate installation prompts
+- **Features**: Platform detection, browser identification, installation method selection
+- **Key Methods**: `detectPlatform()`, `detectBrowser()`, `getInstallationMethod()`
+
+### Installation Prompt UI
+- **Location**: [js/install-prompt-ui.js](mdc:js/install-prompt-ui.js)
+- **Purpose**: UI components for installation prompts
+- **Features**: Native prompts, custom instructions, accessibility support
+- **Key Methods**: `show()`, `hide()`, `handleInstallClick()`, `handleDismiss()`
 
 ## Data Flow Architecture
 

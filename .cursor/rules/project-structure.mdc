@@ -10,15 +10,32 @@ This is a client-side job application tracking system built with vanilla HTML, C
 - [styles.css](mdc:styles.css) - Complete application styling with dark theme and responsive design
 
 ### JavaScript Modules (js/ directory)
-- [js/app.js](mdc:js/app.js) - Application entry point and global initialization
+- [js/app.js](mdc:js/app.js) - Application entry point, PWA installation, admin panel initialization
 - [js/auth.js](mdc:js/auth.js) - Authentication management, password hashing, session control
 - [js/data.js](mdc:js/data.js) - Data utilities, validation, and localStorage operations
 - [js/csv.js](mdc:js/csv.js) - CSV import/export functionality with parsing and validation
 - [js/job-tracker.js](mdc:js/job-tracker.js) - Core job CRUD operations and UI management
-- [js/dashboard.js](mdc:js/dashboard.js) - Analytics dashboard with Chart.js visualizations
-- [js/settings.js](mdc:js/settings.js) - Custom statuses/stages management with drag-and-drop
+- [js/dashboard.js](mdc:js/dashboard.js) - Analytics dashboard, admin panel, Chart.js visualizations
+- [js/settings.js](mdc:js/settings.js) - Custom statuses/stages, PWA installation preferences
 - [js/weekly-report.js](mdc:js/weekly-report.js) - Weekly report generation and export
 - [js/notifications.js](mdc:js/notifications.js) - Toast notification system
+- [js/advanced-analytics.js](mdc:js/advanced-analytics.js) - Advanced export and analytics features
+- [js/cross-platform-detector.js](mdc:js/cross-platform-detector.js) - Cross-platform detection for PWA installation
+- [js/install-analytics.js](mdc:js/install-analytics.js) - PWA installation analytics tracking
+- [js/install-prompt-ui.js](mdc:js/install-prompt-ui.js) - Installation prompt UI components
+- [js/pwa-install.js](mdc:js/pwa-install.js) - PWA installation manager and handlers
+- [js/tests/](mdc:js/tests/) - Comprehensive test suite (10 test files)
+
+### PWA & Service Worker
+- [sw.js](mdc:sw.js) - Service Worker for offline functionality and caching
+- [manifest.json](mdc:manifest.json) - PWA manifest for app installation and branding
+
+### Test Files
+- [test-admin-panel.html](mdc:test-admin-panel.html) - Complete admin panel functionality testing
+- [test-pwa-integration-complete.html](mdc:test-pwa-integration-complete.html) - PWA integration testing
+- [test-pwa-components.html](mdc:test-pwa-components.html) - PWA component unit tests
+- [test-dashboard-integration.html](mdc:test-dashboard-integration.html) - Dashboard integration testing
+- [test-cross-platform-detector.html](mdc:test-cross-platform-detector.html) - Cross-platform detection testing
 
 ### Documentation
 - [README.md](mdc:README.md) - Project overview, features, and setup instructions
@@ -30,9 +47,11 @@ This is a client-side job application tracking system built with vanilla HTML, C
 ## Architecture Principles
 - **Modular Design**: Each feature in its own JavaScript file
 - **Client-Side Only**: No backend, all data stored in localStorage
-- **Accessibility First**: WCAG 2.1 AA compliance with semantic HTML
-- **Mobile Responsive**: Mobile-first design approach
+- **Accessibility First**: WCAG 2.1 AA compliance with semantic HTML, ARIA attributes, keyboard navigation
+- **Mobile Responsive**: Mobile-first design approach with responsive admin panel
 - **Security**: SHA-256 password hashing with Web Crypto API
+- **PWA Ready**: Progressive Web App with offline functionality and installation analytics
+- **Admin Panel**: Comprehensive admin panel with PWA installation analytics and management
 description:
 globs:
 alwaysApply: true
