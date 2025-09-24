@@ -5,7 +5,7 @@ All notable changes to Job Tracker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2025-12-18
+## [1.3.0] - 2025-09-18
 
 ### 🔧 Major Feature Release - Admin Panel & PWA Installation Analytics
 
@@ -146,7 +146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Notes
 - Background delivery while app is fully closed is not guaranteed by browsers without push service; catch-up delivery occurs on next open.
 
-## [1.2.0] - 2025-12-13
+## [1.2.0] - 2025-09-13
 
 ### 📍 Major Feature Release - Application Source Tracking & Analytics
 
@@ -198,7 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.1.0] - 2025-12-09
+## [1.1.0] - 2025-09-09
 
 ### 🚀 Major Feature Release - Full Offline Support & PWA
 
@@ -302,7 +302,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - 2025-01-20
+## [1.0.0] - 2025-09-20
 
 ### 🎉 Initial Release
 
