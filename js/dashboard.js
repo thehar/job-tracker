@@ -472,6 +472,17 @@ class Dashboard {
         if (companiesElement) {
             companiesElement.textContent = uniqueCompanies;
         }
+
+        // Upcoming interviews (next 7 days)
+        const now = Date.now();
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        const upcomingCount = jobs.filter(job => {
+            if (!job.interviewDate) return false;
+            const t = new Date(job.interviewDate).getTime();
+            return !isNaN(t) && t >= now && t <= now + sevenDays;
+        }).length;
+        const upcomingEl = document.getElementById('upcomingInterviews');
+        if (upcomingEl) upcomingEl.textContent = upcomingCount;
     }
 
     /**

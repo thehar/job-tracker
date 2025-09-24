@@ -141,6 +141,8 @@ class JobTracker {
         }
 
         NotificationManager.show('Job added successfully!', 'success');
+        // Schedule reminders for this job
+        try { window.getReminderScheduler()?.scheduleForJob(newJob); } catch (e) { /* no-op */ }
     }
 
     /**
@@ -174,6 +176,8 @@ class JobTracker {
         }
 
         NotificationManager.show('Job updated successfully!', 'success');
+        // Reschedule reminders for this job
+        try { window.getReminderScheduler()?.rescheduleForJob(this.jobs[jobIndex]); } catch (e) { /* no-op */ }
     }
 
     /**
@@ -306,6 +310,18 @@ class JobTracker {
                         <span class="job-detail-label">Added:</span>
                         <span>${DataManager.formatDate(job.createdAt)}</span>
                     </div>
+                    ${job.interviewDate ? `
+                        <div class="job-detail">
+                            <span class="job-detail-label">Interview:</span>
+                            <span>${DataManager.formatDateTime(job.interviewDate)}</span>
+                        </div>
+                    ` : ''}
+                    ${job.followUpDate ? `
+                        <div class="job-detail">
+                            <span class="job-detail-label">Follow-up:</span>
+                            <span>${DataManager.formatDate(job.followUpDate)}</span>
+                        </div>
+                    ` : ''}
                 </div>
                 
                 ${job.notes ? `

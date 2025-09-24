@@ -1156,7 +1156,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 1.5rem 0;
-    border-bottom: 1px solid #475569;
+    /* Hide bottom border line */
+    /* border-bottom: 1px solid #475569; */
     margin-bottom: 1.5rem;
 }
 

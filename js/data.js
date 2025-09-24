@@ -63,6 +63,8 @@ class DataManager {
             status: formData.status.trim(),
             stage: formData.stage ? formData.stage.trim() : '',
             dateApplied: formData.dateApplied.trim(),
+            interviewDate: formData.interviewDate ? formData.interviewDate.trim() : '',
+            followUpDate: formData.followUpDate ? formData.followUpDate.trim() : '',
             applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
@@ -84,6 +86,8 @@ class DataManager {
             status: formData.status.trim(),
             stage: formData.stage ? formData.stage.trim() : '',
             dateApplied: formData.dateApplied.trim(),
+            interviewDate: formData.interviewDate ? formData.interviewDate.trim() : '',
+            followUpDate: formData.followUpDate ? formData.followUpDate.trim() : '',
             applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
@@ -206,5 +210,100 @@ class DataManager {
             existingKeys.add(key);
             return true;
         });
+    }
+}
+
+/**
+ * Notification-related storage helpers
+ */
+class NotificationStorage {
+    /**
+     * Load notification preferences from localStorage
+     * @returns {Object}
+     */
+    static loadPreferences() {
+        const defaults = {
+            enabled: false,
+            types: { interviews: true, followUps: true, statusChanges: false },
+            timing: { interviews: [1440, 120, 30], followUps: [72] }
+        };
+        try {
+            const stored = localStorage.getItem('jobTracker_notificationPreferences');
+            if (!stored) return defaults;
+            const parsed = JSON.parse(stored);
+            return {
+                ...defaults,
+                ...parsed,
+                types: { ...defaults.types, ...(parsed.types || {}) },
+                timing: { ...defaults.timing, ...(parsed.timing || {}) }
+            };
+        } catch (error) {
+            console.warn('[NotificationStorage] Failed to load preferences:', error);
+            return defaults;
+        }
+    }
+
+    /**
+     * Save notification preferences to localStorage
+     * @param {Object} prefs
+     */
+    static savePreferences(prefs) {
+        try {
+            localStorage.setItem('jobTracker_notificationPreferences', JSON.stringify(prefs));
+        } catch (error) {
+            console.error('[NotificationStorage] Failed to save preferences:', error);
+        }
+    }
+
+    /**
+     * Load scheduled reminders array
+     * @returns {Array}
+     */
+    static loadReminders() {
+        try {
+            const stored = localStorage.getItem('jobTracker_scheduledReminders');
+            return stored ? JSON.parse(stored) : [];
+        } catch (error) {
+            console.warn('[NotificationStorage] Failed to load reminders:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Save scheduled reminders array
+     * @param {Array} reminders
+     */
+    static saveReminders(reminders) {
+        try {
+            localStorage.setItem('jobTracker_scheduledReminders', JSON.stringify(reminders));
+        } catch (error) {
+            console.error('[NotificationStorage] Failed to save reminders:', error);
+        }
+    }
+
+    /**
+     * Load notification history entries
+     * @returns {Array}
+     */
+    static loadHistory() {
+        try {
+            const stored = localStorage.getItem('jobTracker_notificationHistory');
+            return stored ? JSON.parse(stored) : [];
+        } catch (error) {
+            console.warn('[NotificationStorage] Failed to load history:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Save notification history entries
+     * @param {Array} history
+     */
+    static saveHistory(history) {
+        try {
+            localStorage.setItem('jobTracker_notificationHistory', JSON.stringify(history));
+        } catch (error) {
+            console.error('[NotificationStorage] Failed to save history:', error);
+        }
     }
 }

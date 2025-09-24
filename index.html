@@ -165,6 +165,13 @@
                             <input type="date" id="dateApplied" name="dateApplied" required>
                         </div>
                         <div class="form-group">
+                            <label for="interviewDate">Interview Date & Time</label>
+                            <input type="datetime-local" id="interviewDate" name="interviewDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label for="applicationSource">Application Source</label>
                             <select id="applicationSource" name="applicationSource">
                                 <option value="">Select Source</option>
@@ -187,7 +194,8 @@
                             <input type="text" id="contactPerson" name="contactPerson">
                         </div>
                         <div class="form-group">
-                            <!-- Empty for spacing -->
+                            <label for="followUpDate">Follow-up Date</label>
+                            <input type="date" id="followUpDate" name="followUpDate">
                         </div>
                     </div>
 
@@ -318,6 +326,14 @@
                         <div class="summary-content">
                             <div class="summary-number" id="uniqueCompanies">0</div>
                             <div class="summary-label">Unique Companies</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">📅</div>
+                        <div class="summary-content">
+                            <div class="summary-number" id="upcomingInterviews">0</div>
+                            <div class="summary-label">Upcoming (7d)</div>
                         </div>
                     </div>
                 </div>
@@ -551,6 +567,7 @@
                     <button type="button" class="settings-tab" data-tab="statuses">Statuses</button>
                     <button type="button" class="settings-tab" data-tab="stages">Stages</button>
                     <button type="button" class="settings-tab" data-tab="installation">Installation</button>
+                    <button type="button" class="settings-tab" data-tab="notifications">Notifications</button>
                     <button type="button" class="settings-tab" data-tab="offline">Offline</button>
                 </div>
 
@@ -723,6 +740,81 @@
                     </div>
                 </div>
 
+                <!-- Notifications Tab -->
+                <div class="settings-tab-content" id="notificationsTab">
+                    <div class="notifications-settings-section">
+                        <h4>Notifications</h4>
+                        <p class="settings-description">Enable reminders for interviews and follow-ups. Notifications are handled locally and respect your privacy.</p>
+
+                        <div class="notification-permission-card">
+                            <h5>Permission</h5>
+                            <div class="status-info">
+                                <div class="status-item">
+                                    <span class="status-label">Status:</span>
+                                    <span id="notificationPermissionStatus" class="status-value">Checking...</span>
+                                </div>
+                            </div>
+                            <div class="permission-actions">
+                                <button type="button" id="requestNotificationPermissionBtn" class="btn btn-primary">Request Permission</button>
+                                <button type="button" id="sendTestNotificationBtn" class="btn btn-secondary">Send Test Notification</button>
+                            </div>
+                        </div>
+
+                        <div class="notification-preferences-card">
+                            <h5>Preferences</h5>
+                            <div class="pref-row">
+                                <label class="switch">
+                                    <input type="checkbox" id="notificationsEnabled">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="switch-label">Enable Notifications</span>
+                            </div>
+
+                            <div class="pref-group">
+                                <h6>Types</h6>
+                                <div class="pref-row">
+                                    <input type="checkbox" id="notifTypeInterviews" checked>
+                                    <label for="notifTypeInterviews">Interview Reminders</label>
+                                </div>
+                                <div class="pref-row">
+                                    <input type="checkbox" id="notifTypeFollowUps" checked>
+                                    <label for="notifTypeFollowUps">Follow-up Reminders</label>
+                                </div>
+                                <div class="pref-row">
+                                    <input type="checkbox" id="notifTypeStatusChanges">
+                                    <label for="notifTypeStatusChanges">Status Change Alerts</label>
+                                </div>
+                            </div>
+
+                            <div class="pref-group">
+                                <h6>Interview Reminder Times</h6>
+                                <div class="pref-row">
+                                    <label><input type="checkbox" class="notifInterviewOffset" value="1440" checked> 24 hours before</label>
+                                </div>
+                                <div class="pref-row">
+                                    <label><input type="checkbox" class="notifInterviewOffset" value="120" checked> 2 hours before</label>
+                                </div>
+                                <div class="pref-row">
+                                    <label><input type="checkbox" class="notifInterviewOffset" value="30" checked> 30 minutes before</label>
+                                </div>
+                            </div>
+
+                            <div class="pref-group">
+                                <h6>Follow-up Timing</h6>
+                                <div class="pref-row">
+                                    <label><input type="checkbox" class="notifFollowUpOffset" value="72" checked> 3 days after applying</label>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" id="saveNotificationPrefsBtn" class="btn btn-primary">Save Preferences</button>
+                                <button type="button" id="clearNotificationHistoryBtn" class="btn btn-secondary">Clear History</button>
+                            </div>
+                            <div id="notificationPrefsResult" class="cache-result hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Offline Tab -->
                 <div class="settings-tab-content" id="offlineTab">
                     <div class="offline-settings-section">
@@ -864,6 +956,13 @@
                         <input type="date" id="editDateApplied" name="dateApplied" required>
                     </div>
                     <div class="form-group">
+                        <label for="editInterviewDate">Interview Date & Time</label>
+                        <input type="datetime-local" id="editInterviewDate" name="interviewDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="editApplicationSource">Application Source</label>
                         <select id="editApplicationSource" name="applicationSource">
                             <option value="">Select Source</option>
@@ -886,7 +985,8 @@
                         <input type="text" id="editContactPerson" name="contactPerson">
                     </div>
                     <div class="form-group">
-                        <!-- Empty for spacing -->
+                        <label for="editFollowUpDate">Follow-up Date</label>
+                        <input type="date" id="editFollowUpDate" name="followUpDate">
                     </div>
                 </div>
 
