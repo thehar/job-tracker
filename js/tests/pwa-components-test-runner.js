@@ -68,18 +68,26 @@ class PWAComponentsTestRunner {
 
         try {
             const testInstance = new suite.testClass();
-            const results = testInstance.runAllTests();
+            let results = testInstance.runAllTests();
+            if (results && typeof results.then === 'function') {
+                // Support async test suites that return a Promise
+                results = await results;
+            }
 
             suite.results = results;
             this.results.totalSuites++;
-            this.results.totalTests += results.total;
-            this.results.passedTests += results.passed;
+            if (results && typeof results.total === 'number' && typeof results.passed === 'number') {
+                this.results.totalTests += results.total;
+                this.results.passedTests += results.passed;
+            }
 
-            if (results.allPassed) {
+            if (results && results.allPassed) {
                 this.results.passedSuites++;
                 console.log(`✅ ${suite.name}: ALL TESTS PASSED (${results.passed}/${results.total})`);
             } else {
-                console.log(`❌ ${suite.name}: SOME TESTS FAILED (${results.passed}/${results.total})`);
+                const passed = results && typeof results.passed === 'number' ? results.passed : 0;
+                const total = results && typeof results.total === 'number' ? results.total : 1;
+                console.log(`❌ ${suite.name}: SOME TESTS FAILED (${passed}/${total})`);
             }
 
         } catch (error) {
@@ -121,9 +129,9 @@ class PWAComponentsTestRunner {
         // Suite-by-suite breakdown
         console.log(`\n📋 Suite Breakdown:`);
         this.testSuites.forEach(suite => {
-            const status = suite.results?.allPassed ? '✅' : '❌';
-            const rate = suite.results ? `${suite.results.passRate}%` : 'ERROR';
-            const count = suite.results ? `${suite.results.passed}/${suite.results.total}` : '0/0';
+            const status = suite.results && suite.results.allPassed ? '✅' : '❌';
+            const rate = suite.results && suite.results.passRate !== undefined ? `${suite.results.passRate}%` : 'ERROR';
+            const count = suite.results && suite.results.passed !== undefined && suite.results.total !== undefined ? `${suite.results.passed}/${suite.results.total}` : '0/0';
             
             console.log(`   ${status} ${suite.name}: ${count} (${rate})`);
             
@@ -363,6 +371,17 @@ function initializePWATestRunner() {
 
     if (typeof InstallationStorageTests !== 'undefined') {
         runner.addTestSuite('InstallationStorage', InstallationStorageTests);
+    }
+
+    // Notifications test suites
+    if (typeof NotificationsPermissionTests !== 'undefined') {
+        runner.addTestSuite('NotificationsPermission', NotificationsPermissionTests, { async: true });
+    }
+    if (typeof ReminderSchedulerTests !== 'undefined') {
+        runner.addTestSuite('ReminderScheduler', ReminderSchedulerTests);
+    }
+    if (typeof NotificationsSettingsIntegrationTests !== 'undefined') {
+        runner.addTestSuite('NotificationsSettingsIntegration', NotificationsSettingsIntegrationTests);
     }
 
     return runner;

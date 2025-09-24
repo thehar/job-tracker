@@ -5,7 +5,7 @@ All notable changes to Job Tracker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2024-12-18
+## [1.3.0] - 2025-12-18
 
 ### 🔧 Major Feature Release - Admin Panel & PWA Installation Analytics
 
@@ -116,7 +116,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.0] - 2024-12-13
+## [1.4.0] - 2025-09-24
+
+### 🔔 Feature Release - Local Notifications & Reminders
+
+#### Added
+- **Notifications System**
+  - Local interview reminders (default: 24h, 2h, 30m before)
+  - Follow-up alerts based on apply date or selected follow-up date
+  - Settings tab with permission request, toggles, timing controls, and test notification
+  - Service Worker hook to display notifications via postMessage
+  - ReminderScheduler with in-app timers and catch-up delivery on app load
+
+- **Job Form Fields**
+  - `Interview Date & Time` and `Follow-up Date` in add/edit forms
+  - Job cards display upcoming interview and follow-up info when present
+
+- **Dashboard**
+  - New summary metric: Upcoming Interviews (next 7 days)
+
+- **Tests**
+  - Notifications permission tests
+  - Reminder scheduler unit tests
+  - Settings integration tests
+
+#### Security
+- Preserves privacy with client-only notifications; no server push used
+
+#### Notes
+- Background delivery while app is fully closed is not guaranteed by browsers without push service; catch-up delivery occurs on next open.
+
+## [1.2.0] - 2025-12-13
 
 ### 📍 Major Feature Release - Application Source Tracking & Analytics
 
@@ -168,7 +198,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.1.0] - 2024-12-09
+## [1.1.0] - 2025-12-09
 
 ### 🚀 Major Feature Release - Full Offline Support & PWA
 
@@ -272,7 +302,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - 2024-01-20
+## [1.0.0] - 2025-01-20
 
 ### 🎉 Initial Release
 

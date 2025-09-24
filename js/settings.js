@@ -121,6 +121,42 @@ class SettingsManager {
         document.getElementById('checkInstallStatusBtn').addEventListener('click', () => {
             this.checkInstallationStatus();
         });
+
+        // Notifications management
+        const permissionBtn = document.getElementById('requestNotificationPermissionBtn');
+        const testBtn = document.getElementById('sendTestNotificationBtn');
+        const savePrefsBtn = document.getElementById('saveNotificationPrefsBtn');
+        const clearHistoryBtn = document.getElementById('clearNotificationHistoryBtn');
+        if (permissionBtn) {
+            permissionBtn.addEventListener('click', async () => {
+                const perm = await SystemNotificationManager.requestPermission();
+                this.updateNotificationPermissionStatus(perm);
+            });
+        }
+        if (testBtn) {
+            testBtn.addEventListener('click', async () => {
+                if (Notification.permission !== 'granted') {
+                    NotificationManager.error('Please grant notification permission first');
+                    return;
+                }
+                await SystemNotificationManager.send('Job Tracker', {
+                    body: 'Test notification from Job Tracker',
+                    icon: '/images/screenshot.png',
+                    tag: 'jt-test'
+                });
+            });
+        }
+        if (savePrefsBtn) {
+            savePrefsBtn.addEventListener('click', () => {
+                this.saveNotificationPreferencesFromUI();
+            });
+        }
+        if (clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', () => {
+                localStorage.setItem('jobTracker_notificationHistory', JSON.stringify([]));
+                this.showNotificationPrefsResult('Notification history cleared', 'success');
+            });
+        }
     }
 
     /**
@@ -147,6 +183,8 @@ class SettingsManager {
             this.renderStages();
         } else if (tabName === 'installation') {
             this.renderInstallationTab();
+        } else if (tabName === 'notifications') {
+            this.renderNotificationsTab();
         }
     }
 
@@ -167,6 +205,84 @@ class SettingsManager {
         `).join('');
         
         this.setupDragAndDrop('statusesList', 'statuses');
+    }
+
+    /**
+     * Render notifications tab content
+     */
+    renderNotificationsTab() {
+        // Reflect permission
+        this.updateNotificationPermissionStatus(Notification.permission);
+
+        // Load prefs
+        const prefs = NotificationStorage.loadPreferences();
+        const enabled = document.getElementById('notificationsEnabled');
+        const typeInterviews = document.getElementById('notifTypeInterviews');
+        const typeFollowUps = document.getElementById('notifTypeFollowUps');
+        const typeStatus = document.getElementById('notifTypeStatusChanges');
+        if (enabled) enabled.checked = !!prefs.enabled;
+        if (typeInterviews) typeInterviews.checked = !!prefs.types.interviews;
+        if (typeFollowUps) typeFollowUps.checked = !!prefs.types.followUps;
+        if (typeStatus) typeStatus.checked = !!prefs.types.statusChanges;
+
+        // Interview offsets
+        const interviewCheckboxes = document.querySelectorAll('.notifInterviewOffset');
+        interviewCheckboxes.forEach(cb => {
+            cb.checked = prefs.timing.interviews.includes(parseInt(cb.value, 10));
+        });
+        // Follow-up offsets
+        const followUpCheckboxes = document.querySelectorAll('.notifFollowUpOffset');
+        followUpCheckboxes.forEach(cb => {
+            cb.checked = prefs.timing.followUps.includes(parseInt(cb.value, 10));
+        });
+    }
+
+    /**
+     * Update permission status UI
+     * @param {NotificationPermission} perm
+     */
+    updateNotificationPermissionStatus(perm) {
+        const el = document.getElementById('notificationPermissionStatus');
+        if (el) el.textContent = perm || 'default';
+    }
+
+    /**
+     * Save preferences from the Notifications tab UI
+     */
+    saveNotificationPreferencesFromUI() {
+        const prefs = NotificationStorage.loadPreferences();
+        const enabled = document.getElementById('notificationsEnabled')?.checked || false;
+        const interviews = document.getElementById('notifTypeInterviews')?.checked || false;
+        const followUps = document.getElementById('notifTypeFollowUps')?.checked || false;
+        const statusChanges = document.getElementById('notifTypeStatusChanges')?.checked || false;
+        const interviewOffsets = Array.from(document.querySelectorAll('.notifInterviewOffset'))
+            .filter(cb => cb.checked)
+            .map(cb => parseInt(cb.value, 10));
+        const followUpOffsets = Array.from(document.querySelectorAll('.notifFollowUpOffset'))
+            .filter(cb => cb.checked)
+            .map(cb => parseInt(cb.value, 10));
+
+        const updated = {
+            ...prefs,
+            enabled,
+            types: { interviews, followUps, statusChanges },
+            timing: { interviews: interviewOffsets, followUps: followUpOffsets }
+        };
+
+        NotificationStorage.savePreferences(updated);
+        this.showNotificationPrefsResult('Notification preferences saved', 'success');
+    }
+
+    /**
+     * Show preferences save result
+     */
+    showNotificationPrefsResult(message, type = 'info') {
+        const resultDiv = document.getElementById('notificationPrefsResult');
+        if (!resultDiv) return;
+        resultDiv.textContent = message;
+        resultDiv.className = `cache-result ${type}`;
+        resultDiv.classList.remove('hidden');
+        setTimeout(() => resultDiv.classList.add('hidden'), 4000);
     }
 
     /**

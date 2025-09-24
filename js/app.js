@@ -26,6 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         initializeAdminPanel();
     }, 1000);
+
+    // Initialize reminder scheduler after app is ready
+    setTimeout(() => {
+        try {
+            if (typeof window.getReminderScheduler === 'function') {
+                window.getReminderScheduler();
+            }
+        } catch (e) {
+            console.warn('[App] Reminder scheduler init failed:', e);
+        }
+    }, 1500);
 });
 
 /**

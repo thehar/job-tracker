@@ -20,6 +20,12 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Company Status** - Track current status for each company you've applied to
 - **Visual Insights** - Beautiful Chart.js visualizations with responsive design
 
+### 🔔 Notifications (New)
+- **Interview Reminders** - Local reminders before scheduled interviews (24h, 2h, 30m by default)
+- **Follow-up Alerts** - Reminders to follow up after applying or selected date
+- **Privacy-First** - All notifications are local; no server push required
+- **Settings Control** - Enable/disable, choose types and timings, send test notification
+
 ### 🔧 Admin Panel
 - **PWA Installation Analytics** - Comprehensive tracking of app installation metrics
 - **Installation Funnel Charts** - Visual breakdown of prompts shown, clicks, and successful installs
@@ -79,6 +85,8 @@ A modern, client-side job application tracking system with analytics, CSV import
 - ✅ **Source Performance Analytics** - Interview rates by platform for strategic job search optimization
 - ✅ **Service Worker Implementation** - Full offline capability with intelligent caching strategies
 - ✅ **Advanced Analytics Export** - Multiple export formats with comprehensive metrics and insights
+- ✅ **Notifications** - Local interview and follow-up reminders with settings and test notification
+- ✅ **Upcoming Interviews** - Dashboard shows upcoming interviews in the next 7 days
 
 **Project Health:**
 - **Code Quality**: Excellent - Modern practices, modular architecture, comprehensive error handling
@@ -243,7 +251,7 @@ See `sample_import.csv` for a complete example.
 - [ ] **Calendar Integration** - Sync interview dates with calendar apps
 - [ ] **AI Insights** - Machine learning-powered job market insights
 - [ ] **Background Sync** - Sync data changes when connection restored
-- [ ] **Push Notifications** - Interview reminders and follow-up alerts
+- [x] **Push Notifications** - Interview reminders and follow-up alerts
 - [ ] **Teams Support** - Collaborative job tracking for groups
 - [ ] **Export Formats** - Additional export options (PDF, Excel)
 - [x] **App Installation** - Enhanced PWA installation prompts with analytics

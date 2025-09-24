@@ -436,7 +436,7 @@ async function getOfflineFallback(request) {
  * Handle service worker messages
  */
 self.addEventListener('message', event => {
-    const { type, data } = event.data;
+    const { type, data } = event.data || {};
     
     switch (type) {
         case 'SKIP_WAITING':
@@ -471,6 +471,17 @@ self.addEventListener('message', event => {
             });
             break;
             
+        case 'SHOW_NOTIFICATION':
+            try {
+                const { title, options } = data || {};
+                if (title) {
+                    self.registration.showNotification(title, options || {});
+                }
+            } catch (err) {
+                console.error('[SW] Failed to show notification:', err);
+            }
+            break;
+
         default:
             console.log('[SW] Unknown message type:', type);
     }
