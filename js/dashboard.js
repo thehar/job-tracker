@@ -62,6 +62,14 @@ class Dashboard {
                 this.resetInstallationAnalytics();
             });
         }
+
+        // Calendar sync for upcoming interviews
+        const syncUpcomingInterviewsBtn = document.getElementById('syncUpcomingInterviews');
+        if (syncUpcomingInterviewsBtn) {
+            syncUpcomingInterviewsBtn.addEventListener('click', () => {
+                this.syncUpcomingInterviewsToCalendar();
+            });
+        }
     }
 
     /**
@@ -1874,6 +1882,53 @@ class Dashboard {
                     window.notifications.show('Error resetting installation analytics', 'error');
                 }
             }
+        }
+    }
+
+    /**
+     * Sync upcoming interviews to calendar
+     */
+    syncUpcomingInterviewsToCalendar() {
+        if (!window.calendarIntegration) {
+            NotificationManager.show('Calendar integration not available', 'error');
+            return;
+        }
+
+        try {
+            const jobs = this.jobTracker.jobs;
+            const now = Date.now();
+            const sevenDays = 7 * 24 * 60 * 60 * 1000;
+            
+            // Find upcoming interviews
+            const upcomingInterviews = jobs.filter(job => {
+                if (!job.interviewDate) return false;
+                const interviewTime = new Date(job.interviewDate).getTime();
+                return !isNaN(interviewTime) && interviewTime >= now && interviewTime <= now + sevenDays;
+            });
+
+            if (upcomingInterviews.length === 0) {
+                NotificationManager.show('No upcoming interviews found in the next 7 days', 'info');
+                return;
+            }
+
+            // Sync each upcoming interview
+            let syncedCount = 0;
+            upcomingInterviews.forEach(job => {
+                if (window.calendarIntegration.settings.enabled) {
+                    window.calendarIntegration.syncJobToCalendar(job);
+                    syncedCount++;
+                }
+            });
+
+            if (syncedCount > 0) {
+                NotificationManager.show(`Synced ${syncedCount} upcoming interviews to calendar`, 'success');
+            } else {
+                NotificationManager.show('Calendar integration is disabled. Enable it in Settings > Calendar', 'warning');
+            }
+
+        } catch (error) {
+            console.error('[Dashboard] Error syncing upcoming interviews:', error);
+            NotificationManager.show('Failed to sync upcoming interviews to calendar', 'error');
         }
     }
 }

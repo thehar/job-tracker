@@ -5,6 +5,56 @@ All notable changes to Job Tracker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-09-26
+
+### 📅 Major Feature Release - Calendar Integration & UX Improvements
+
+#### Added
+- **Calendar Integration System**
+  - Multi-platform calendar support (Google Calendar, Outlook, Apple Calendar, iCal)
+  - Automatic event creation for interviews and follow-ups
+  - Smart sync settings with customizable event duration and reminders
+  - Privacy-focused design with all data staying local
+  - Dashboard integration with quick sync button for upcoming interviews
+  - Job card actions for adding calendar events directly
+  - Comprehensive calendar settings panel in Settings modal
+  - Calendar sync metadata tracking for each job application
+
+- **Enhanced Settings Modal UX**
+  - Fixed scrolling issues with proper modal body structure
+  - Improved responsive design for mobile and tablet screens
+  - Better tab navigation with compact design
+  - Smooth scrolling behavior for all settings content
+  - Enhanced accessibility with proper focus management
+
+#### Fixed
+- **Settings Modal Scrolling**
+  - Resolved content cut-off issues requiring manual scrolling
+  - Implemented proper flexbox layout for modal content
+  - Added responsive improvements for smaller screens
+  - Enhanced tab navigation and content area management
+
+- **Calendar Integration Bugs**
+  - Fixed calendar events detection logic
+  - Resolved settings persistence issues across page refreshes
+  - Improved calendar button visibility based on settings
+  - Enhanced error handling and debugging capabilities
+
+#### Technical Improvements
+- **Calendar Integration Architecture**
+  - New `CalendarIntegration` class with comprehensive event management
+  - Defensive settings loading with fallback mechanisms
+  - Enhanced data structure with calendar sync metadata
+  - Comprehensive test suite with 10+ test scenarios
+  - Cross-platform calendar URL generation
+  - iCal export functionality for offline calendar apps
+
+- **Settings Management**
+  - Enhanced `SettingsManager` with calendar settings support
+  - Improved tab switching logic with proper content rendering
+  - Better error handling and debugging capabilities
+  - Responsive design improvements for all screen sizes
+
 ## [1.3.0] - 2025-09-18
 
 ### 🔧 Major Feature Release - Admin Panel & PWA Installation Analytics

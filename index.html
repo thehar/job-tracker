@@ -204,6 +204,14 @@
                         <textarea id="notes" name="notes" rows="3" placeholder="Add any additional notes..."></textarea>
                     </div>
 
+                    <div class="form-group full-width">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="calendarSync" name="calendarSync" value="true">
+                            <label for="calendarSync">📅 Add to calendar (interviews and follow-ups)</label>
+                        </div>
+                        <small class="form-help">Automatically create calendar events for interviews and follow-up reminders</small>
+                    </div>
+
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Add Job</button>
                         <button type="reset" class="btn btn-secondary">Reset</button>
@@ -334,6 +342,11 @@
                         <div class="summary-content">
                             <div class="summary-number" id="upcomingInterviews">0</div>
                             <div class="summary-label">Upcoming (7d)</div>
+                        </div>
+                        <div class="summary-actions" id="calendarSyncActions" style="display: none;">
+                            <button id="syncUpcomingInterviews" class="btn btn-sm btn-calendar" title="Sync upcoming interviews to calendar">
+                                📅 Sync
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -561,11 +574,13 @@
                 <h3>Settings</h3>
                 <button id="closeSettings" class="close-btn">&times;</button>
             </div>
-            <div class="settings-content">
-                <div class="settings-tabs">
+            <div class="modal-body">
+                <div class="settings-content">
+                    <div class="settings-tabs">
                     <button type="button" class="settings-tab active" data-tab="password">Password</button>
                     <button type="button" class="settings-tab" data-tab="statuses">Statuses</button>
                     <button type="button" class="settings-tab" data-tab="stages">Stages</button>
+                    <button type="button" class="settings-tab" data-tab="calendar">Calendar</button>
                     <button type="button" class="settings-tab" data-tab="installation">Installation</button>
                     <button type="button" class="settings-tab" data-tab="notifications">Notifications</button>
                     <button type="button" class="settings-tab" data-tab="offline">Offline</button>
@@ -647,6 +662,90 @@
                             <button type="button" id="saveStagesBtn" class="btn btn-primary">Save Stages</button>
                             <button type="button" id="resetStagesBtn" class="btn btn-secondary">Reset to
                                 Default</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Tab -->
+                <div class="settings-tab-content" id="calendarTab">
+                    <div class="calendar-settings-section">
+                        <h4>Calendar Integration</h4>
+                        <p class="settings-description">Sync your job interviews and follow-ups with your calendar app for better organization and reminders.</p>
+
+                        <!-- Calendar Settings -->
+                        <div class="calendar-settings-card">
+                            <h5>Calendar Settings</h5>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="calendarEnabled" name="calendarEnabled">
+                                    <label for="calendarEnabled">Enable calendar integration</label>
+                                </div>
+                                <small class="form-help">Automatically create calendar events for interviews and follow-ups</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="calendarProvider">Calendar Provider</label>
+                                <select id="calendarProvider" name="calendarProvider">
+                                    <option value="google">Google Calendar</option>
+                                    <option value="outlook">Outlook Calendar</option>
+                                    <option value="apple">Apple Calendar</option>
+                                    <option value="ical">iCal File Download</option>
+                                </select>
+                                <small class="form-help">Choose your preferred calendar app</small>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="autoSyncEnabled" name="autoSyncEnabled">
+                                    <label for="autoSyncEnabled">Auto-sync on job updates</label>
+                                </div>
+                                <small class="form-help">Automatically sync calendar events when jobs are added or updated</small>
+                            </div>
+                        </div>
+
+                        <!-- Event Settings -->
+                        <div class="event-settings-card">
+                            <h5>Event Settings</h5>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="syncInterviews" name="syncInterviews" checked>
+                                    <label for="syncInterviews">Sync interview events</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="syncFollowUps" name="syncFollowUps">
+                                    <label for="syncFollowUps">Sync follow-up reminders</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eventDuration">Event Duration (minutes)</label>
+                                <input type="number" id="eventDuration" name="eventDuration" value="60" min="15" max="480" autocomplete="off">
+                                <small class="form-help">Default duration for calendar events</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reminderMinutes">Reminder Times (minutes before)</label>
+                                <input type="text" id="reminderMinutes" name="reminderMinutes" value="60,15" placeholder="60,15" autocomplete="off">
+                                <small class="form-help">Comma-separated list of reminder times in minutes</small>
+                            </div>
+                        </div>
+
+                        <!-- Test Calendar Integration -->
+                        <div class="calendar-test-card">
+                            <h5>Test Calendar Integration</h5>
+                            <p class="settings-description">Test your calendar integration settings with a sample event.</p>
+                            <button type="button" id="testCalendarBtn" class="btn btn-secondary">
+                                <span class="btn-icon">📅</span>
+                                Test Calendar Event
+                            </button>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" id="saveCalendarSettingsBtn" class="btn btn-primary">Save Calendar Settings</button>
+                            <button type="button" id="resetCalendarSettingsBtn" class="btn btn-secondary">Reset to Default</button>
                         </div>
                     </div>
                 </div>
@@ -900,6 +999,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
     </div>
@@ -995,6 +1095,14 @@
                     <textarea id="editNotes" name="notes" rows="3" placeholder="Add any additional notes..."></textarea>
                 </div>
 
+                <div class="form-group full-width">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="editCalendarSync" name="calendarSync" value="true">
+                        <label for="editCalendarSync">📅 Add to calendar (interviews and follow-ups)</label>
+                    </div>
+                    <small class="form-help">Automatically create calendar events for interviews and follow-up reminders</small>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Update Job</button>
                     <button type="button" id="cancelEdit" class="btn btn-secondary">Cancel</button>
@@ -1047,6 +1155,7 @@
     <script src="js/notifications.js"></script>
     <script src="js/data.js"></script>
     <script src="js/csv.js"></script>
+    <script src="js/calendar-integration.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/job-tracker.js"></script>
     <script src="js/dashboard.js"></script>

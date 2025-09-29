@@ -13,6 +13,7 @@ This is a client-side job application tracking system built with vanilla HTML, C
 ## Key Features
 - **Job Tracking**: Complete CRUD operations for job applications
 - **Analytics Dashboard**: Interactive charts and insights with Chart.js
+- **Calendar Integration**: Multi-platform calendar sync with privacy-first design
 - **Admin Panel**: PWA installation analytics with real-time metrics
 - **PWA Installation**: Cross-platform installation prompts and tracking
 - **Offline Support**: Full offline functionality with Service Worker caching
@@ -26,7 +27,7 @@ job-tracker/
 ├── styles.css              # Complete styling with CSS custom properties
 ├── sw.js                   # Service Worker for offline functionality
 ├── manifest.json           # PWA manifest
-├── js/                     # Modular JavaScript (15 files)
+├── js/                     # Modular JavaScript (16 files)
 │   ├── app.js              # Application entry point, PWA installation, admin panel
 │   ├── auth.js             # Authentication and security
 │   ├── data.js             # Data utilities and localStorage
@@ -36,6 +37,7 @@ job-tracker/
 │   ├── settings.js         # Settings, customization, PWA preferences
 │   ├── weekly-report.js    # Weekly report generation
 │   ├── notifications.js    # Toast notification system
+│   ├── calendar-integration.js # Calendar sync and event management
 │   ├── advanced-analytics.js # Advanced export and analytics
 │   ├── cross-platform-detector.js # Cross-platform detection
 │   ├── install-analytics.js # PWA installation analytics
@@ -160,6 +162,18 @@ button.setAttribute('role', 'button');
     --bg-primary: #0a1929;
     --border-color: #334155;
 }
+```
+
+### Calendar Integration
+```javascript
+// Calendar event generation
+const events = window.calendarIntegration.generateEventData(job);
+const hasEvents = window.calendarIntegration.hasCalendarEvents(job);
+
+// Calendar provider URLs
+const googleUrl = window.calendarIntegration.generateGoogleCalendarUrl(event);
+const outlookUrl = window.calendarIntegration.generateOutlookCalendarUrl(event);
+const icalData = window.calendarIntegration.generateICalData(event);
 ```
 
 ## When Making Changes

@@ -68,6 +68,12 @@ class DataManager {
             applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
+            calendarSync: formData.calendarSync ? {
+                enabled: formData.calendarSync === 'true',
+                lastSynced: null,
+                provider: null,
+                events: []
+            } : null,
             createdAt: new Date().toISOString()
         };
     }
@@ -91,6 +97,13 @@ class DataManager {
             applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
             contactPerson: formData.contactPerson ? formData.contactPerson.trim() : '',
             notes: formData.notes ? formData.notes.trim() : '',
+            calendarSync: formData.calendarSync ? {
+                ...existingJob.calendarSync,
+                enabled: formData.calendarSync === 'true',
+                lastSynced: existingJob.calendarSync?.lastSynced || null,
+                provider: existingJob.calendarSync?.provider || null,
+                events: existingJob.calendarSync?.events || []
+            } : existingJob.calendarSync,
             updatedAt: new Date().toISOString()
         };
     }

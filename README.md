@@ -26,6 +26,14 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Privacy-First** - All notifications are local; no server push required
 - **Settings Control** - Enable/disable, choose types and timings, send test notification
 
+### 📅 Calendar Integration (New)
+- **Multi-Platform Support** - Google Calendar, Outlook, Apple Calendar, and iCal file downloads
+- **Automatic Event Creation** - Generate calendar events for interviews and follow-ups
+- **Smart Sync Settings** - Choose which events to sync and customize event duration
+- **Privacy-Focused** - All calendar data stays local; no external API calls
+- **Dashboard Integration** - Quick sync button for upcoming interviews
+- **Job Card Actions** - Add calendar events directly from job cards
+
 ### 🔧 Admin Panel
 - **PWA Installation Analytics** - Comprehensive tracking of app installation metrics
 - **Installation Funnel Charts** - Visual breakdown of prompts shown, clicks, and successful installs

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Integration Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a1929;
+            color: #e8f4fd;
+        }
+        .test-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-title {
+            color: #42a5f5;
+            margin-top: 0;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+        .test-fail {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        .test-info {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid #2196f3;
+            color: #2196f3;
+        }
+        .test-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #1565c0;
+        }
+        .test-data {
+            background: #334155;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 Calendar Integration Test Suite</h1>
+    <p>Comprehensive testing for Job Tracker calendar integration features</p>
+
+    <!-- Test Controls -->
+    <div class="test-section">
+        <h2 class="test-title">Test Controls</h2>
+        <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+        <button class="test-button" onclick="clearResults()">Clear Results</button>
+        <button class="test-button" onclick="setupTestData()">Setup Test Data</button>
+    </div>
+
+    <!-- Calendar Integration Manager Tests -->
+    <div class="test-section">
+        <h2 class="test-title">Calendar Integration Manager Tests</h2>
+        <div id="calendarManagerTests"></div>
+        <button class="test-button" onclick="testCalendarManager()">Test Calendar Manager</button>
+    </div>
+
+    <!-- Calendar Event Generation Tests -->
+    <div class="test-section">
+        <h2 class="test-title">Calendar Event Generation Tests</h2>
+        <div id="eventGenerationTests"></div>
+        <button class="test-button" onclick="testEventGeneration()">Test Event Generation</button>
+    </div>
+
+    <!-- Calendar Provider Tests -->
+    <div class="test-section">
+        <h2 class="test-title">Calendar Provider Tests</h2>
+        <div id="providerTests"></div>
+        <button class="test-button" onclick="testCalendarProviders()">Test Calendar Providers</button>
+    </div>
+
+    <!-- iCal Export Tests -->
+    <div class="test-section">
+        <h2 class="test-title">iCal Export Tests</h2>
+        <div id="icalTests"></div>
+        <button class="test-button" onclick="testICalExport()">Test iCal Export</button>
+    </div>
+
+    <!-- Calendar Settings Tests -->
+    <div class="test-section">
+        <h2 class="test-title">Calendar Settings Tests</h2>
+        <div id="settingsTests"></div>
+        <button class="test-button" onclick="testCalendarSettings()">Test Calendar Settings</button>
+    </div>
+
+    <!-- Integration Tests -->
+    <div class="test-section">
+        <h2 class="test-title">Integration Tests</h2>
+        <div id="integrationTests"></div>
+        <button class="test-button" onclick="testCalendarIntegration()">Test Calendar Integration</button>
+    </div>
+
+    <!-- Test Results Summary -->
+    <div class="test-section">
+        <h2 class="test-title">Test Results Summary</h2>
+        <div id="testSummary"></div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/calendar-integration.js"></script>
+    <script src="js/notifications.js"></script>
+
+    <script>
+        // Test data
+        let testJobs = [];
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0
+        };
+
+        // Wait for calendar integration to be available
+        function waitForCalendarIntegration(callback) {
+            if (window.calendarIntegration) {
+                callback();
+            } else {
+                addResult('calendarManagerTests', 'Waiting for calendar integration to load...', 'info');
+                setTimeout(() => waitForCalendarIntegration(callback), 100);
+            }
+        }
+
+        // Initialize test environment
+        function setupTestData() {
+            testJobs = [
+                {
+                    id: 'test_job_1',
+                    title: 'Software Engineer',
+                    company: 'Tech Corp',
+                    status: 'Interview Scheduled',
+                    stage: 'Phone Screen',
+                    dateApplied: '2024-01-15',
+                    interviewDate: '2024-01-20T14:00:00',
+                    followUpDate: '2024-01-25',
+                    applicationSource: 'LinkedIn',
+                    contactPerson: 'John Smith',
+                    notes: 'Great opportunity',
+                    createdAt: '2024-01-15T10:00:00Z'
+                },
+                {
+                    id: 'test_job_2',
+                    title: 'Frontend Developer',
+                    company: 'Startup Inc',
+                    status: 'Applied',
+                    stage: 'Application Submitted',
+                    dateApplied: '2024-01-16',
+                    interviewDate: '',
+                    followUpDate: '2024-01-23',
+                    applicationSource: 'Indeed',
+                    contactPerson: 'Jane Doe',
+                    notes: 'Exciting startup',
+                    createdAt: '2024-01-16T09:00:00Z'
+                }
+            ];
+
+            // Save test data to localStorage
+            localStorage.setItem('jobTracker_jobs', JSON.stringify(testJobs));
+            
+            // Debug: Check if calendar integration exists
+            addResult('calendarManagerTests', `Calendar integration exists: ${!!window.calendarIntegration}`, 'info');
+            
+            if (window.calendarIntegration) {
+                addResult('calendarManagerTests', `Initial settings: ${JSON.stringify(window.calendarIntegration.settings)}`, 'info');
+                
+                // Force reload settings
+                window.calendarIntegration.settings = window.calendarIntegration.loadSettings();
+                addResult('calendarManagerTests', `Reloaded settings: ${JSON.stringify(window.calendarIntegration.settings)}`, 'info');
+                
+                // Enable calendar integration for testing
+                window.calendarIntegration.settings.enabled = true;
+                window.calendarIntegration.settings.syncInterviews = true;
+                window.calendarIntegration.settings.syncFollowUps = true;
+                
+                addResult('calendarManagerTests', `Final settings: ${JSON.stringify(window.calendarIntegration.settings)}`, 'info');
+                
+                // Continue with tests after setup
+                setTimeout(() => {
+                    testCalendarManager();
+                    testEventGeneration();
+                    testCalendarProviders();
+                    testICalExport();
+                    testCalendarSettings();
+                    testCalendarIntegration();
+                    
+                    // Display summary
+                    const summaryDiv = document.getElementById('testSummary');
+                    summaryDiv.innerHTML = `
+                        <div class="test-result test-info">
+                            <strong>Test Summary:</strong><br>
+                            Total Tests: ${testResults.total}<br>
+                            Passed: ${testResults.passed}<br>
+                            Failed: ${testResults.failed}<br>
+                            Success Rate: ${testResults.total > 0 ? Math.round((testResults.passed / testResults.total) * 100) : 0}%
+                        </div>
+                    `;
+                }, 100);
+            } else {
+                addResult('calendarManagerTests', 'ERROR: Calendar integration not found!', 'fail');
+            }
+            
+            addResult('calendarManagerTests', 'Test data setup completed', 'info');
+        }
+
+        // Test result management
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result test-${type}`;
+            resultDiv.textContent = message;
+            container.appendChild(resultDiv);
+            
+            if (type === 'pass') testResults.passed++;
+            if (type === 'fail') testResults.failed++;
+            testResults.total++;
+        }
+
+        function clearResults() {
+            const containers = [
+                'calendarManagerTests', 'eventGenerationTests', 'providerTests',
+                'icalTests', 'settingsTests', 'integrationTests', 'testSummary'
+            ];
+            containers.forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            testResults = { passed: 0, failed: 0, total: 0 };
+        }
+
+        // Calendar Manager Tests
+        function testCalendarManager() {
+            addResult('calendarManagerTests', 'Testing Calendar Integration Manager...', 'info');
+            
+            try {
+                // Test initialization
+                if (window.calendarIntegration) {
+                    addResult('calendarManagerTests', '✓ Calendar Integration Manager initialized', 'pass');
+                } else {
+                    addResult('calendarManagerTests', '✗ Calendar Integration Manager not found', 'fail');
+                    return;
+                }
+
+                // Test settings loading
+                const settings = window.calendarIntegration.settings;
+                if (settings && typeof settings === 'object') {
+                    addResult('calendarManagerTests', '✓ Settings loaded successfully', 'pass');
+                } else {
+                    addResult('calendarManagerTests', '✗ Settings loading failed', 'fail');
+                }
+
+                // Test settings saving
+                const testSettings = { enabled: true, provider: 'google' };
+                window.calendarIntegration.saveSettings(testSettings);
+                const savedSettings = window.calendarIntegration.settings;
+                if (savedSettings.enabled === true && savedSettings.provider === 'google') {
+                    addResult('calendarManagerTests', '✓ Settings saving works', 'pass');
+                } else {
+                    addResult('calendarManagerTests', '✗ Settings saving failed', 'fail');
+                }
+
+                // Test settings persistence
+                const reloadedSettings = window.calendarIntegration.loadSettings();
+                if (reloadedSettings.enabled === true && reloadedSettings.provider === 'google') {
+                    addResult('calendarManagerTests', '✓ Settings persistence works', 'pass');
+                } else {
+                    addResult('calendarManagerTests', '✗ Settings persistence failed', 'fail');
+                }
+
+            } catch (error) {
+                addResult('calendarManagerTests', `✗ Calendar Manager test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // Event Generation Tests
+        function testEventGeneration() {
+            addResult('eventGenerationTests', 'Testing calendar event generation...', 'info');
+            
+            try {
+                if (!window.calendarIntegration) {
+                    addResult('eventGenerationTests', '✗ Calendar Integration not available', 'fail');
+                    return;
+                }
+
+                const testJob = testJobs[0]; // Job with interview date
+                const events = window.calendarIntegration.generateEventData(testJob);
+                
+                if (Array.isArray(events) && events.length > 0) {
+                    addResult('eventGenerationTests', `✓ Generated ${events.length} calendar events`, 'pass');
+                    
+                    // Test event structure
+                    const event = events[0];
+                    if (event.title && event.startDate && event.endDate) {
+                        addResult('eventGenerationTests', '✓ Event structure is valid', 'pass');
+                    } else {
+                        addResult('eventGenerationTests', '✗ Event structure is invalid', 'fail');
+                    }
+                } else {
+                    addResult('eventGenerationTests', '✗ No events generated', 'fail');
+                }
+
+                // Test event description generation
+                const description = window.calendarIntegration.generateEventDescription(testJob, 'interview');
+                if (description && description.includes(testJob.title)) {
+                    addResult('eventGenerationTests', '✓ Event description generation works', 'pass');
+                } else {
+                    addResult('eventGenerationTests', '✗ Event description generation failed', 'fail');
+                }
+
+            } catch (error) {
+                addResult('eventGenerationTests', `✗ Event generation test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // Calendar Provider Tests
+        function testCalendarProviders() {
+            addResult('providerTests', 'Testing calendar provider URL generation...', 'info');
+            
+            try {
+                if (!window.calendarIntegration) {
+                    addResult('providerTests', '✗ Calendar Integration not available', 'fail');
+                    return;
+                }
+
+                const testEvent = {
+                    title: 'Test Interview',
+                    description: 'Test Description',
+                    startDate: new Date('2024-01-20T14:00:00'),
+                    endDate: new Date('2024-01-20T15:00:00'),
+                    location: 'Test Location',
+                    reminders: [60, 15],
+                    type: 'interview'
+                };
+
+                // Test Google Calendar URL
+                const googleUrl = window.calendarIntegration.generateGoogleCalendarUrl(testEvent);
+                if (googleUrl && googleUrl.includes('calendar.google.com')) {
+                    addResult('providerTests', '✓ Google Calendar URL generation works', 'pass');
+                } else {
+                    addResult('providerTests', '✗ Google Calendar URL generation failed', 'fail');
+                }
+
+                // Test Outlook Calendar URL
+                const outlookUrl = window.calendarIntegration.generateOutlookCalendarUrl(testEvent);
+                if (outlookUrl && outlookUrl.includes('outlook.live.com')) {
+                    addResult('providerTests', '✓ Outlook Calendar URL generation works', 'pass');
+                } else {
+                    addResult('providerTests', '✗ Outlook Calendar URL generation failed', 'fail');
+                }
+
+                // Test iCal data generation
+                const icalData = window.calendarIntegration.generateICalData(testEvent);
+                if (icalData && icalData.includes('BEGIN:VCALENDAR') && icalData.includes('END:VCALENDAR')) {
+                    addResult('providerTests', '✓ iCal data generation works', 'pass');
+                } else {
+                    addResult('providerTests', '✗ iCal data generation failed', 'fail');
+                }
+
+            } catch (error) {
+                addResult('providerTests', `✗ Provider test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // iCal Export Tests
+        function testICalExport() {
+            addResult('icalTests', 'Testing iCal export functionality...', 'info');
+            
+            try {
+                if (!window.calendarIntegration) {
+                    addResult('icalTests', '✗ Calendar Integration not available', 'fail');
+                    return;
+                }
+
+                const testEvent = {
+                    title: 'Test Interview Export',
+                    description: 'Testing iCal export functionality',
+                    startDate: new Date('2024-01-20T14:00:00'),
+                    endDate: new Date('2024-01-20T15:00:00'),
+                    location: 'Test Location',
+                    reminders: [60, 15],
+                    type: 'interview'
+                };
+
+                // Test iCal data format
+                const icalData = window.calendarIntegration.generateICalData(testEvent);
+                
+                // Check required iCal fields
+                const requiredFields = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'BEGIN:VEVENT',
+                    'SUMMARY:',
+                    'DTSTART:',
+                    'DTEND:',
+                    'END:VEVENT',
+                    'END:VCALENDAR'
+                ];
+
+                let allFieldsPresent = true;
+                requiredFields.forEach(field => {
+                    if (!icalData.includes(field)) {
+                        allFieldsPresent = false;
+                    }
+                });
+
+                if (allFieldsPresent) {
+                    addResult('icalTests', '✓ iCal data contains all required fields', 'pass');
+                } else {
+                    addResult('icalTests', '✗ iCal data missing required fields', 'fail');
+                }
+
+                // Test date formatting
+                const dateRegex = /\d{8}T\d{6}Z/;
+                if (dateRegex.test(icalData)) {
+                    addResult('icalTests', '✓ iCal date formatting is correct', 'pass');
+                } else {
+                    addResult('icalTests', '✗ iCal date formatting is incorrect', 'fail');
+                }
+
+                // Display sample iCal data
+                addResult('icalTests', 'Sample iCal data:', 'info');
+                const sampleDiv = document.createElement('div');
+                sampleDiv.className = 'test-data';
+                sampleDiv.textContent = icalData.substring(0, 500) + '...';
+                document.getElementById('icalTests').appendChild(sampleDiv);
+
+            } catch (error) {
+                addResult('icalTests', `✗ iCal export test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // Calendar Settings Tests
+        function testCalendarSettings() {
+            addResult('settingsTests', 'Testing calendar settings management...', 'info');
+            
+            try {
+                if (!window.calendarIntegration) {
+                    addResult('settingsTests', '✗ Calendar Integration not available', 'fail');
+                    return;
+                }
+
+                // Test default settings
+                const defaultSettings = window.calendarIntegration.loadSettings();
+                if (defaultSettings && typeof defaultSettings === 'object') {
+                    addResult('settingsTests', '✓ Default settings loaded', 'pass');
+                } else {
+                    addResult('settingsTests', '✗ Default settings loading failed', 'fail');
+                }
+
+                // Test settings saving
+                const testSettings = {
+                    enabled: true,
+                    provider: 'outlook',
+                    autoSync: false,
+                    syncInterviews: true,
+                    syncFollowUps: false,
+                    eventDuration: 90,
+                    reminderMinutes: [120, 30]
+                };
+
+                window.calendarIntegration.saveSettings(testSettings);
+                const savedSettings = window.calendarIntegration.settings;
+                
+                if (savedSettings.enabled === testSettings.enabled && 
+                    savedSettings.provider === testSettings.provider) {
+                    addResult('settingsTests', '✓ Settings saving and loading works', 'pass');
+                } else {
+                    addResult('settingsTests', '✗ Settings saving and loading failed', 'fail');
+                }
+
+                // Test job sync status
+                const testJob = testJobs[0];
+                const syncStatus = window.calendarIntegration.getJobSyncStatus(testJob);
+                if (typeof syncStatus === 'object' && 'synced' in syncStatus) {
+                    addResult('settingsTests', '✓ Job sync status retrieval works', 'pass');
+                } else {
+                    addResult('settingsTests', '✗ Job sync status retrieval failed', 'fail');
+                }
+
+            } catch (error) {
+                addResult('settingsTests', `✗ Calendar settings test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // Integration Tests
+        function testCalendarIntegration() {
+            addResult('integrationTests', 'Testing calendar integration with job data...', 'info');
+            
+            try {
+                if (!window.calendarIntegration) {
+                    addResult('integrationTests', '✗ Calendar Integration not available', 'fail');
+                    return;
+                }
+
+                // Test calendar buttons generation
+                const testJob = testJobs[0];
+                const calendarButtons = window.calendarIntegration.getCalendarButtons(testJob);
+                if (calendarButtons && calendarButtons.includes('btn-calendar')) {
+                    addResult('integrationTests', '✓ Calendar buttons generation works', 'pass');
+                } else {
+                    addResult('integrationTests', '✗ Calendar buttons generation failed', 'fail');
+                }
+
+                // Test hasCalendarEvents method
+                addResult('integrationTests', `Testing with job: ${JSON.stringify(testJob)}`, 'info');
+                addResult('integrationTests', `Calendar settings: ${JSON.stringify(window.calendarIntegration.settings)}`, 'info');
+                
+                // Test the method step by step
+                try {
+                    addResult('integrationTests', 'Testing hasCalendarEvents method...', 'info');
+                    
+                    // Check if method exists
+                    if (typeof window.calendarIntegration.hasCalendarEvents !== 'function') {
+                        addResult('integrationTests', '✗ hasCalendarEvents method not found', 'fail');
+                        return;
+                    }
+                    
+                    // Test the method
+                    const hasEvents = window.calendarIntegration.hasCalendarEvents(testJob);
+                    addResult('integrationTests', `hasCalendarEvents result: ${hasEvents} (type: ${typeof hasEvents})`, 'info');
+                    
+                    if (typeof hasEvents === 'boolean') {
+                        addResult('integrationTests', '✓ Calendar events detection works', 'pass');
+                        
+                        // Test with calendar integration disabled
+                        const originalEnabled = window.calendarIntegration.settings.enabled;
+                        window.calendarIntegration.settings.enabled = false;
+                        const hasEventsDisabled = window.calendarIntegration.hasCalendarEvents(testJob);
+                        addResult('integrationTests', `hasCalendarEvents when disabled: ${hasEventsDisabled}`, 'info');
+                        window.calendarIntegration.settings.enabled = originalEnabled;
+                        
+                        if (hasEventsDisabled === false) {
+                            addResult('integrationTests', '✓ Calendar events detection respects enabled setting', 'pass');
+                        } else {
+                            addResult('integrationTests', '✗ Calendar events detection should return false when disabled', 'fail');
+                        }
+                        
+                        // Test with calendar integration enabled
+                        window.calendarIntegration.settings.enabled = true;
+                        const hasEventsEnabled = window.calendarIntegration.hasCalendarEvents(testJob);
+                        addResult('integrationTests', `hasCalendarEvents when enabled: ${hasEventsEnabled}`, 'info');
+                        if (hasEventsEnabled === true) {
+                            addResult('integrationTests', '✓ Calendar events detection works when enabled', 'pass');
+                        } else {
+                            addResult('integrationTests', '✗ Calendar events detection should return true when enabled and job has events', 'fail');
+                        }
+                    } else {
+                        addResult('integrationTests', '✗ Calendar events detection failed - not returning boolean', 'fail');
+                    }
+                } catch (error) {
+                    addResult('integrationTests', `✗ Calendar events detection failed with error: ${error.message}`, 'fail');
+                    console.error('hasCalendarEvents error:', error);
+                }
+
+                // Test event data generation for multiple jobs
+                let totalEvents = 0;
+                testJobs.forEach(job => {
+                    const events = window.calendarIntegration.generateEventData(job);
+                    totalEvents += events.length;
+                });
+
+                if (totalEvents > 0) {
+                    addResult('integrationTests', `✓ Generated ${totalEvents} total events from test jobs`, 'pass');
+                } else {
+                    addResult('integrationTests', '✗ No events generated from test jobs', 'fail');
+                }
+
+                // Test calendar action handling
+                try {
+                    window.calendarIntegration.handleCalendarAction('add-interview', testJob.id);
+                    addResult('integrationTests', '✓ Calendar action handling works', 'pass');
+                } catch (error) {
+                    addResult('integrationTests', '✗ Calendar action handling failed', 'fail');
+                }
+
+            } catch (error) {
+                addResult('integrationTests', `✗ Integration test failed: ${error.message}`, 'fail');
+            }
+        }
+
+        // Run all tests
+        function runAllTests() {
+            clearResults();
+            waitForCalendarIntegration(setupTestData);
+            
+            addResult('testSummary', 'Starting comprehensive calendar integration tests...', 'info');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('testSummary', 'Calendar Integration Test Suite loaded. Click "Run All Tests" to begin.', 'info');
+        });
+    </script>
+</body>
+</html>

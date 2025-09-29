@@ -92,6 +92,19 @@ class JobTracker {
             this.updateJob();
         });
 
+        // Calendar action buttons
+        document.getElementById('jobsList').addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-action^="add-"]');
+            if (!button) return;
+
+            const action = button.dataset.action;
+            const jobId = button.dataset.jobId;
+
+            if (window.calendarIntegration) {
+                window.calendarIntegration.handleCalendarAction(action, jobId);
+            }
+        });
+
         // Event delegation for job action buttons
         document.getElementById('jobsList').addEventListener('click', (e) => {
             const button = e.target.closest('button[data-action]');
@@ -215,9 +228,12 @@ class JobTracker {
         document.getElementById('editStatus').value = job.status;
         document.getElementById('editStage').value = job.stage || '';
         document.getElementById('editDateApplied').value = job.dateApplied;
+        document.getElementById('editInterviewDate').value = job.interviewDate || '';
+        document.getElementById('editFollowUpDate').value = job.followUpDate || '';
         document.getElementById('editApplicationSource').value = job.applicationSource || '';
         document.getElementById('editContactPerson').value = job.contactPerson || '';
         document.getElementById('editNotes').value = job.notes || '';
+        document.getElementById('editCalendarSync').checked = job.calendarSync?.enabled || false;
 
         // Show modal
         document.getElementById('editModal').classList.remove('hidden');
@@ -337,6 +353,7 @@ class JobTracker {
                     <button class="btn btn-danger btn-sm" data-action="delete" data-job-id="${job.id}">
                         Delete
                     </button>
+                    ${window.calendarIntegration ? window.calendarIntegration.getCalendarButtons(job) : ''}
                 </div>
             </div>
         `;

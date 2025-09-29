@@ -24,6 +24,7 @@ class SettingsManager {
         
         this.statuses = this.loadStatuses();
         this.stages = this.loadStages();
+        this.calendarSettings = this.loadCalendarSettings();
         this.setupEventListeners();
     }
 
@@ -64,6 +65,53 @@ class SettingsManager {
     }
 
     /**
+     * Load calendar settings from localStorage
+     * @returns {Object} Calendar settings object
+     */
+    loadCalendarSettings() {
+        const defaults = {
+            enabled: false,
+            provider: 'google',
+            autoSync: true,
+            syncInterviews: true,
+            syncFollowUps: false,
+            eventDuration: 60,
+            reminderMinutes: [60, 15]
+        };
+
+        try {
+            const stored = localStorage.getItem('jobTracker_calendarSettings');
+            if (!stored) return defaults;
+            const parsed = JSON.parse(stored);
+            return { ...defaults, ...parsed };
+        } catch (error) {
+            console.warn('[SettingsManager] Failed to load calendar settings:', error);
+            return defaults;
+        }
+    }
+
+    /**
+     * Save calendar settings to localStorage
+     * @param {Object} settings - Calendar settings to save
+     */
+    saveCalendarSettings(settings) {
+        try {
+            this.calendarSettings = { ...this.calendarSettings, ...settings };
+            localStorage.setItem('jobTracker_calendarSettings', JSON.stringify(this.calendarSettings));
+            
+            // Update calendar integration if available
+            if (window.calendarIntegration) {
+                window.calendarIntegration.saveSettings(this.calendarSettings);
+            }
+            
+            NotificationManager.show('Calendar settings saved successfully!', 'success');
+        } catch (error) {
+            console.error('[SettingsManager] Failed to save calendar settings:', error);
+            NotificationManager.show('Failed to save calendar settings', 'error');
+        }
+    }
+
+    /**
      * Setup settings event listeners
      */
     setupEventListeners() {
@@ -98,6 +146,24 @@ class SettingsManager {
 
         document.getElementById('resetStagesBtn').addEventListener('click', () => {
             this.resetStages();
+        });
+
+        // Calendar settings
+        document.getElementById('saveCalendarSettingsBtn').addEventListener('click', () => {
+            this.saveCalendarSettingsFromForm();
+        });
+
+        document.getElementById('resetCalendarSettingsBtn').addEventListener('click', () => {
+            this.resetCalendarSettings();
+        });
+
+        document.getElementById('testCalendarBtn').addEventListener('click', () => {
+            this.testCalendarIntegration();
+        });
+
+        // Refresh calendar settings when calendar tab is opened
+        document.querySelector('[data-tab="calendar"]').addEventListener('click', () => {
+            this.refreshCalendarSettings();
         });
 
         // Enter key support for inputs
@@ -164,23 +230,40 @@ class SettingsManager {
      * @param {string} tabName - Name of tab to switch to
      */
     switchTab(tabName) {
+        console.log('[SettingsManager] switchTab called with:', tabName);
+        
         // Update tab buttons
         document.querySelectorAll('.settings-tab').forEach(tab => {
             tab.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        const tabButton = document.querySelector(`[data-tab="${tabName}"]`);
+        if (tabButton) {
+            tabButton.classList.add('active');
+            console.log('[SettingsManager] Tab button activated:', tabName);
+        } else {
+            console.warn('[SettingsManager] Tab button not found:', tabName);
+        }
 
         // Update tab content
         document.querySelectorAll('.settings-tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        document.getElementById(`${tabName}Tab`).classList.add('active');
+        const tabContent = document.getElementById(`${tabName}Tab`);
+        if (tabContent) {
+            tabContent.classList.add('active');
+            console.log('[SettingsManager] Tab content activated:', `${tabName}Tab`);
+        } else {
+            console.warn('[SettingsManager] Tab content not found:', `${tabName}Tab`);
+        }
 
         // Render appropriate content
         if (tabName === 'statuses') {
             this.renderStatuses();
         } else if (tabName === 'stages') {
             this.renderStages();
+        } else if (tabName === 'calendar') {
+            console.log('[SettingsManager] Rendering calendar tab...');
+            this.renderCalendarTab();
         } else if (tabName === 'installation') {
             this.renderInstallationTab();
         } else if (tabName === 'notifications') {
@@ -699,5 +782,121 @@ class SettingsManager {
         manualInstallBtn.classList.add('btn-disabled');
         
         this.showInstallationResult(message, 'error');
+    }
+
+    /**
+     * Save calendar settings from form
+     */
+    saveCalendarSettingsFromForm() {
+        try {
+            const settings = {
+                enabled: document.getElementById('calendarEnabled').checked,
+                provider: document.getElementById('calendarProvider').value,
+                autoSync: document.getElementById('autoSyncEnabled').checked,
+                syncInterviews: document.getElementById('syncInterviews').checked,
+                syncFollowUps: document.getElementById('syncFollowUps').checked,
+                eventDuration: parseInt(document.getElementById('eventDuration').value) || 60,
+                reminderMinutes: document.getElementById('reminderMinutes').value
+                    .split(',')
+                    .map(m => parseInt(m.trim()))
+                    .filter(m => !isNaN(m))
+            };
+
+            this.saveCalendarSettings(settings);
+            this.renderCalendarTab();
+        } catch (error) {
+            console.error('[Settings] Error saving calendar settings:', error);
+            NotificationManager.show('Failed to save calendar settings', 'error');
+        }
+    }
+
+    /**
+     * Reset calendar settings to default
+     */
+    resetCalendarSettings() {
+        if (confirm('Are you sure you want to reset calendar settings to default?')) {
+            this.calendarSettings = this.loadCalendarSettings();
+            this.renderCalendarTab();
+            NotificationManager.show('Calendar settings reset to default', 'success');
+        }
+    }
+
+    /**
+     * Test calendar integration
+     */
+    testCalendarIntegration() {
+        if (!window.calendarIntegration) {
+            NotificationManager.show('Calendar integration not available', 'error');
+            return;
+        }
+
+        try {
+            // Create a test event
+            const testEvent = {
+                title: 'Test: Job Tracker Calendar Integration',
+                description: 'This is a test event from Job Tracker to verify calendar integration is working properly.',
+                startDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+                endDate: new Date(Date.now() + 24 * 60 * 60 * 1000 + 60 * 60 * 1000), // Tomorrow + 1 hour
+                location: 'Test Location',
+                reminders: [60, 15],
+                type: 'test'
+            };
+
+            window.calendarIntegration.addEventToCalendar(testEvent);
+            NotificationManager.show('Test calendar event created! Check your calendar app.', 'success');
+        } catch (error) {
+            console.error('[Settings] Error testing calendar integration:', error);
+            NotificationManager.show('Failed to test calendar integration', 'error');
+        }
+    }
+
+    /**
+     * Refresh calendar settings from localStorage
+     */
+    refreshCalendarSettings() {
+        this.calendarSettings = this.loadCalendarSettings();
+        this.renderCalendarTab();
+    }
+
+    /**
+     * Render calendar settings tab
+     */
+    renderCalendarTab() {
+        console.log('[SettingsManager] renderCalendarTab called');
+        console.log('[SettingsManager] calendarSettings:', this.calendarSettings);
+        
+        if (!this.calendarSettings) {
+            console.warn('[SettingsManager] calendarSettings is null/undefined, reloading...');
+            this.calendarSettings = this.loadCalendarSettings();
+            console.log('[SettingsManager] reloaded calendarSettings:', this.calendarSettings);
+        }
+
+        // Populate form fields
+        const calendarEnabled = document.getElementById('calendarEnabled');
+        const calendarProvider = document.getElementById('calendarProvider');
+        const autoSyncEnabled = document.getElementById('autoSyncEnabled');
+        const syncInterviews = document.getElementById('syncInterviews');
+        const syncFollowUps = document.getElementById('syncFollowUps');
+        const eventDuration = document.getElementById('eventDuration');
+        const reminderMinutes = document.getElementById('reminderMinutes');
+        
+        if (calendarEnabled) calendarEnabled.checked = this.calendarSettings.enabled;
+        if (calendarProvider) calendarProvider.value = this.calendarSettings.provider;
+        if (autoSyncEnabled) autoSyncEnabled.checked = this.calendarSettings.autoSync;
+        if (syncInterviews) syncInterviews.checked = this.calendarSettings.syncInterviews;
+        if (syncFollowUps) syncFollowUps.checked = this.calendarSettings.syncFollowUps;
+        if (eventDuration) eventDuration.value = this.calendarSettings.eventDuration;
+        if (reminderMinutes) reminderMinutes.value = this.calendarSettings.reminderMinutes.join(', ');
+        
+        console.log('[SettingsManager] Form fields populated');
+        
+        // Update calendar integration settings
+        if (window.calendarIntegration) {
+            window.calendarIntegration.settings = this.calendarSettings;
+            window.calendarIntegration.updateUI();
+            console.log('[SettingsManager] Calendar integration updated');
+        } else {
+            console.warn('[SettingsManager] Calendar integration not found');
+        }
     }
 }
