@@ -1,11 +1,14 @@
 /**
  * Main Job Tracker Application
  * Handles job CRUD operations, form management, and UI interactions
+ * Enhanced to use state manager for reactive updates
  */
 class JobTracker {
     constructor() {
         this.jobs = [];
         this.currentFilter = '';
+        this.stateManager = null;
+        this.unsubscribers = [];
         this.init();
     }
 
@@ -13,25 +16,63 @@ class JobTracker {
      * Initialize the job tracker
      */
     init() {
-        this.loadJobs();
         this.setupEventListeners();
+        this.loadJobs();
         this.renderJobs();
         this.updateStats();
         this.setDefaultDate();
+        this.setupStateManager();
     }
 
     /**
-     * Load jobs from localStorage
+     * Setup state manager integration
+     */
+    setupStateManager() {
+        // State manager should be ready by the time this component is created
+        if (isStateManagerAvailable()) {
+            this.stateManager = getStateManager();
+            this.setupStateSubscriptions();
+        } else {
+            console.warn('[JobTracker] State manager not available during setup');
+        }
+    }
+
+    /**
+     * Setup state manager subscriptions
+     */
+    setupStateSubscriptions() {
+        if (!this.stateManager) return;
+
+        // Subscribe to job changes
+        const unsubscribeJobs = this.stateManager.subscribe('state:jobs:changed', (jobs) => {
+            try {
+                this.jobs = jobs;
+                this.renderJobs();
+                this.updateStats();
+            } catch (error) {
+                console.error('[JobTracker] Error in state subscription callback:', error);
+            }
+        });
+
+        this.unsubscribers.push(unsubscribeJobs);
+    }
+
+    /**
+     * Load jobs from storage (deprecated - use state manager instead)
      */
     loadJobs() {
-        this.jobs = DataManager.loadJobs();
+        // This method is kept for backward compatibility but should not be used
+        // when state manager is available. Jobs are loaded via state subscription.
+        if (!this.stateManager) {
+            this.jobs = DataManager.loadJobs();
+        }
     }
 
     /**
-     * Save jobs to localStorage
+     * Save jobs to storage
      */
-    saveJobs() {
-        DataManager.saveJobs(this.jobs);
+    async saveJobs() {
+        await DataManager.saveJobs(this.jobs);
     }
 
     /**
@@ -132,7 +173,7 @@ class JobTracker {
     /**
      * Add a new job
      */
-    addJob() {
+    async addJob() {
         const formData = DataManager.getFormData('jobForm');
 
         if (!DataManager.validateJobData(formData)) {
@@ -140,28 +181,42 @@ class JobTracker {
             return;
         }
 
-        const newJob = DataManager.createJobObject(formData);
+        try {
+            let newJob;
+            
+            // Use state manager if available
+            if (this.stateManager) {
+                newJob = await this.stateManager.addJob(formData);
+            } else {
+                // Fallback to direct manipulation
+                newJob = DataManager.createJobObject(formData);
+                this.jobs.unshift(newJob);
+                this.saveJobs();
+                this.renderJobs();
+                this.updateStats();
+            }
 
-        this.jobs.unshift(newJob);
-        this.saveJobs();
-        this.renderJobs();
-        this.updateStats();
-        DataManager.resetForm('jobForm');
+            DataManager.resetForm('jobForm');
 
-        // Update dashboard if it exists
-        if (window.dashboard) {
-            window.dashboard.refresh();
+            // Update dashboard if it exists
+            if (window.dashboard) {
+                window.dashboard.refresh();
+            }
+
+            NotificationManager.show('Job added successfully!', 'success');
+            // Schedule reminders for this job
+            try { window.getReminderScheduler()?.scheduleForJob(newJob); } catch (e) { /* no-op */ }
+            
+        } catch (error) {
+            console.error('[JobTracker] Failed to add job:', error);
+            NotificationManager.show('Failed to add job. Please try again.', 'error');
         }
-
-        NotificationManager.show('Job added successfully!', 'success');
-        // Schedule reminders for this job
-        try { window.getReminderScheduler()?.scheduleForJob(newJob); } catch (e) { /* no-op */ }
     }
 
     /**
      * Update existing job
      */
-    updateJob() {
+    async updateJob() {
         const formData = DataManager.getFormData('editForm');
         const jobId = document.getElementById('editJobId').value;
 
@@ -170,46 +225,73 @@ class JobTracker {
             return;
         }
 
-        const jobIndex = this.jobs.findIndex(job => job.id === jobId);
-        if (jobIndex === -1) {
-            NotificationManager.show('Job not found!', 'error');
-            return;
-        }
+        try {
+            let updatedJob;
+            
+            // Use state manager if available
+            if (this.stateManager) {
+                updatedJob = await this.stateManager.updateJob(jobId, formData);
+            } else {
+                // Fallback to direct manipulation
+                const jobIndex = this.jobs.findIndex(job => job.id === jobId);
+                if (jobIndex === -1) {
+                    NotificationManager.show('Job not found!', 'error');
+                    return;
+                }
 
-        this.jobs[jobIndex] = DataManager.updateJobObject(this.jobs[jobIndex], formData);
+                updatedJob = DataManager.updateJobObject(this.jobs[jobIndex], formData);
+                this.jobs[jobIndex] = updatedJob;
+                this.saveJobs();
+                this.renderJobs();
+                this.updateStats();
+            }
 
-        this.saveJobs();
-        this.renderJobs();
-        this.updateStats();
-        this.closeEditModal();
-
-        // Update dashboard if it exists
-        if (window.dashboard) {
-            window.dashboard.refresh();
-        }
-
-        NotificationManager.show('Job updated successfully!', 'success');
-        // Reschedule reminders for this job
-        try { window.getReminderScheduler()?.rescheduleForJob(this.jobs[jobIndex]); } catch (e) { /* no-op */ }
-    }
-
-    /**
-     * Delete a job
-     * @param {string} jobId - ID of job to delete
-     */
-    deleteJob(jobId) {
-        if (confirm('Are you sure you want to delete this job application?')) {
-            this.jobs = this.jobs.filter(job => job.id !== jobId);
-            this.saveJobs();
-            this.renderJobs();
-            this.updateStats();
+            this.closeEditModal();
 
             // Update dashboard if it exists
             if (window.dashboard) {
                 window.dashboard.refresh();
             }
 
-            NotificationManager.show('Job deleted successfully!', 'success');
+            NotificationManager.show('Job updated successfully!', 'success');
+            // Reschedule reminders for this job
+            try { window.getReminderScheduler()?.rescheduleForJob(updatedJob); } catch (e) { /* no-op */ }
+            
+        } catch (error) {
+            console.error('[JobTracker] Failed to update job:', error);
+            NotificationManager.show('Failed to update job. Please try again.', 'error');
+        }
+    }
+
+    /**
+     * Delete a job
+     * @param {string} jobId - ID of job to delete
+     */
+    async deleteJob(jobId) {
+        if (confirm('Are you sure you want to delete this job application?')) {
+            try {
+                // Use state manager if available
+                if (this.stateManager) {
+                    await this.stateManager.deleteJob(jobId);
+                } else {
+                    // Fallback to direct manipulation
+                    this.jobs = this.jobs.filter(job => job.id !== jobId);
+                    this.saveJobs();
+                    this.renderJobs();
+                    this.updateStats();
+                }
+
+                // Update dashboard if it exists
+                if (window.dashboard) {
+                    window.dashboard.refresh();
+                }
+
+                NotificationManager.show('Job deleted successfully!', 'success');
+                
+            } catch (error) {
+                console.error('[JobTracker] Failed to delete job:', error);
+                NotificationManager.show('Failed to delete job. Please try again.', 'error');
+            }
         }
     }
 
@@ -570,5 +652,19 @@ class JobTracker {
     updateValidationLists() {
         // This method is called by the settings manager to update validation
         // The actual validation logic is now dynamic based on current settings
+    }
+
+    /**
+     * Cleanup method to unsubscribe from state manager
+     */
+    cleanup() {
+        this.unsubscribers.forEach(unsubscribe => {
+            try {
+                unsubscribe();
+            } catch (error) {
+                console.warn('[JobTracker] Error during cleanup:', error);
+            }
+        });
+        this.unsubscribers = [];
     }
 }

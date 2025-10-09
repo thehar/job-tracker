@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Storage Debug Tool</h1>
+    
+    <div class="section">
+        <h2>localStorage Jobs</h2>
+        <div id="localStorage-jobs"></div>
+    </div>
+    
+    <div class="section">
+        <h2>IndexedDB Jobs</h2>
+        <div id="indexeddb-jobs"></div>
+    </div>
+    
+    <div class="section">
+        <h2>State Manager Jobs</h2>
+        <div id="state-manager-jobs"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Migration Status</h2>
+        <div id="migration-status"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Actions</h2>
+        <button onclick="forceRemoveDuplicates()">Force Remove Duplicates</button>
+        <button onclick="analyzeJobQuality()">Analyze Job Quality</button>
+        <button onclick="cleanupLowQualityJobs()">Clean Up Low Quality Jobs</button>
+        <button onclick="compareStorageSystems()">Compare Storage Systems</button>
+        <button onclick="syncStorageSystems()">Sync All Storage Systems</button>
+        <button onclick="hardRefresh()">Hard Refresh (Reload Scripts)</button>
+        <button onclick="clearAllData()" style="background: #ff4444; color: white;">Clear All Data (Dangerous!)</button>
+        <div id="duplicate-removal-result"></div>
+        <div id="clear-data-result"></div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/localstorage-manager.js"></script>
+    <script src="js/indexeddb-manager.js"></script>
+    <script src="js/state-manager.js"></script>
+    
+    <script>
+        async function debugStorage() {
+            // Check localStorage
+            try {
+                const localStorageJobs = localStorage.getItem('jobTracker_jobs');
+                const jobs = localStorageJobs ? JSON.parse(localStorageJobs) : [];
+                document.getElementById('localStorage-jobs').innerHTML = `
+                    <p class="success">Found ${jobs.length} jobs in localStorage</p>
+                    <pre>${JSON.stringify(jobs.slice(0, 5), null, 2)}${jobs.length > 5 ? '\n... and ' + (jobs.length - 5) + ' more' : ''}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('localStorage-jobs').innerHTML = `<p class="error">Error reading localStorage: ${error.message}</p>`;
+            }
+            
+            // Check IndexedDB
+            try {
+                const indexedDBManager = new IndexedDBManager();
+                await indexedDBManager.init();
+                const indexedDBJobs = await indexedDBManager.getJobs();
+                document.getElementById('indexeddb-jobs').innerHTML = `
+                    <p class="success">Found ${indexedDBJobs.length} jobs in IndexedDB</p>
+                    <pre>${JSON.stringify(indexedDBJobs.slice(0, 5), null, 2)}${indexedDBJobs.length > 5 ? '\n... and ' + (indexedDBJobs.length - 5) + ' more' : ''}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('indexeddb-jobs').innerHTML = `<p class="error">Error reading IndexedDB: ${error.message}</p>`;
+            }
+            
+            // Check State Manager
+            try {
+                const stateManager = await initializeStateManager();
+                const stateManagerJobs = stateManager.getStateSlice('jobs');
+                document.getElementById('state-manager-jobs').innerHTML = `
+                    <p class="success">Found ${stateManagerJobs.length} jobs in State Manager</p>
+                    <pre>${JSON.stringify(stateManagerJobs.slice(0, 5), null, 2)}${stateManagerJobs.length > 5 ? '\n... and ' + (stateManagerJobs.length - 5) + ' more' : ''}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('state-manager-jobs').innerHTML = `<p class="error">Error reading State Manager: ${error.message}</p>`;
+            }
+            
+            // Check Migration Status
+            try {
+                const indexedDBManager = new IndexedDBManager();
+                await indexedDBManager.init();
+                const migrationComplete = await indexedDBManager.isMigrationComplete('1.0.0');
+                document.getElementById('migration-status').innerHTML = `
+                    <p>Migration Complete: ${migrationComplete ? 'Yes' : 'No'}</p>
+                `;
+            } catch (error) {
+                document.getElementById('migration-status').innerHTML = `<p class="error">Error checking migration: ${error.message}</p>`;
+            }
+        }
+        
+        // Direct duplicate removal function
+        function removeDuplicatesDirectly(jobs) {
+            console.log(`[Debug] Removing duplicates from ${jobs.length} jobs...`);
+            
+            // First, ensure all jobs have IDs
+            jobs.forEach((job, index) => {
+                if (!job.id) {
+                    job.id = `job_${Date.now()}_${index}`;
+                }
+            });
+            
+            // Remove duplicates based on ID
+            const seen = new Set();
+            const uniqueJobs = jobs.filter(job => {
+                if (seen.has(job.id)) {
+                    console.log(`[Debug] Found duplicate job with ID: ${job.id}`);
+                    return false;
+                }
+                seen.add(job.id);
+                return true;
+            });
+            
+            // Also check for duplicates based on company + position + date
+            const contentSeen = new Set();
+            const finalJobs = uniqueJobs.filter(job => {
+                const key = `${job.company}_${job.position}_${job.dateApplied}`;
+                if (contentSeen.has(key)) {
+                    console.log(`[Debug] Found duplicate job content: ${job.company} - ${job.position}`);
+                    return false;
+                }
+                contentSeen.add(key);
+                return true;
+            });
+            
+            console.log(`[Debug] Removed ${jobs.length - finalJobs.length} duplicates (${jobs.length} -> ${finalJobs.length})`);
+            return finalJobs;
+        }
+
+        // Force remove duplicates function
+        async function forceRemoveDuplicates() {
+            try {
+                const stateManager = await initializeStateManager();
+                const beforeCount = stateManager.getStateSlice('jobs').length;
+                
+                console.log('[Debug] State manager methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(stateManager)));
+                console.log('[Debug] forceRemoveDuplicates available:', typeof stateManager.forceRemoveDuplicates);
+                
+                // Get current jobs
+                const currentJobs = stateManager.getStateSlice('jobs');
+                
+                // Remove duplicates directly
+                const cleanedJobs = removeDuplicatesDirectly([...currentJobs]);
+                
+                if (cleanedJobs.length !== currentJobs.length) {
+                    // Update the state manager with cleaned jobs
+                    await stateManager.setState({ jobs: cleanedJobs });
+                    console.log(`[Debug] Updated state manager with ${cleanedJobs.length} unique jobs`);
+                }
+                
+                const afterCount = stateManager.getStateSlice('jobs').length;
+                
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="success">Removed duplicates: ${beforeCount} -> ${afterCount} jobs</p>
+                `;
+                
+                // Refresh the display
+                debugStorage();
+            } catch (error) {
+                console.error('[Debug] Error in forceRemoveDuplicates:', error);
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="error">Error removing duplicates: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Hard refresh function
+        function hardRefresh() {
+            // Clear any cached state manager
+            if (window.stateManager) {
+                window.stateManager = null;
+            }
+            
+            // Reload the page to get fresh scripts
+            window.location.reload();
+        }
+        
+        // Clear all data function
+        async function clearAllData() {
+            if (!confirm('Are you sure you want to clear ALL data? This cannot be undone!')) {
+                return;
+            }
+            
+            try {
+                const stateManager = await initializeStateManager();
+                await stateManager.clearAllData();
+                
+                document.getElementById('clear-data-result').innerHTML = `
+                    <p class="success">All data cleared successfully</p>
+                `;
+                
+                // Refresh the display
+                debugStorage();
+            } catch (error) {
+                document.getElementById('clear-data-result').innerHTML = `
+                    <p class="error">Error clearing data: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Compare storage systems function
+        async function compareStorageSystems() {
+            try {
+                // Get localStorage data
+                const localStorageJobs = localStorage.getItem('jobTracker_jobs');
+                const localJobs = localStorageJobs ? JSON.parse(localStorageJobs) : [];
+                
+                // Get IndexedDB data
+                const indexedDBManager = new IndexedDBManager();
+                await indexedDBManager.init();
+                const indexedDBJobs = await indexedDBManager.getJobs();
+                
+                // Get State Manager data
+                const stateManager = await initializeStateManager();
+                const stateManagerJobs = stateManager.getStateSlice('jobs');
+                
+                console.log('[Debug] Storage Comparison:');
+                console.log(`localStorage: ${localJobs.length} jobs`);
+                console.log(`IndexedDB: ${indexedDBJobs.length} jobs`);
+                console.log(`State Manager: ${stateManagerJobs.length} jobs`);
+                
+                // Check for differences
+                if (localJobs.length !== indexedDBJobs.length) {
+                    console.log('[Debug] localStorage and IndexedDB have different job counts!');
+                    
+                    // Find jobs that are in localStorage but not in IndexedDB
+                    const localJobIds = new Set(localJobs.map(job => job.id || `${job.company}_${job.position}_${job.dateApplied}`));
+                    const indexedDBJobIds = new Set(indexedDBJobs.map(job => job.id || `${job.company}_${job.position}_${job.dateApplied}`));
+                    
+                    const missingInIndexedDB = localJobs.filter(job => {
+                        const jobId = job.id || `${job.company}_${job.position}_${job.dateApplied}`;
+                        return !indexedDBJobIds.has(jobId);
+                    });
+                    
+                    console.log(`[Debug] ${missingInIndexedDB.length} jobs in localStorage but not in IndexedDB:`, missingInIndexedDB.slice(0, 5));
+                }
+                
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="success">Storage Comparison Complete - Check console for details</p>
+                `;
+                
+            } catch (error) {
+                console.error('[Debug] Error comparing storage systems:', error);
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="error">Error comparing storage: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Analyze job quality and suggest cleanup
+        async function analyzeJobQuality() {
+            try {
+                const stateManager = await initializeStateManager();
+                const jobs = stateManager.getStateSlice('jobs');
+                
+                console.log(`[Debug] Analyzing ${jobs.length} jobs for quality...`);
+                
+                // Analyze job quality
+                const analysis = {
+                    total: jobs.length,
+                    withCompany: jobs.filter(job => job.company && job.company.trim()).length,
+                    withPosition: jobs.filter(job => job.position && job.position.trim()).length,
+                    withDate: jobs.filter(job => job.dateApplied && job.dateApplied.trim()).length,
+                    withStatus: jobs.filter(job => job.status && job.status.trim()).length,
+                    withNotes: jobs.filter(job => job.notes && job.notes.trim()).length,
+                    testJobs: jobs.filter(job => 
+                        job.company && (
+                            job.company.toLowerCase().includes('test') ||
+                            job.company.toLowerCase().includes('sample') ||
+                            job.company.toLowerCase().includes('example') ||
+                            job.company.toLowerCase().includes('demo')
+                        )
+                    ).length,
+                    emptyJobs: jobs.filter(job => 
+                        (!job.company || !job.company.trim()) &&
+                        (!job.position || !job.position.trim()) &&
+                        (!job.dateApplied || !job.dateApplied.trim())
+                    ).length,
+                    recentJobs: jobs.filter(job => {
+                        if (!job.dateApplied) return false;
+                        const jobDate = new Date(job.dateApplied);
+                        const sixMonthsAgo = new Date();
+                        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+                        return jobDate >= sixMonthsAgo;
+                    }).length
+                };
+                
+                console.log('[Debug] Job Quality Analysis:', analysis);
+                
+                // Suggest cleanup
+                const suggestions = [];
+                if (analysis.testJobs > 0) {
+                    suggestions.push(`Remove ${analysis.testJobs} test/sample jobs`);
+                }
+                if (analysis.emptyJobs > 0) {
+                    suggestions.push(`Remove ${analysis.emptyJobs} empty/incomplete jobs`);
+                }
+                if (analysis.total - analysis.recentJobs > 0) {
+                    suggestions.push(`Consider removing ${analysis.total - analysis.recentJobs} jobs older than 6 months`);
+                }
+                
+                console.log('[Debug] Cleanup suggestions:', suggestions);
+                
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="success">Job Quality Analysis Complete - Check console for details</p>
+                    <p><strong>Suggestions:</strong></p>
+                    <ul>
+                        ${suggestions.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                `;
+                
+            } catch (error) {
+                console.error('[Debug] Error analyzing job quality:', error);
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="error">Error analyzing jobs: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Clean up low-quality jobs
+        async function cleanupLowQualityJobs() {
+            try {
+                const stateManager = await initializeStateManager();
+                const jobs = stateManager.getStateSlice('jobs');
+                
+                console.log(`[Debug] Cleaning up ${jobs.length} jobs...`);
+                
+                // Remove test/sample jobs
+                const cleanedJobs = jobs.filter(job => {
+                    // Keep jobs that have meaningful content
+                    if (!job.company || !job.company.trim()) return false;
+                    if (!job.position || !job.position.trim()) return false;
+                    if (!job.dateApplied || !job.dateApplied.trim()) return false;
+                    
+                    // Remove test/sample jobs
+                    if (job.company.toLowerCase().includes('test') ||
+                        job.company.toLowerCase().includes('sample') ||
+                        job.company.toLowerCase().includes('example') ||
+                        job.company.toLowerCase().includes('demo')) {
+                        console.log(`[Debug] Removing test job: ${job.company} - ${job.position}`);
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                console.log(`[Debug] Cleaned up: ${jobs.length} -> ${cleanedJobs.length} jobs`);
+                
+                // Update state manager
+                await stateManager.setState({ jobs: cleanedJobs });
+                
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="success">Cleaned up jobs: ${jobs.length} -> ${cleanedJobs.length} jobs</p>
+                `;
+                
+                // Refresh the display
+                debugStorage();
+                
+            } catch (error) {
+                console.error('[Debug] Error cleaning up jobs:', error);
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="error">Error cleaning up jobs: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Sync data between storage systems
+        async function syncStorageSystems() {
+            try {
+                const stateManager = await initializeStateManager();
+                const stateManagerJobs = stateManager.getStateSlice('jobs');
+                
+                console.log(`[Debug] Syncing ${stateManagerJobs.length} jobs to all storage systems...`);
+                
+                // Update localStorage
+                localStorage.setItem('jobTracker_jobs', JSON.stringify(stateManagerJobs));
+                console.log('[Debug] Updated localStorage');
+                
+                // Update IndexedDB
+                const indexedDBManager = new IndexedDBManager();
+                await indexedDBManager.init();
+                await indexedDBManager.saveJobs(stateManagerJobs);
+                console.log('[Debug] Updated IndexedDB');
+                
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="success">Storage systems synced with ${stateManagerJobs.length} jobs</p>
+                `;
+                
+                // Refresh the display
+                debugStorage();
+                
+            } catch (error) {
+                console.error('[Debug] Error syncing storage systems:', error);
+                document.getElementById('duplicate-removal-result').innerHTML = `
+                    <p class="error">Error syncing storage: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Run debug when page loads
+        document.addEventListener('DOMContentLoaded', debugStorage);
+    </script>
+</body>
+</html>

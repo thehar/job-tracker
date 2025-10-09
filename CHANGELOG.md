@@ -5,6 +5,79 @@ All notable changes to Job Tracker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-09
+
+### 🏗️ Major Architecture Update - Centralized State Management & Performance Optimization
+
+#### Added
+- **Centralized State Management System**
+  - New `StateManager` class with event-driven architecture
+  - IndexedDB as primary storage with localStorage fallback
+  - Automatic data migration from localStorage to IndexedDB
+  - Subscription-based reactive updates across all components
+  - Comprehensive error handling and graceful fallbacks
+  - Performance monitoring and optimization features
+
+- **Enhanced Storage Layer**
+  - `IndexedDBManager` for high-performance database operations
+  - `LocalStorageManager` as robust fallback storage
+  - Automatic storage detection and fallback mechanisms
+  - Data integrity validation and duplicate removal
+  - Efficient bulk operations with proper error handling
+
+- **Debug & Testing Tools**
+  - `debug-storage.html` for storage inspection and debugging
+  - `test-state-management.html` for comprehensive state management testing
+  - Enhanced error logging and debugging capabilities
+
+#### Changed
+- **Component Architecture**
+  - All components now use centralized state management
+  - Eliminated redundant data loading patterns
+  - Standardized error handling across all components
+  - Improved component initialization order and timing
+  - Enhanced cleanup and resource management
+
+- **Performance Optimizations**
+  - Reduced redundant database operations
+  - Optimized state persistence to only save when changes occur
+  - Improved memory management with proper cleanup
+  - Enhanced async operation handling with proper error boundaries
+
+- **Error Handling**
+  - Comprehensive error boundaries for state manager failures
+  - User-friendly error messages with recovery options
+  - Graceful fallbacks when state manager is unavailable
+  - Enhanced error logging with descriptive context
+
+#### Fixed
+- **Race Conditions**
+  - Fixed component initialization race conditions
+  - Proper state manager readiness checking before component creation
+  - Eliminated polling-based state checking in favor of subscriptions
+
+- **Data Consistency**
+  - Standardized data access patterns across all components
+  - Fixed calendar integration to use state manager
+  - Eliminated data inconsistency issues between components
+
+- **Memory Leaks**
+  - Fixed setTimeout memory leaks in DataManager
+  - Proper cleanup of state subscriptions on component destruction
+  - Enhanced resource management and cleanup patterns
+
+#### Technical Improvements
+- **Code Quality**
+  - Updated cursor rules for state management patterns
+  - Enhanced project structure documentation
+  - Improved error handling patterns and consistency
+  - Better separation of concerns and modularity
+
+- **Testing & Debugging**
+  - Comprehensive test suite for state management
+  - Enhanced debugging tools and storage inspection
+  - Better error tracking and performance monitoring
+
 ## [1.4.0] - 2025-09-26
 
 ### 📅 Major Feature Release - Calendar Integration & UX Improvements

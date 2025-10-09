@@ -1,6 +1,6 @@
 # 📊 Job Tracker
 
-A modern, client-side job application tracking system with analytics, CSV import/export, and weekly reporting features. Built with vanilla HTML, CSS, and JavaScript - no frameworks, no backend required. Features a beautiful dark theme with responsive design and comprehensive job search management tools.
+A modern, client-side job application tracking system with analytics, CSV import/export, and weekly reporting features. Built with vanilla HTML, CSS, and JavaScript - no frameworks, no backend required. Features a beautiful dark theme with responsive design, centralized state management, and comprehensive job search management tools.
 
 ![Job Tracker Screenshot](https://github.com/thehar/job-tracker/blob/395c870fccf7b577be11a0a402f610716ced1b5b/images/screenshot.png)
 
@@ -54,6 +54,15 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Data Validation** - Automatic validation and deduplication of imported data
 - **Easy Export** - Download your complete job data as CSV for backup or analysis
 - **Sample Data** - Includes sample CSV template for easy getting started
+
+### 🏗️ State Management & Performance
+- **Centralized State** - Single source of truth with event-driven updates across all components
+- **IndexedDB Storage** - High-performance database storage with localStorage fallback
+- **Automatic Migration** - Seamless data migration from localStorage to IndexedDB
+- **Event-Driven Architecture** - Reactive updates with subscription-based state management
+- **Memory Optimization** - Efficient data operations with minimal redundant I/O
+- **Error Resilience** - Comprehensive error handling with graceful fallbacks
+- **Performance Monitoring** - Built-in performance tracking and optimization
 
 ### 🔐 Security & Privacy
 - **Client-Side Only** - All data stays on your device, never uploaded to servers

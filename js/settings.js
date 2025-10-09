@@ -1,9 +1,12 @@
 /**
  * Settings Manager for Custom Statuses and Stages
  * Handles user preferences, custom statuses/stages, and form updates
+ * Enhanced to use state manager for centralized state management
  */
 class SettingsManager {
     constructor() {
+        this.stateManager = null;
+        this.unsubscribers = [];
         this.defaultStatuses = [
             'Applied',
             'Interview Scheduled', 
@@ -26,6 +29,57 @@ class SettingsManager {
         this.stages = this.loadStages();
         this.calendarSettings = this.loadCalendarSettings();
         this.setupEventListeners();
+        this.setupStateManager();
+    }
+
+    /**
+     * Setup state manager integration
+     */
+    setupStateManager() {
+        // State manager should be ready by the time this component is created
+        if (isStateManagerAvailable()) {
+            this.stateManager = getStateManager();
+            this.setupStateSubscriptions();
+            this.loadSettingsFromStateManager();
+        } else {
+            console.warn('[SettingsManager] State manager not available during setup');
+        }
+    }
+
+    /**
+     * Setup state manager subscriptions
+     */
+    setupStateSubscriptions() {
+        if (!this.stateManager) return;
+
+        // Subscribe to settings changes
+        const unsubscribeSettings = this.stateManager.subscribe('state:settings:changed', (settings) => {
+            this.statuses = settings.statuses || this.statuses;
+            this.stages = settings.stages || this.stages;
+            this.calendarSettings = settings.calendar || this.calendarSettings;
+            this.updateForms();
+        });
+
+        this.unsubscribers.push(unsubscribeSettings);
+    }
+
+    /**
+     * Load settings from state manager
+     */
+    loadSettingsFromStateManager() {
+        if (!this.stateManager) return;
+
+        try {
+            const settings = this.stateManager.getStateSlice('settings');
+            if (settings) {
+                this.statuses = settings.statuses || this.statuses;
+                this.stages = settings.stages || this.stages;
+                this.calendarSettings = settings.calendar || this.calendarSettings;
+            }
+        } catch (error) {
+            console.warn('[SettingsManager] Failed to load settings from state manager, using defaults:', error);
+            // Fallback to default values if state manager fails
+        }
     }
 
     /**
@@ -47,21 +101,39 @@ class SettingsManager {
     }
 
     /**
-     * Save custom statuses to localStorage
+     * Save custom statuses
      */
-    saveStatuses() {
-        localStorage.setItem('jobTracker_statuses', JSON.stringify(this.statuses));
-        this.updateForms();
-        NotificationManager.show('Statuses saved successfully!', 'success');
+    async saveStatuses() {
+        try {
+            if (this.stateManager) {
+                await this.stateManager.updateSettings({ statuses: this.statuses });
+            } else {
+                localStorage.setItem('jobTracker_statuses', JSON.stringify(this.statuses));
+            }
+            this.updateForms();
+            NotificationManager.show('Statuses saved successfully!', 'success');
+        } catch (error) {
+            console.error('[SettingsManager] Failed to save statuses:', error);
+            NotificationManager.show('Failed to save statuses. Please try again.', 'error');
+        }
     }
 
     /**
-     * Save custom stages to localStorage
+     * Save custom stages
      */
-    saveStages() {
-        localStorage.setItem('jobTracker_stages', JSON.stringify(this.stages));
-        this.updateForms();
-        NotificationManager.show('Stages saved successfully!', 'success');
+    async saveStages() {
+        try {
+            if (this.stateManager) {
+                await this.stateManager.updateSettings({ stages: this.stages });
+            } else {
+                localStorage.setItem('jobTracker_stages', JSON.stringify(this.stages));
+            }
+            this.updateForms();
+            NotificationManager.show('Stages saved successfully!', 'success');
+        } catch (error) {
+            console.error('[SettingsManager] Failed to save stages:', error);
+            NotificationManager.show('Failed to save stages. Please try again.', 'error');
+        }
     }
 
     /**
@@ -91,13 +163,18 @@ class SettingsManager {
     }
 
     /**
-     * Save calendar settings to localStorage
+     * Save calendar settings
      * @param {Object} settings - Calendar settings to save
      */
-    saveCalendarSettings(settings) {
+    async saveCalendarSettings(settings) {
         try {
             this.calendarSettings = { ...this.calendarSettings, ...settings };
-            localStorage.setItem('jobTracker_calendarSettings', JSON.stringify(this.calendarSettings));
+            
+            if (this.stateManager) {
+                await this.stateManager.updateSettings({ calendar: this.calendarSettings });
+            } else {
+                localStorage.setItem('jobTracker_calendarSettings', JSON.stringify(this.calendarSettings));
+            }
             
             // Update calendar integration if available
             if (window.calendarIntegration) {
@@ -898,5 +975,19 @@ class SettingsManager {
         } else {
             console.warn('[SettingsManager] Calendar integration not found');
         }
+    }
+
+    /**
+     * Cleanup method to unsubscribe from state manager
+     */
+    cleanup() {
+        this.unsubscribers.forEach(unsubscribe => {
+            try {
+                unsubscribe();
+            } catch (error) {
+                console.warn('[SettingsManager] Error during cleanup:', error);
+            }
+        });
+        this.unsubscribers = [];
     }
 }

@@ -1,10 +1,13 @@
 /**
  * Dashboard Manager
  * Handles analytics dashboard, charts, and data visualization
+ * Enhanced to use state manager for reactive updates
  */
 class Dashboard {
     constructor(jobTracker) {
         this.jobTracker = jobTracker;
+        this.stateManager = null;
+        this.unsubscribers = [];
         this.charts = {
             // Job tracking charts
             statusChart: null,
@@ -30,7 +33,57 @@ class Dashboard {
     init() {
         this.setupEventListeners();
         this.setupTabSwitching();
+        this.setupStateManager();
         this.refresh();
+    }
+
+    /**
+     * Setup state manager integration
+     */
+    setupStateManager() {
+        // State manager should be ready by the time this component is created
+        if (isStateManagerAvailable()) {
+            this.stateManager = getStateManager();
+            this.setupStateSubscriptions();
+        } else {
+            console.warn('[Dashboard] State manager not available during setup');
+        }
+    }
+
+    /**
+     * Setup state manager subscriptions
+     */
+    setupStateSubscriptions() {
+        if (!this.stateManager) return;
+
+        // Subscribe to job changes
+        const unsubscribeJobs = this.stateManager.subscribe('state:jobs:changed', (jobs) => {
+            try {
+                this.refresh();
+            } catch (error) {
+                console.error('[Dashboard] Error in jobs state subscription callback:', error);
+            }
+        });
+
+        // Subscribe to settings changes
+        const unsubscribeSettings = this.stateManager.subscribe('state:settings:changed', (settings) => {
+            try {
+                this.refresh();
+            } catch (error) {
+                console.error('[Dashboard] Error in settings state subscription callback:', error);
+            }
+        });
+
+        // Subscribe to analytics changes
+        const unsubscribeAnalytics = this.stateManager.subscribe('state:analytics:changed', (analytics) => {
+            try {
+                this.refresh();
+            } catch (error) {
+                console.error('[Dashboard] Error in analytics state subscription callback:', error);
+            }
+        });
+
+        this.unsubscribers.push(unsubscribeJobs, unsubscribeSettings, unsubscribeAnalytics);
     }
 
     /**
@@ -405,21 +458,31 @@ class Dashboard {
      * Refresh dashboard data and charts
      */
     refresh() {
-        if (!this.jobTracker || !this.jobTracker.jobs) {
+        let jobs = [];
+        
+        // Get jobs from state manager if available, otherwise fallback to jobTracker
+        if (this.stateManager) {
+            jobs = this.stateManager.getStateSlice('jobs') || [];
+        } else if (this.jobTracker && this.jobTracker.jobs) {
+            jobs = this.jobTracker.jobs;
+        } else {
             return;
         }
 
-        this.updateSummaryCards();
-        this.updateCharts();
-        this.updateCompanyStatus();
+        this.updateSummaryCards(jobs);
+        this.updateCharts(jobs);
+        this.updateCompanyStatus(jobs);
         this.updateInstallationAnalytics();
     }
 
     /**
      * Update summary cards with current data
      */
-    updateSummaryCards() {
-        const jobs = this.jobTracker.jobs || [];
+    updateSummaryCards(jobs = []) {
+        // Use provided jobs or fallback to jobTracker
+        if (!jobs.length && this.jobTracker && this.jobTracker.jobs) {
+            jobs = this.jobTracker.jobs;
+        }
 
         // Total applications
         const totalElement = document.getElementById('totalApplications');
@@ -1930,5 +1993,19 @@ class Dashboard {
             console.error('[Dashboard] Error syncing upcoming interviews:', error);
             NotificationManager.show('Failed to sync upcoming interviews to calendar', 'error');
         }
+    }
+
+    /**
+     * Cleanup method to unsubscribe from state manager
+     */
+    cleanup() {
+        this.unsubscribers.forEach(unsubscribe => {
+            try {
+                unsubscribe();
+            } catch (error) {
+                console.warn('[Dashboard] Error during cleanup:', error);
+            }
+        });
+        this.unsubscribers = [];
     }
 }
