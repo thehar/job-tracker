@@ -355,7 +355,40 @@ class CalendarIntegration {
      * @param {string} jobId - Job ID
      * @param {Array} events - Generated events
      */
-    updateJobCalendarMetadata(jobId, events) {
+    async updateJobCalendarMetadata(jobId, events) {
+        // Try to use state manager first
+        if (isStateManagerAvailable()) {
+            try {
+                const stateManager = getStateManager();
+                const jobs = stateManager.getStateSlice('jobs') || [];
+                const jobIndex = jobs.findIndex(job => job.id === jobId);
+                
+                if (jobIndex !== -1) {
+                    const updatedJobs = [...jobs];
+                    updatedJobs[jobIndex] = {
+                        ...updatedJobs[jobIndex],
+                        calendarSync: {
+                            enabled: true,
+                            lastSynced: new Date().toISOString(),
+                            provider: this.settings.provider,
+                            events: events.map(event => ({
+                                type: event.type,
+                                title: event.title,
+                                startDate: event.startDate.toISOString(),
+                                endDate: event.endDate.toISOString()
+                            }))
+                        }
+                    };
+                    
+                    await stateManager.setState({ jobs: updatedJobs });
+                    return;
+                }
+            } catch (error) {
+                console.warn('[CalendarIntegration] State manager update failed, falling back to DataManager:', error);
+            }
+        }
+        
+        // Fallback to DataManager
         const jobs = DataManager.loadJobs();
         const jobIndex = jobs.findIndex(job => job.id === jobId);
         
@@ -372,7 +405,7 @@ class CalendarIntegration {
                 }))
             };
             
-            DataManager.saveJobs(jobs);
+            await DataManager.saveJobs(jobs);
         }
     }
 
@@ -381,6 +414,25 @@ class CalendarIntegration {
      * @param {string} jobId - Job ID
      */
     removeJobFromCalendar(jobId) {
+        // Try to use state manager first
+        if (isStateManagerAvailable()) {
+            try {
+                const stateManager = getStateManager();
+                const jobs = stateManager.getStateSlice('jobs') || [];
+                const job = jobs.find(job => job.id === jobId);
+                
+                if (job && job.calendarSync) {
+                    // Note: We can't actually remove events from external calendars
+                    // This is a limitation of web-based calendar integration
+                    console.log(`Calendar event removal not supported for job: ${jobId}`);
+                }
+                return;
+            } catch (error) {
+                console.warn('[CalendarIntegration] State manager access failed, falling back to DataManager:', error);
+            }
+        }
+        
+        // Fallback to DataManager
         const jobs = DataManager.loadJobs();
         const job = jobs.find(job => job.id === jobId);
         
@@ -477,8 +529,23 @@ class CalendarIntegration {
      * @param {string} jobId - Job ID
      */
     handleCalendarAction(action, jobId) {
-        const jobs = DataManager.loadJobs();
-        const job = jobs.find(job => job.id === jobId);
+        // Try to use state manager first
+        let job = null;
+        if (isStateManagerAvailable()) {
+            try {
+                const stateManager = getStateManager();
+                const jobs = stateManager.getStateSlice('jobs') || [];
+                job = jobs.find(job => job.id === jobId);
+            } catch (error) {
+                console.warn('[CalendarIntegration] State manager access failed, falling back to DataManager:', error);
+            }
+        }
+        
+        // Fallback to DataManager if state manager failed or not available
+        if (!job) {
+            const jobs = DataManager.loadJobs();
+            job = jobs.find(job => job.id === jobId);
+        }
         
         if (!job) return;
 

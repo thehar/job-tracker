@@ -1,6 +1,7 @@
 /**
  * Job Tracker Application Entry Point
  * Initializes the application and handles global setup
+ * Enhanced with state management system
  */
 
 // Global application variables
@@ -15,28 +16,135 @@ let adminPanel;
 /**
  * Initialize the Job Tracker application
  */
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize offline detection
-    initializeOfflineDetection();
-    
-    // Start with authentication
-    authManager = new AuthManager();
-    
-    // Initialize admin panel after a short delay to ensure other components are ready
-    setTimeout(() => {
-        initializeAdminPanel();
-    }, 1000);
-
-    // Initialize reminder scheduler after app is ready
-    setTimeout(() => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Initialize offline detection
+        initializeOfflineDetection();
+        
+        // Initialize state manager first
+        console.log('[App] Initializing enhanced state management...');
+        window.stateManager = await initializeStateManager();
+        
+        // Start with authentication
+        authManager = new AuthManager();
+        
+        // Initialize main components after state manager is ready
+        console.log('[App] Initializing main components...');
+        
+        // Wait for state manager to be fully ready before initializing components
+        await new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 100; // 5 seconds max wait time
+            
+            const checkReady = () => {
+                attempts++;
+                
+                if (window.stateManager && window.stateManager.isReady()) {
+                    resolve();
+                } else if (attempts >= maxAttempts) {
+                    console.error('[App] State manager failed to initialize within timeout');
+                    reject(new Error('State manager initialization timeout'));
+                } else {
+                    setTimeout(checkReady, 50);
+                }
+            };
+            checkReady();
+        });
+        
+        // Initialize components with error handling
         try {
-            if (typeof window.getReminderScheduler === 'function') {
-                window.getReminderScheduler();
-            }
-        } catch (e) {
-            console.warn('[App] Reminder scheduler init failed:', e);
+            jobTracker = new JobTracker();
+            console.log('[App] JobTracker initialized successfully');
+        } catch (error) {
+            console.error('[App] Failed to initialize JobTracker:', error);
+            throw error;
         }
-    }, 1500);
+        
+        try {
+            dashboard = new Dashboard(jobTracker);
+            console.log('[App] Dashboard initialized successfully');
+        } catch (error) {
+            console.error('[App] Failed to initialize Dashboard:', error);
+            throw error;
+        }
+        
+        try {
+            settingsManager = new SettingsManager();
+            console.log('[App] SettingsManager initialized successfully');
+        } catch (error) {
+            console.error('[App] Failed to initialize SettingsManager:', error);
+            throw error;
+        }
+        
+        try {
+            weeklyReportManager = new WeeklyReportManager();
+            console.log('[App] WeeklyReportManager initialized successfully');
+        } catch (error) {
+            console.error('[App] Failed to initialize WeeklyReportManager:', error);
+            throw error;
+        }
+        
+        try {
+            pwaInstallManager = new PWAInstallManager();
+            console.log('[App] PWAInstallManager initialized successfully');
+        } catch (error) {
+            console.error('[App] Failed to initialize PWAInstallManager:', error);
+            throw error;
+        }
+        
+        // Initialize admin panel after a short delay to ensure other components are ready
+        setTimeout(() => {
+            initializeAdminPanel();
+        }, 1000);
+
+        // Initialize reminder scheduler after app is ready
+        setTimeout(() => {
+            try {
+                if (typeof window.getReminderScheduler === 'function') {
+                    window.getReminderScheduler();
+                }
+            } catch (e) {
+                console.warn('[App] Reminder scheduler init failed:', e);
+            }
+        }, 1500);
+
+        console.log('[App] Application initialization complete');
+
+    } catch (error) {
+        console.error('[App] Application initialization failed:', error);
+        
+        // Show user-friendly error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error-message';
+        errorMessage.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        `;
+        errorMessage.innerHTML = `
+            <strong>Application Error</strong><br>
+            Failed to initialize the application. Please refresh the page to try again.
+            <button onclick="location.reload()" style="margin-left: 10px; padding: 5px 10px; background: white; color: #ff4444; border: none; border-radius: 3px; cursor: pointer;">
+                Refresh Page
+            </button>
+        `;
+        document.body.appendChild(errorMessage);
+        
+        // Auto-remove error message after 10 seconds
+        setTimeout(() => {
+            if (errorMessage.parentNode) {
+                errorMessage.parentNode.removeChild(errorMessage);
+            }
+        }, 10000);
+    }
 });
 
 /**
@@ -469,8 +577,24 @@ window.addEventListener('unhandledrejection', (event) => {
  */
 window.addEventListener('beforeunload', () => {
     // Cleanup any ongoing operations
-    if (jobTracker) {
-        jobTracker.saveJobs();
+    try {
+        if (jobTracker) {
+            jobTracker.saveJobs();
+            if (typeof jobTracker.cleanup === 'function') {
+                jobTracker.cleanup();
+            }
+        }
+        if (dashboard && typeof dashboard.cleanup === 'function') {
+            dashboard.cleanup();
+        }
+        if (settingsManager && typeof settingsManager.cleanup === 'function') {
+            settingsManager.cleanup();
+        }
+        if (pwaInstallManager && typeof pwaInstallManager.cleanup === 'function') {
+            pwaInstallManager.cleanup();
+        }
+    } catch (error) {
+        console.warn('[App] Error during cleanup:', error);
     }
 });
 

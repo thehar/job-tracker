@@ -35,10 +35,14 @@ class ClassName {
 - Handle errors gracefully with try-catch blocks
 
 ## Data Management
-- Use the [DataManager](mdc:js/data.js) class for all localStorage operations
-- Validate data before saving to localStorage
+- Use the centralized [StateManager](mdc:js/state-manager.js) for all state operations
+- Use [DataManager](mdc:js/data.js) as fallback when state manager is unavailable
+- Validate data before saving to storage (IndexedDB or localStorage)
 - Use the [NotificationManager](mdc:js/notifications.js) for user feedback
 - Always handle async operations with proper error handling
+- Subscribe to state changes instead of polling for data updates
+- Use state manager's `getStateSlice()` for accessing specific state portions
+- Use state manager's `setState()` for updating state with automatic persistence
 
 ## Security
 - Never store sensitive data in plain text
@@ -49,8 +53,34 @@ class ClassName {
 ## Performance
 - Debounce user input events where appropriate
 - Use efficient DOM queries and caching
-- Minimize localStorage reads/writes
+- Minimize storage reads/writes by using state manager subscriptions
 - Destroy Chart.js instances before recreating them
+- Use `requestIdleCallback` for non-critical operations with setTimeout fallback
+- Avoid redundant data loading - use state manager subscriptions instead
+- Only persist state changes when actual modifications occur
+
+## State Management Patterns
+- Always check if state manager is available before using it
+- Use `isStateManagerAvailable()` and `getStateManager()` helper functions
+- Implement proper error handling in state subscription callbacks
+- Use try-catch blocks around state manager operations with fallback to DataManager
+- Clean up subscriptions in component cleanup methods
+- Wait for state manager to be ready before initializing components
+- Use consistent error handling patterns across all components
+
+## Component Initialization
+- Initialize components after state manager is fully ready
+- Use proper error boundaries for component initialization failures
+- Implement timeout handling for state manager initialization
+- Provide user-friendly error messages for initialization failures
+- Clean up resources properly on component destruction
+
+## Error Handling
+- Wrap all state subscription callbacks in try-catch blocks
+- Log errors with descriptive context and component information
+- Implement graceful fallbacks when state manager is unavailable
+- Use consistent error logging patterns across all components
+- Provide user feedback for critical errors
 description:
 globs:
 alwaysApply: true

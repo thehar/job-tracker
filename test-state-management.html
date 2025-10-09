@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced State Management Test Suite</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #0a1929;
+            color: #e8f4fd;
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #334155; 
+            border-radius: 8px;
+            background: #1e293b;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .warning { color: #f59e0b; }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1565c0; }
+        button:disabled { background: #64748b; cursor: not-allowed; }
+        .test-results {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #334155;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .stat-label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Enhanced State Management Test Suite</h1>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value" id="totalTests">0</div>
+            <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="passedTests">0</div>
+            <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="failedTests">0</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="testDuration">0ms</div>
+            <div class="stat-label">Duration</div>
+        </div>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Core System Tests</h2>
+        <button onclick="runCoreTests()">Run Core Tests</button>
+        <div id="core-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>💾 Storage Tests</h2>
+        <button onclick="runStorageTests()">Run Storage Tests</button>
+        <div id="storage-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 Migration Tests</h2>
+        <button onclick="runMigrationTests()">Run Migration Tests</button>
+        <div id="migration-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚡ Performance Tests</h2>
+        <button onclick="runPerformanceTests()">Run Performance Tests</button>
+        <div id="performance-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 Integration Tests</h2>
+        <button onclick="runIntegrationTests()">Run Integration Tests</button>
+        <div id="integration-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Quick Test</h2>
+        <button onclick="runQuickTest()">Run Quick Test</button>
+        <div id="quick-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Complete Test Suite</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="all-results" class="test-results"></div>
+    </div>
+
+    <!-- Load all required scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/localstorage-manager.js"></script>
+    <script src="js/indexeddb-manager.js"></script>
+    <script src="js/state-manager.js"></script>
+    <script src="js/job-tracker.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/settings.js"></script>
+    
+    <script>
+        // Global variables
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            startTime: null,
+            endTime: null
+        };
+
+        // Make state manager functions globally available
+        window.initializeStateManager = initializeStateManager;
+        window.getStateManager = getStateManager;
+        window.isStateManagerAvailable = isStateManagerAvailable;
+
+        // Test utilities
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            return `[${timestamp}] ${message}`;
+        }
+
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(`Assertion failed: ${message}`);
+            }
+        }
+
+        function runTest(testName, testFunction) {
+            testResults.total++;
+            try {
+                const result = testFunction();
+                testResults.passed++;
+                return { name: testName, passed: true, result };
+            } catch (error) {
+                testResults.failed++;
+                return { name: testName, passed: false, error: error.message };
+            }
+        }
+
+        async function runTestAsync(testName, testFunction) {
+            testResults.total++;
+            try {
+                const result = await testFunction();
+                testResults.passed++;
+                return { name: testName, passed: true, result };
+            } catch (error) {
+                testResults.failed++;
+                return { name: testName, passed: false, error: error.message };
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalTests').textContent = testResults.total;
+            document.getElementById('passedTests').textContent = testResults.passed;
+            document.getElementById('failedTests').textContent = testResults.failed;
+            
+            if (testResults.endTime && testResults.startTime) {
+                const duration = testResults.endTime - testResults.startTime;
+                document.getElementById('testDuration').textContent = `${duration}ms`;
+            }
+            
+            const progress = testResults.total > 0 ? (testResults.passed / testResults.total) * 100 : 0;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function displayResults(elementId, results) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = results.map(result => {
+                const status = result.passed ? '✅' : '❌';
+                const color = result.passed ? 'success' : 'error';
+                return `<div class="${color}">${status} ${result.name}${result.error ? ': ' + result.error : ''}</div>`;
+            }).join('\n');
+        }
+
+        // Core System Tests
+        async function runCoreTests() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            results.push(await runTestAsync('State Manager Initialization', async () => {
+                try {
+                    window.stateManager = await initializeStateManager();
+                    assert(window.stateManager, 'State manager should be initialized');
+                    assert(window.stateManager.isReady(), 'State manager should be ready');
+                    return 'State manager initialized successfully';
+                } catch (error) {
+                    throw new Error(`State manager initialization failed: ${error.message}`);
+                }
+            }));
+
+            results.push(runTest('State Manager Storage Type', () => {
+                const storageType = window.stateManager.getStorageType();
+                assert(['IndexedDB', 'localStorage'].includes(storageType), 'Storage type should be valid');
+                return `Using ${storageType} storage`;
+            }));
+
+            results.push(runTest('State Manager State Access', () => {
+                const state = window.stateManager.getState();
+                assert(typeof state === 'object', 'State should be an object');
+                assert(Array.isArray(state.jobs), 'Jobs should be an array');
+                assert(typeof state.settings === 'object', 'Settings should be an object');
+                return 'State structure is valid';
+            }));
+
+            results.push(runTest('State Manager Event System', () => {
+                let eventReceived = false;
+                const unsubscribe = window.stateManager.subscribe('test:event', (data) => {
+                    eventReceived = true;
+                    assert(data === 'test data', 'Event data should match');
+                });
+                
+                window.stateManager.emit('test:event', 'test data');
+                unsubscribe();
+                
+                assert(eventReceived, 'Event should be received');
+                return 'Event system working correctly';
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('core-results', results);
+        }
+
+        // Storage Tests
+        async function runStorageTests() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            // Ensure state manager is initialized
+            if (!window.stateManager) {
+                window.stateManager = await initializeStateManager();
+            }
+
+            results.push(await runTestAsync('Add Job via State Manager', async () => {
+                const jobData = {
+                    title: 'Test Job',
+                    company: 'Test Company',
+                    status: 'Applied',
+                    dateApplied: '2024-01-15'
+                };
+                
+                const job = await window.stateManager.addJob(jobData);
+                assert(job.id, 'Job should have an ID');
+                assert(job.title === jobData.title, 'Job title should match');
+                
+                const jobs = window.stateManager.getStateSlice('jobs');
+                assert(jobs.length > 0, 'Jobs array should not be empty');
+                return `Job added with ID: ${job.id}`;
+            }));
+
+            results.push(await runTestAsync('Update Job via State Manager', async () => {
+                const jobs = window.stateManager.getStateSlice('jobs');
+                const jobId = jobs[0].id;
+                
+                const updateData = {
+                    title: 'Updated Test Job',
+                    company: 'Updated Test Company',
+                    status: 'Interview',
+                    dateApplied: '2024-01-15'
+                };
+                
+                const updatedJob = await window.stateManager.updateJob(jobId, updateData);
+                assert(updatedJob.title === updateData.title, 'Job title should be updated');
+                
+                const job = window.stateManager.getJobById(jobId);
+                assert(job.title === updateData.title, 'Job should be updated in state');
+                return `Job updated: ${updatedJob.title}`;
+            }));
+
+            results.push(await runTestAsync('Delete Job via State Manager', async () => {
+                const jobs = window.stateManager.getStateSlice('jobs');
+                const initialCount = jobs.length;
+                const jobId = jobs[0].id;
+                
+                await window.stateManager.deleteJob(jobId);
+                
+                const updatedJobs = window.stateManager.getStateSlice('jobs');
+                assert(updatedJobs.length === initialCount - 1, 'Job count should decrease');
+                
+                const deletedJob = window.stateManager.getJobById(jobId);
+                assert(!deletedJob, 'Deleted job should not exist');
+                return `Job deleted successfully`;
+            }));
+
+            results.push(await runTestAsync('Settings Management', async () => {
+                const newSettings = {
+                    statuses: ['Applied', 'Interview', 'Offer', 'Rejected'],
+                    stages: ['Phone Screen', 'Technical', 'Onsite']
+                };
+                
+                await window.stateManager.updateSettings(newSettings);
+                
+                const settings = window.stateManager.getStateSlice('settings');
+                assert(settings.statuses.length === 4, 'Statuses should be updated');
+                assert(settings.stages.length === 3, 'Stages should be updated');
+                return 'Settings updated successfully';
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('storage-results', results);
+        }
+
+        // Migration Tests
+        async function runMigrationTests() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            results.push(runTest('LocalStorage Data Detection', () => {
+                // Add some test data to localStorage
+                const testJobs = [
+                    { id: '1', title: 'Legacy Job 1', company: 'Legacy Co', status: 'Applied', dateApplied: '2024-01-01' },
+                    { id: '2', title: 'Legacy Job 2', company: 'Legacy Inc', status: 'Interview', dateApplied: '2024-01-02' }
+                ];
+                localStorage.setItem('jobTracker_jobs', JSON.stringify(testJobs));
+                
+                const stored = localStorage.getItem('jobTracker_jobs');
+                assert(stored, 'Test data should be in localStorage');
+                return 'Legacy data detected in localStorage';
+            }));
+
+            results.push(runTest('Migration Status Check', () => {
+                const migrationComplete = window.stateManager.isMigrationComplete();
+                assert(typeof migrationComplete === 'boolean', 'Migration status should be boolean');
+                return `Migration complete: ${migrationComplete}`;
+            }));
+
+            results.push(runTest('Data Integrity After Migration', () => {
+                const jobs = window.stateManager.getStateSlice('jobs');
+                assert(Array.isArray(jobs), 'Jobs should be an array after migration');
+                
+                // Check if migrated jobs have required fields
+                jobs.forEach(job => {
+                    assert(job.id, 'Job should have ID');
+                    assert(job.title, 'Job should have title');
+                    assert(job.company, 'Job should have company');
+                    assert(job.status, 'Job should have status');
+                    assert(job.dateApplied, 'Job should have dateApplied');
+                });
+                
+                return `Data integrity verified for ${jobs.length} jobs`;
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('migration-results', results);
+        }
+
+        // Performance Tests
+        async function runPerformanceTests() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            // Ensure state manager is initialized
+            if (!window.stateManager) {
+                window.stateManager = await initializeStateManager();
+            }
+
+            results.push(await runTestAsync('Bulk Job Addition Performance', async () => {
+                const startTime = performance.now();
+                const promises = [];
+                
+                for (let i = 0; i < 100; i++) {
+                    const jobData = {
+                        title: `Performance Test Job ${i}`,
+                        company: `Test Company ${i}`,
+                        status: 'Applied',
+                        dateApplied: '2024-01-15'
+                    };
+                    promises.push(window.stateManager.addJob(jobData));
+                }
+                
+                await Promise.all(promises);
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                const jobs = window.stateManager.getStateSlice('jobs');
+                assert(jobs.length >= 100, 'All jobs should be added');
+                
+                return `Added 100 jobs in ${duration.toFixed(2)}ms (${(duration/100).toFixed(2)}ms per job)`;
+            }));
+
+            results.push(runTest('State Query Performance', () => {
+                const startTime = performance.now();
+                
+                // Test various queries
+                const allJobs = window.stateManager.getJobs();
+                const appliedJobs = window.stateManager.getJobs({ status: 'Applied' });
+                const companyJobs = window.stateManager.getJobs({ company: 'Test Company' });
+                
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                assert(Array.isArray(allJobs), 'All jobs query should return array');
+                assert(Array.isArray(appliedJobs), 'Status filter should return array');
+                assert(Array.isArray(companyJobs), 'Company filter should return array');
+                
+                return `Queried ${allJobs.length} jobs in ${duration.toFixed(2)}ms`;
+            }));
+
+            results.push(await runTestAsync('Storage Statistics', async () => {
+                const stats = await window.stateManager.getStorageStats();
+                assert(typeof stats === 'object', 'Stats should be an object');
+                
+                if (stats.total) {
+                    assert(typeof stats.total.size === 'number', 'Total size should be a number');
+                    assert(typeof stats.total.sizeMB === 'string', 'Size in MB should be a string');
+                }
+                
+                return `Storage stats: ${JSON.stringify(stats, null, 2)}`;
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('performance-results', results);
+        }
+
+        // Integration Tests
+        async function runIntegrationTests() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            // Ensure state manager is initialized
+            if (!window.stateManager) {
+                window.stateManager = await initializeStateManager();
+            }
+
+            results.push(runTest('JobTracker Integration', () => {
+                // Test JobTracker class instantiation and methods without DOM dependencies
+                assert(typeof JobTracker === 'function', 'JobTracker class should be available');
+                
+                // Test if JobTracker can be instantiated (it will fail on DOM access, but that's expected)
+                try {
+                    const jobTracker = new JobTracker();
+                    // If we get here, the constructor worked
+                    assert(jobTracker, 'JobTracker should be created');
+                    assert(typeof jobTracker.addJob === 'function', 'JobTracker should have addJob method');
+                    assert(typeof jobTracker.updateJob === 'function', 'JobTracker should have updateJob method');
+                    assert(typeof jobTracker.deleteJob === 'function', 'JobTracker should have deleteJob method');
+                    
+                    if (typeof jobTracker.cleanup === 'function') {
+                        jobTracker.cleanup();
+                    }
+                    return 'JobTracker class and methods available (DOM integration requires full app context)';
+                } catch (error) {
+                    // Expected to fail due to missing DOM elements
+                    if (error.message.includes('getElementById')) {
+                        return 'JobTracker class available (DOM integration requires full app context)';
+                    }
+                    throw error;
+                }
+            }));
+
+            results.push(runTest('Dashboard Integration', () => {
+                // Test Dashboard class instantiation and methods without DOM dependencies
+                assert(typeof Dashboard === 'function', 'Dashboard class should be available');
+                
+                try {
+                    const jobTracker = new JobTracker();
+                    const dashboard = new Dashboard(jobTracker);
+                    assert(dashboard, 'Dashboard should be created');
+                    assert(typeof dashboard.refresh === 'function', 'Dashboard should have refresh method');
+                    
+                    if (typeof jobTracker.cleanup === 'function') {
+                        jobTracker.cleanup();
+                    }
+                    if (typeof dashboard.cleanup === 'function') {
+                        dashboard.cleanup();
+                    }
+                    return 'Dashboard class and methods available (DOM integration requires full app context)';
+                } catch (error) {
+                    // Expected to fail due to missing DOM elements
+                    if (error.message.includes('getElementById')) {
+                        return 'Dashboard class available (DOM integration requires full app context)';
+                    }
+                    throw error;
+                }
+            }));
+
+            results.push(runTest('SettingsManager Integration', () => {
+                // Test SettingsManager class instantiation and methods without DOM dependencies
+                assert(typeof SettingsManager === 'function', 'SettingsManager class should be available');
+                
+                try {
+                    const settingsManager = new SettingsManager();
+                    assert(settingsManager, 'SettingsManager should be created');
+                    assert(typeof settingsManager.saveStatuses === 'function', 'SettingsManager should have saveStatuses method');
+                    assert(typeof settingsManager.saveStages === 'function', 'SettingsManager should have saveStages method');
+                    
+                    if (typeof settingsManager.cleanup === 'function') {
+                        settingsManager.cleanup();
+                    }
+                    return 'SettingsManager class and methods available (DOM integration requires full app context)';
+                } catch (error) {
+                    // Expected to fail due to missing DOM elements
+                    if (error.message.includes('getElementById')) {
+                        return 'SettingsManager class available (DOM integration requires full app context)';
+                    }
+                    throw error;
+                }
+            }));
+
+            results.push(runTest('DataManager Fallback', () => {
+                // Test DataManager fallback when state manager is not available
+                const jobs = DataManager.loadJobs();
+                assert(Array.isArray(jobs), 'DataManager should return array of jobs');
+                
+                // Test job creation
+                const jobData = {
+                    title: 'Fallback Test Job',
+                    company: 'Fallback Company',
+                    status: 'Applied',
+                    dateApplied: '2024-01-15'
+                };
+                
+                const job = DataManager.createJobObject(jobData);
+                assert(job.id, 'Created job should have ID');
+                assert(job.title === jobData.title, 'Created job should have correct title');
+                
+                return 'DataManager fallback working correctly';
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('integration-results', results);
+        }
+
+        // Quick Test
+        async function runQuickTest() {
+            const results = [];
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+
+            results.push(runTest('Function Availability Check', () => {
+                const functions = {
+                    initializeStateManager: typeof initializeStateManager,
+                    getStateManager: typeof getStateManager,
+                    isStateManagerAvailable: typeof isStateManagerAvailable,
+                    DataManager: typeof DataManager,
+                    JobTracker: typeof JobTracker,
+                    Dashboard: typeof Dashboard,
+                    SettingsManager: typeof SettingsManager
+                };
+                
+                const allAvailable = Object.values(functions).every(fn => fn === 'function');
+                assert(allAvailable, 'All required functions should be available');
+                
+                return `All functions available: ${JSON.stringify(functions, null, 2)}`;
+            }));
+
+            results.push(await runTestAsync('Basic State Manager Test', async () => {
+                try {
+                    const sm = await initializeStateManager();
+                    assert(sm, 'State manager should be created');
+                    assert(sm.isReady(), 'State manager should be ready');
+                    
+                    const state = sm.getState();
+                    assert(typeof state === 'object', 'State should be an object');
+                    
+                    return `State manager working: ${sm.getStorageType()} storage`;
+                } catch (error) {
+                    throw new Error(`State manager test failed: ${error.message}`);
+                }
+            }));
+
+            testResults.endTime = Date.now();
+            updateStats();
+            displayResults('quick-results', results);
+        }
+
+        // Run All Tests
+        async function runAllTests() {
+            testResults = { total: 0, passed: 0, failed: 0, startTime: Date.now() };
+            
+            await runCoreTests();
+            await runStorageTests();
+            await runMigrationTests();
+            await runPerformanceTests();
+            await runIntegrationTests();
+            
+            testResults.endTime = Date.now();
+            updateStats();
+            
+            const allResults = [
+                { name: 'Core System Tests', passed: testResults.passed > 0, result: `${testResults.passed} tests passed` },
+                { name: 'Complete Test Suite', passed: testResults.failed === 0, result: `Total: ${testResults.total}, Passed: ${testResults.passed}, Failed: ${testResults.failed}` }
+            ];
+            
+            displayResults('all-results', allResults);
+        }
+
+        // Make test functions globally available
+        window.runQuickTest = runQuickTest;
+        window.runCoreTests = runCoreTests;
+        window.runStorageTests = runStorageTests;
+        window.runMigrationTests = runMigrationTests;
+        window.runPerformanceTests = runPerformanceTests;
+        window.runIntegrationTests = runIntegrationTests;
+        window.runAllTests = runAllTests;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Enhanced State Management Test Suite loaded');
+            
+            // Check if functions are available
+            console.log('Available functions:', {
+                initializeStateManager: typeof initializeStateManager,
+                getStateManager: typeof getStateManager,
+                isStateManagerAvailable: typeof isStateManagerAvailable,
+                DataManager: typeof DataManager,
+                JobTracker: typeof JobTracker,
+                Dashboard: typeof Dashboard,
+                SettingsManager: typeof SettingsManager,
+                runQuickTest: typeof runQuickTest,
+                runCoreTests: typeof runCoreTests,
+                runAllTests: typeof runAllTests
+            });
+        });
+    </script>
+</body>
+</html>

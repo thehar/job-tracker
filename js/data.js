@@ -1,13 +1,25 @@
 /**
  * Data Management System
  * Handles job data storage, retrieval, and validation
+ * Enhanced to work with both state manager and direct localStorage access
  */
 class DataManager {
     /**
-     * Load jobs from localStorage
+     * Load jobs from storage (state manager or localStorage fallback)
      * @returns {Array} Array of job objects
      */
     static loadJobs() {
+        // Try to use state manager first
+        if (isStateManagerAvailable()) {
+            try {
+                const sm = getStateManager();
+                return sm.getStateSlice('jobs');
+            } catch (error) {
+                console.warn('[DataManager] State manager not available, falling back to localStorage:', error);
+            }
+        }
+        
+        // Fallback to localStorage
         const storedJobs = localStorage.getItem('jobTracker_jobs');
         const jobs = storedJobs ? JSON.parse(storedJobs) : [];
         
@@ -24,17 +36,40 @@ class DataManager {
         
         // Save migrated data back if any migration occurred
         if (migratedJobs.some((job, index) => !jobs[index].hasOwnProperty('applicationSource'))) {
-            this.saveJobs(migratedJobs);
+            // Use requestIdleCallback for better performance, with setTimeout fallback
+            const saveMigratedData = () => {
+                this.saveJobs(migratedJobs).catch(error => {
+                    console.warn('[DataManager] Failed to save migrated data:', error);
+                });
+            };
+            
+            if (window.requestIdleCallback) {
+                window.requestIdleCallback(saveMigratedData);
+            } else {
+                setTimeout(saveMigratedData, 0);
+            }
         }
         
         return migratedJobs;
     }
 
     /**
-     * Save jobs to localStorage
+     * Save jobs to storage (state manager or localStorage fallback)
      * @param {Array} jobs - Array of job objects to save
      */
-    static saveJobs(jobs) {
+    static async saveJobs(jobs) {
+        // Try to use state manager first
+        if (isStateManagerAvailable()) {
+            try {
+                const sm = getStateManager();
+                await sm.setState({ jobs }, true);
+                return;
+            } catch (error) {
+                console.warn('[DataManager] State manager not available, falling back to localStorage:', error);
+            }
+        }
+        
+        // Fallback to localStorage
         localStorage.setItem('jobTracker_jobs', JSON.stringify(jobs));
     }
 
@@ -51,18 +86,48 @@ class DataManager {
     }
 
     /**
+     * Clean and validate job data loaded from storage
+     * @param {Object} job - Job object from storage
+     * @returns {Object} Cleaned job object
+     */
+    static cleanJobData(job) {
+        if (!job) return null;
+        
+        return {
+            id: job.id || '',
+            title: job.title || '',
+            company: job.company || '',
+            status: job.status || '',
+            stage: job.stage || '',
+            dateApplied: job.dateApplied || '',
+            interviewDate: job.interviewDate || '',
+            followUpDate: job.followUpDate || '',
+            applicationSource: job.applicationSource || '',
+            contactPerson: job.contactPerson || '',
+            notes: job.notes || '',
+            calendarSync: job.calendarSync || null,
+            createdAt: job.createdAt || new Date().toISOString()
+        };
+    }
+
+    /**
      * Create a new job object with proper structure
      * @param {Object} formData - Form data from job form
      * @returns {Object} Structured job object
      */
     static createJobObject(formData) {
+        // Ensure formData exists and has required fields
+        if (!formData) {
+            throw new Error('Form data is required');
+        }
+        
         return {
             id: Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9),
-            title: formData.title.trim(),
-            company: formData.company.trim(),
-            status: formData.status.trim(),
+            title: (formData.title || '').trim(),
+            company: (formData.company || '').trim(),
+            status: (formData.status || '').trim(),
             stage: formData.stage ? formData.stage.trim() : '',
-            dateApplied: formData.dateApplied.trim(),
+            dateApplied: (formData.dateApplied || '').trim(),
             interviewDate: formData.interviewDate ? formData.interviewDate.trim() : '',
             followUpDate: formData.followUpDate ? formData.followUpDate.trim() : '',
             applicationSource: formData.applicationSource ? formData.applicationSource.trim() : '',
@@ -124,7 +189,18 @@ class DataManager {
      * @returns {string} Formatted date string
      */
     static formatDate(date) {
+        // Handle undefined, null, or empty date
+        if (!date) {
+            return 'No date';
+        }
+        
         const dateObj = typeof date === 'string' ? new Date(date) : date;
+        
+        // Check if dateObj is valid
+        if (!dateObj || isNaN(dateObj.getTime())) {
+            return 'Invalid date';
+        }
+        
         return dateObj.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -138,7 +214,18 @@ class DataManager {
      * @returns {string} Formatted date time string
      */
     static formatDateTime(date) {
+        // Handle undefined, null, or empty date
+        if (!date) {
+            return 'No date';
+        }
+        
         const dateObj = typeof date === 'string' ? new Date(date) : date;
+        
+        // Check if dateObj is valid
+        if (!dateObj || isNaN(dateObj.getTime())) {
+            return 'Invalid date';
+        }
+        
         return dateObj.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
