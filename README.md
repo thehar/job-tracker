@@ -1,5 +1,7 @@
 # 📊 Job Tracker
 
+Job searches are all about using AI these days, but those sites gobble up all of your data. This is personal side project using a mix of personal coding and a testbed for my Cursor playground.
+
 A modern, client-side job application tracking system with analytics, CSV import/export, and weekly reporting features. Built with vanilla HTML, CSS, and JavaScript - no frameworks, no backend required. Features a beautiful dark theme with responsive design, centralized state management, and comprehensive job search management tools.
 
 ![Job Tracker Screenshot](https://github.com/thehar/job-tracker/blob/b0268c85a5cbb41ddda3076b34d69ef2b0210c60/images/screenshot.png)
@@ -20,13 +22,13 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Company Status** - Track current status for each company you've applied to
 - **Visual Insights** - Beautiful Chart.js visualizations with responsive design
 
-### 🔔 Notifications (New)
+### 🔔 Notifications
 - **Interview Reminders** - Local reminders before scheduled interviews (24h, 2h, 30m by default)
 - **Follow-up Alerts** - Reminders to follow up after applying or selected date
 - **Privacy-First** - All notifications are local; no server push required
 - **Settings Control** - Enable/disable, choose types and timings, send test notification
 
-### 📅 Calendar Integration (New)
+### 📅 Calendar Integration
 - **Multi-Platform Support** - Google Calendar, Outlook, Apple Calendar, and iCal file downloads
 - **Automatic Event Creation** - Generate calendar events for interviews and follow-ups
 - **Smart Sync Settings** - Choose which events to sync and customize event duration
@@ -89,30 +91,6 @@ A modern, client-side job application tracking system with analytics, CSV import
 - **Persistent Settings** - All customizations saved to local storage
 - **Theme Consistency** - Beautiful dark theme with blue accents throughout
 
-## 📈 Current Status
-
-**Latest Updates (v1.3.0):**
-- ✅ **Admin Panel** - Complete admin panel with PWA installation analytics dashboard
-- ✅ **PWA Installation System** - Cross-platform installation prompts and comprehensive tracking
-- ✅ **Installation Analytics** - Real-time metrics, funnel charts, and platform/browser breakdown
-- ✅ **Enhanced Accessibility** - ARIA attributes, keyboard navigation (Alt+A), screen reader support
-- ✅ **Export & Reset** - Analytics data export in JSON/CSV/Summary formats with reset functionality
-- ✅ **Responsive Design** - Mobile, tablet, desktop optimized admin panel
-- ✅ **Application Source Tracking** - Comprehensive tracking of job application sources with analytics
-- ✅ **Source Performance Analytics** - Interview rates by platform for strategic job search optimization
-- ✅ **Service Worker Implementation** - Full offline capability with intelligent caching strategies
-- ✅ **Advanced Analytics Export** - Multiple export formats with comprehensive metrics and insights
-- ✅ **Notifications** - Local interview and follow-up reminders with settings and test notification
-- ✅ **Upcoming Interviews** - Dashboard shows upcoming interviews in the next 7 days
-
-**Project Health:**
-- **Code Quality**: Excellent - Modern practices, modular architecture, comprehensive error handling
-- **Accessibility**: WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
-- **Performance**: Optimized with Service Worker caching, lazy loading, and efficient data structures
-- **Offline Support**: Complete offline functionality with intelligent cache management
-- **PWA Ready**: Progressive Web App with manifest, Service Worker, and offline-first design
-- **Browser Support**: Modern browsers with Service Worker, Web Crypto API, and ES6+ support
-
 ## 🚀 Quick Start
 
 1. **Download or Clone**
@@ -121,16 +99,15 @@ A modern, client-side job application tracking system with analytics, CSV import
    cd job-tracker
    ```
 
-2. **Open in Browser**
-   - Simply open `index.html` in any modern web browser
-   - No installation, no build process, no dependencies
+2. **Start using Docker**
+   - In a terminal run, `docker-compose up --build` and browse to `http://localhost:8080`
 
 3. **Set Your Password**
    - On first visit, create a secure password
    - This encrypts and protects your job data
 
 4. **Start Tracking**
-   - Add your first job application
+   - Add your first job application or use sample data
    - Explore the dashboard and weekly reports
    - Import existing data via CSV if needed
 
