@@ -111,13 +111,6 @@ A modern, client-side job application tracking system with analytics, CSV import
    - Explore the dashboard and weekly reports
    - Import existing data via CSV if needed
 
-## 📱 Browser Compatibility
-
-- **Chrome** 88+ ✅
-- **Firefox** 85+ ✅
-- **Safari** 14+ ✅
-- **Edge** 88+ ✅
-
 **Required Features:**
 - Service Worker API (for offline functionality and PWA features)
 - Web Crypto API (for password hashing and security)
