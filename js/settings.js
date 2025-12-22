@@ -87,8 +87,13 @@ class SettingsManager {
      * @returns {Array} Array of status strings
      */
     loadStatuses() {
-        const stored = localStorage.getItem('jobTracker_statuses');
-        return stored ? JSON.parse(stored) : [...this.defaultStatuses];
+        try {
+            const stored = localStorage.getItem('jobTracker_statuses');
+            return stored ? JSON.parse(stored) : [...this.defaultStatuses];
+        } catch (error) {
+            console.warn('[SettingsManager] Failed to parse statuses from storage, using defaults:', error);
+            return [...this.defaultStatuses];
+        }
     }
 
     /**
@@ -96,8 +101,13 @@ class SettingsManager {
      * @returns {Array} Array of stage strings
      */
     loadStages() {
-        const stored = localStorage.getItem('jobTracker_stages');
-        return stored ? JSON.parse(stored) : [...this.defaultStages];
+        try {
+            const stored = localStorage.getItem('jobTracker_stages');
+            return stored ? JSON.parse(stored) : [...this.defaultStages];
+        } catch (error) {
+            console.warn('[SettingsManager] Failed to parse stages from storage, using defaults:', error);
+            return [...this.defaultStages];
+        }
     }
 
     /**
@@ -656,38 +666,80 @@ class SettingsManager {
      * Update all form dropdowns with current settings
      */
     updateForms() {
-        // Update job form status dropdown
+        // Update job form status dropdown (DOM API to avoid HTML injection)
         const statusSelect = document.getElementById('status');
         if (statusSelect) {
-            statusSelect.innerHTML = '<option value="">Select Status</option>' + 
-                this.statuses.map(status => `<option value="${status}">${status}</option>`).join('');
+            while (statusSelect.firstChild) statusSelect.removeChild(statusSelect.firstChild);
+            const def = document.createElement('option');
+            def.value = '';
+            def.textContent = 'Select Status';
+            statusSelect.appendChild(def);
+            this.statuses.forEach((status) => {
+                const opt = document.createElement('option');
+                opt.value = status;
+                opt.textContent = status;
+                statusSelect.appendChild(opt);
+            });
         }
 
         // Update job form stage dropdown
         const stageSelect = document.getElementById('stage');
         if (stageSelect) {
-            stageSelect.innerHTML = '<option value="">Select Stage</option>' + 
-                this.stages.map(stage => `<option value="${stage}">${stage}</option>`).join('');
+            while (stageSelect.firstChild) stageSelect.removeChild(stageSelect.firstChild);
+            const def = document.createElement('option');
+            def.value = '';
+            def.textContent = 'Select Stage';
+            stageSelect.appendChild(def);
+            this.stages.forEach((stage) => {
+                const opt = document.createElement('option');
+                opt.value = stage;
+                opt.textContent = stage;
+                stageSelect.appendChild(opt);
+            });
         }
 
         // Update edit form status dropdown
         const editStatusSelect = document.getElementById('editStatus');
         if (editStatusSelect) {
-            editStatusSelect.innerHTML = this.statuses.map(status => `<option value="${status}">${status}</option>`).join('');
+            while (editStatusSelect.firstChild) editStatusSelect.removeChild(editStatusSelect.firstChild);
+            this.statuses.forEach((status) => {
+                const opt = document.createElement('option');
+                opt.value = status;
+                opt.textContent = status;
+                editStatusSelect.appendChild(opt);
+            });
         }
 
         // Update edit form stage dropdown
         const editStageSelect = document.getElementById('editStage');
         if (editStageSelect) {
-            editStageSelect.innerHTML = '<option value="">Select Stage</option>' + 
-                this.stages.map(stage => `<option value="${stage}">${stage}</option>`).join('');
+            while (editStageSelect.firstChild) editStageSelect.removeChild(editStageSelect.firstChild);
+            const def = document.createElement('option');
+            def.value = '';
+            def.textContent = 'Select Stage';
+            editStageSelect.appendChild(def);
+            this.stages.forEach((stage) => {
+                const opt = document.createElement('option');
+                opt.value = stage;
+                opt.textContent = stage;
+                editStageSelect.appendChild(opt);
+            });
         }
 
         // Update filter dropdown
         const filterSelect = document.getElementById('statusFilter');
         if (filterSelect) {
-            filterSelect.innerHTML = '<option value="">All Statuses</option>' + 
-                this.statuses.map(status => `<option value="${status}">${status}</option>`).join('');
+            while (filterSelect.firstChild) filterSelect.removeChild(filterSelect.firstChild);
+            const all = document.createElement('option');
+            all.value = '';
+            all.textContent = 'All Statuses';
+            filterSelect.appendChild(all);
+            this.statuses.forEach((status) => {
+                const opt = document.createElement('option');
+                opt.value = status;
+                opt.textContent = status;
+                filterSelect.appendChild(opt);
+            });
         }
 
         // Update CSV import validation
@@ -737,7 +789,8 @@ class SettingsManager {
                 document.getElementById('lastPromptDate').textContent = 
                     lastPrompt ? new Date(lastPrompt).toLocaleDateString() : 'Never';
                 
-                const dontAsk = storage.getDontAskAgain();
+                const userPrefs = storage.getUserPreferences();
+                const dontAsk = userPrefs ? userPrefs.dontAskAgain : false;
                 document.getElementById('dontAskAgain').textContent = dontAsk ? 'Yes' : 'No';
             }
 

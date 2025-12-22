@@ -24,7 +24,246 @@ class Dashboard {
             browserBreakdownChart: null,
             installTimelineChart: null
         };
+        this.chartCreationQueue = [];
+        this.isCreatingChart = false;
+        this.isUpdatingCharts = false;
+        this.cachedInstallAnalytics = null;
+        this.lastAnalyticsUpdate = 0;
         this.init();
+    }
+
+    /**
+     * Process chart creation queue
+     */
+    processChartQueue() {
+        if (this.isCreatingChart || this.chartCreationQueue.length === 0) {
+            return;
+        }
+        
+        this.isCreatingChart = true;
+        const chartMethod = this.chartCreationQueue.shift();
+        
+        try {
+            chartMethod();
+        } catch (error) {
+            console.error('[Dashboard] Error in chart queue processing:', error);
+        } finally {
+            this.isCreatingChart = false;
+            // Process next chart after a shorter delay for better performance
+            setTimeout(() => this.processChartQueue(), 16); // ~60fps
+        }
+    }
+
+    /**
+     * Add chart method to queue
+     */
+    queueChartUpdate(chartMethod) {
+        this.chartCreationQueue.push(chartMethod);
+        this.processChartQueue();
+    }
+
+    /**
+     * Safely destroy a chart instance
+     */
+    destroyChart(chart) {
+        if (chart && typeof chart.destroy === 'function') {
+            try {
+                chart.destroy();
+            } catch (error) {
+                console.warn('[Dashboard] Error destroying chart:', error);
+            }
+        }
+    }
+
+    /**
+     * Destroy all charts globally
+     */
+    destroyAllCharts() {
+        if (typeof Chart !== 'undefined') {
+            // Method 1: Use Chart.instances if available
+            if (Chart.instances) {
+                Object.keys(Chart.instances).forEach(key => {
+                    try {
+                        Chart.instances[key].destroy();
+                    } catch (error) {
+                        console.warn('[Dashboard] Error destroying chart instance:', error);
+                    }
+                });
+            }
+            
+            // Method 2: Use Chart.getChart for all known canvas elements
+            const canvasIds = ['statusChart', 'stageChart', 'sourceChart', 'sourcePerformanceChart', 
+                              'timelineChart', 'sourceTimelineChart', 'stageTimelineChart', 'submissionRateChart'];
+            
+            // Multiple cleanup passes to ensure all charts are destroyed
+            for (let pass = 0; pass < 3; pass++) {
+                canvasIds.forEach(canvasId => {
+                    const canvas = document.getElementById(canvasId);
+                    if (canvas && Chart.getChart) {
+                        try {
+                            const existingChart = Chart.getChart(canvas);
+                            if (existingChart) {
+                                console.log(`[Dashboard] Pass ${pass + 1}: Destroying existing chart on ${canvasId}`);
+                                existingChart.destroy();
+                            }
+                        } catch (error) {
+                            console.warn(`[Dashboard] Pass ${pass + 1}: Error destroying chart on ${canvasId}:`, error);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Check if an element is visible and has layout
+     */
+    isElementVisible(el) {
+        if (!el) return false;
+        if (el.offsetParent === null) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    }
+
+    /**
+     * Run a callback as soon as an element becomes visible, prioritizing next-frame latency
+     * Uses requestAnimationFrame with IntersectionObserver/ResizeObserver fallbacks.
+     */
+    runWhenVisibleRAF(el, cb) {
+        if (!el || typeof cb !== 'function') return;
+
+        const cleanup = [];
+        let triggered = false;
+
+        const trigger = () => {
+            if (triggered) return;
+            triggered = true;
+            try { cb(); } catch (e) { console.warn('[Dashboard] runWhenVisibleRAF callback error:', e); }
+            // cleanup observers/listeners
+            cleanup.forEach(fn => { try { fn(); } catch (_) {} });
+        };
+
+        // Immediate check on next frame for fastest path
+        const rafId = requestAnimationFrame(() => {
+            if (this.isElementVisible(el)) {
+                trigger();
+            }
+        });
+        cleanup.push(() => cancelAnimationFrame(rafId));
+
+        // IntersectionObserver: fires when element enters viewport and has layout
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && this.isElementVisible(el)) {
+                        trigger();
+                    }
+                });
+            }, { root: null, threshold: 0 });
+            io.observe(el);
+            cleanup.push(() => io.disconnect());
+        }
+
+        // ResizeObserver: fires when element gains non-zero size
+        if ('ResizeObserver' in window) {
+            const ro = new ResizeObserver(() => {
+                if (this.isElementVisible(el)) {
+                    trigger();
+                }
+            });
+            ro.observe(el);
+            cleanup.push(() => ro.disconnect());
+        }
+
+        // Fallback RAF loop (bounded) in case observers are unavailable
+        let framesLeft = 60; // ~1s at 60fps max
+        const loop = () => {
+            if (triggered) return;
+            if (this.isElementVisible(el)) {
+                trigger();
+                return;
+            }
+            if (framesLeft-- > 0) {
+                requestAnimationFrame(loop);
+            }
+        };
+        requestAnimationFrame(loop);
+    }
+
+    // Backward-compatible alias to match earlier plan wording
+    runWhenVisible(el, cb) {
+        this.runWhenVisibleRAF(el, cb);
+    }
+
+    /**
+     * Reset canvas to clean state
+     */
+    resetCanvas(canvas) {
+        if (!canvas) return;
+
+        try {
+            // Force destroy any existing chart
+            if (typeof Chart !== 'undefined' && Chart.getChart) {
+                const existingChart = Chart.getChart(canvas);
+                if (existingChart) {
+                    console.log('[Dashboard] Found existing chart on canvas, destroying it');
+                    existingChart.destroy();
+                }
+            }
+
+            // Remove Chart.js specific properties
+            if (canvas.chartjs) {
+                delete canvas.chartjs;
+            }
+
+            // Clear all Chart.js attributes
+            canvas.removeAttribute('data-chartjs-chart');
+            canvas.removeAttribute('data-chartjs-chart-id');
+
+            // Get context and clear multiple times
+            const ctx = canvas.getContext('2d');
+            
+            // Clear the canvas multiple times to ensure it's clean
+            for (let i = 0; i < 3; i++) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Force canvas size reset
+            const currentWidth = canvas.width;
+            const currentHeight = canvas.height;
+            canvas.width = currentWidth;
+            canvas.height = currentHeight;
+
+            // Clear again after size reset
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Reset canvas style
+            canvas.style.width = '';
+            canvas.style.height = '';
+
+        } catch (error) {
+            console.warn('[Dashboard] Error resetting canvas:', error);
+        }
+    }
+
+    /**
+     * Recreate canvas element completely
+     */
+    recreateCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return null;
+
+        const parent = canvas.parentNode;
+        const newCanvas = canvas.cloneNode(false);
+        
+        // Remove all Chart.js specific attributes
+        newCanvas.removeAttribute('data-chartjs-chart');
+        if (newCanvas.chartjs) {
+            delete newCanvas.chartjs;
+        }
+
+        parent.replaceChild(newCanvas, canvas);
+        return newCanvas;
     }
 
     /**
@@ -34,6 +273,8 @@ class Dashboard {
         this.setupEventListeners();
         this.setupTabSwitching();
         this.setupStateManager();
+        // Ensure dashboard is visible when initialized
+        this.switchToDashboardView();
         this.refresh();
     }
 
@@ -250,8 +491,10 @@ class Dashboard {
             // Announce the change to screen readers
             this.announceTabChange('Dashboard view');
 
-            // Refresh dashboard when switching to it
-            this.refresh();
+            // Defer heavy operations to next frame to keep UI responsive
+            requestAnimationFrame(() => {
+                this.refresh();
+            });
         }
     }
 
@@ -469,10 +712,20 @@ class Dashboard {
             return;
         }
 
+        // Update summary cards immediately (lightweight)
         this.updateSummaryCards(jobs);
-        this.updateCharts(jobs);
         this.updateCompanyStatus(jobs);
-        this.updateInstallationAnalytics();
+        
+        // Defer heavy operations to prevent blocking UI
+        requestAnimationFrame(() => {
+            // Break chart updates into smaller chunks to prevent blocking
+            this.updateChartsInBatches(jobs);
+        });
+        
+        // Defer installation analytics to next frame (heaviest operation)
+        setTimeout(() => {
+            this.updateInstallationAnalytics();
+        }, 0);
     }
 
     /**
@@ -650,24 +903,74 @@ class Dashboard {
     }
 
     /**
-     * Update charts
+     * Update charts in batches to prevent blocking UI
      */
-    updateCharts() {
+    updateChartsInBatches(jobs) {
+        // Prevent multiple updates
+        if (this.isUpdatingCharts) {
+            return;
+        }
+        
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not loaded');
             return;
         }
+        
+        // Check if dashboard section is visible before updating charts
+        const dashboardSection = document.getElementById('dashboardSection');
+        if (!dashboardSection || dashboardSection.classList.contains('hidden') || dashboardSection.offsetParent === null) {
+            console.info('[Dashboard] Dashboard section not visible, rechecking next frame');
+            requestAnimationFrame(() => this.updateChartsInBatches(jobs));
+            return;
+        }
+        
+        this.isUpdatingCharts = true;
 
-        this.updateStatusChart();
-        this.updateStageChart();
-        this.updateSourceChart();
-        this.updateSourcePerformanceChart();
-        this.updateTimelineChart();
+        // Use existing queue system that works properly
+        this.queueChartUpdate(() => this.updateStatusChart());
+        this.queueChartUpdate(() => this.updateStageChart());
+        this.queueChartUpdate(() => this.updateSourceChart());
+        this.queueChartUpdate(() => this.updateSourcePerformanceChart());
+        this.queueChartUpdate(() => this.updateTimelineChart());
+        this.queueChartUpdate(() => this.updateSourceTimelineChart());
+        this.queueChartUpdate(() => this.updateStageTimelineChart());
+        this.queueChartUpdate(() => this.updateSubmissionRateChart());
+        
+        setTimeout(() => {
+            this.isUpdatingCharts = false;
+        }, 1000);
+    }
 
-        // Update new timeline trend charts
-        this.updateSourceTimelineChart();
-        this.updateStageTimelineChart();
-        this.updateSubmissionRateChart();
+    /**
+     * Update charts
+     */
+    updateCharts() {
+        // Prevent multiple simultaneous chart updates
+        if (this.isUpdatingCharts) {
+            return;
+        }
+        
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js not loaded');
+            return;
+        }
+        
+        this.isUpdatingCharts = true;
+
+        // Queue all chart updates to prevent simultaneous creation
+        this.queueChartUpdate(() => this.updateStatusChart());
+        this.queueChartUpdate(() => this.updateStageChart());
+        this.queueChartUpdate(() => this.updateSourceChart());
+        this.queueChartUpdate(() => this.updateSourcePerformanceChart());
+        this.queueChartUpdate(() => this.updateTimelineChart());
+        this.queueChartUpdate(() => this.updateSourceTimelineChart());
+        this.queueChartUpdate(() => this.updateStageTimelineChart());
+        this.queueChartUpdate(() => this.updateSubmissionRateChart());
+        
+        // Reset the flag after a delay to allow for future updates
+        setTimeout(() => {
+            this.isUpdatingCharts = false;
+        }, 1000);
     }
 
     /**
@@ -675,7 +978,22 @@ class Dashboard {
      */
     updateStatusChart() {
         const canvas = document.getElementById('statusChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('[Dashboard] statusChart canvas not found');
+            return;
+        }
+        
+        // Check if canvas is actually visible/rendered
+        if (!this.isElementVisible(canvas)) {
+            console.info('[Dashboard] statusChart canvas not visible, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateStatusChart()));
+            return;
+        }
+
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for status chart');
+            return;
+        }
 
         const jobs = this.jobTracker.jobs || [];
         const statusCounts = {};
@@ -684,16 +1002,39 @@ class Dashboard {
             statusCounts[job.status] = (statusCounts[job.status] || 0) + 1;
         });
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.statusChart) {
-            this.charts.statusChart.destroy();
+            this.charts.statusChart.data.labels = Object.keys(statusCounts);
+            this.charts.statusChart.data.datasets[0].data = Object.values(statusCounts);
+            this.charts.statusChart.update('none'); // 'none' = no animation for instant update
+            return;
         }
 
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] sourcePerformanceChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateSourcePerformanceChart()));
+            return;
+        }
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] statusChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateStatusChart()));
+            return;
+        }
         const totalJobs = jobs.length;
 
-        this.charts.statusChart = new Chart(ctx, {
+        // Create new chart
+        try {
+            this.charts.statusChart = new Chart(canvas, {
             type: 'doughnut',
             data: {
                 labels: Object.keys(statusCounts),
@@ -745,6 +1086,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating status chart:', error);
+            this.charts.statusChart = null;
+        }
     }
 
     /**
@@ -752,7 +1097,22 @@ class Dashboard {
      */
     updateStageChart() {
         const canvas = document.getElementById('stageChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('[Dashboard] stageChart canvas not found');
+            return;
+        }
+        
+        // Check if canvas is actually visible/rendered
+        if (!this.isElementVisible(canvas)) {
+            console.info('[Dashboard] stageChart canvas not visible, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateStageChart()));
+            return;
+        }
+
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for stage chart');
+            return;
+        }
 
         const jobs = this.jobTracker.jobs || [];
         const stageCounts = {};
@@ -763,16 +1123,39 @@ class Dashboard {
             }
         });
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.stageChart) {
-            this.charts.stageChart.destroy();
+            this.charts.stageChart.data.labels = Object.keys(stageCounts);
+            this.charts.stageChart.data.datasets[0].data = Object.values(stageCounts);
+            this.charts.stageChart.update('none');
+            return;
         }
 
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] timelineChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateTimelineChart()));
+            return;
+        }
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] stageChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateStageChart()));
+            return;
+        }
         const totalStageJobs = Object.values(stageCounts).reduce((sum, count) => sum + count, 0);
 
-        this.charts.stageChart = new Chart(ctx, {
+        // Create new chart
+        try {
+            this.charts.stageChart = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: Object.keys(stageCounts),
@@ -809,6 +1192,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating stage chart:', error);
+            this.charts.stageChart = null;
+        }
     }
 
     /**
@@ -816,7 +1203,22 @@ class Dashboard {
      */
     updateSourceChart() {
         const canvas = document.getElementById('sourceChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('[Dashboard] sourceChart canvas not found');
+            return;
+        }
+        
+        // Check if canvas is actually visible/rendered
+        if (!this.isElementVisible(canvas)) {
+            console.info('[Dashboard] sourceChart canvas not visible, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateSourceChart()));
+            return;
+        }
+
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for source chart');
+            return;
+        }
 
         const jobs = this.jobTracker.jobs || [];
         const sourceCounts = {};
@@ -826,16 +1228,39 @@ class Dashboard {
             sourceCounts[source] = (sourceCounts[source] || 0) + 1;
         });
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.sourceChart) {
-            this.charts.sourceChart.destroy();
+            this.charts.sourceChart.data.labels = Object.keys(sourceCounts);
+            this.charts.sourceChart.data.datasets[0].data = Object.values(sourceCounts);
+            this.charts.sourceChart.update('none');
+            return;
         }
 
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] sourceTimelineChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateSourceTimelineChart()));
+            return;
+        }
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] sourceChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateSourceChart()));
+            return;
+        }
         const totalSourceJobs = jobs.length;
 
-        this.charts.sourceChart = new Chart(ctx, {
+        // Create new chart
+        try {
+            this.charts.sourceChart = new Chart(canvas, {
             type: 'doughnut',
             data: {
                 labels: Object.keys(sourceCounts),
@@ -888,6 +1313,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating source chart:', error);
+            this.charts.sourceChart = null;
+        }
     }
 
     /**
@@ -897,20 +1326,42 @@ class Dashboard {
         const canvas = document.getElementById('sourcePerformanceChart');
         if (!canvas) return;
 
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for source performance chart');
+            return;
+        }
+
         const jobs = this.jobTracker.jobs || [];
         const sourcePerformance = this.calculateSourcePerformance(jobs);
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.sourcePerformanceChart) {
-            this.charts.sourcePerformanceChart.destroy();
+            this.charts.sourcePerformanceChart.data.labels = Object.keys(sourcePerformance);
+            this.charts.sourcePerformanceChart.data.datasets[0].data = Object.values(sourcePerformance);
+            this.charts.sourcePerformanceChart.update('none');
+            return;
         }
 
-        // Calculate source stats for enhanced tooltips
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] stageTimelineChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateStageTimelineChart()));
+            return;
+        }
         const sourceStats = this.calculateSourceStats(jobs);
 
-        this.charts.sourcePerformanceChart = new Chart(ctx, {
+        // Create new chart with error handling
+        try {
+            this.charts.sourcePerformanceChart = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: Object.keys(sourcePerformance),
@@ -958,6 +1409,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating source performance chart:', error);
+            this.charts.sourcePerformanceChart = null;
+        }
     }
 
     /**
@@ -985,14 +1440,33 @@ class Dashboard {
         });
         const data = sortedMonths.map(month => monthlyData[month]);
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.timelineChart) {
-            this.charts.timelineChart.destroy();
+            this.charts.timelineChart.data.labels = labels;
+            this.charts.timelineChart.data.datasets[0].data = data;
+            this.charts.timelineChart.update('none');
+            return;
         }
 
-        this.charts.timelineChart = new Chart(ctx, {
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !ctx.canvas) {
+            console.info('[Dashboard] submissionRateChart context unavailable, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.queueChartUpdate(() => this.updateSubmissionRateChart()));
+            return;
+        }
+
+        // Create new chart with error handling
+        try {
+            this.charts.timelineChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: labels,
@@ -1032,6 +1506,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating timeline chart:', error);
+            this.charts.timelineChart = null;
+        }
     }
 
     /**
@@ -1111,15 +1589,13 @@ class Dashboard {
         const canvas = document.getElementById('sourceTimelineChart');
         if (!canvas) return;
 
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for source timeline chart');
+            return;
+        }
+
         const jobs = this.jobTracker.jobs || [];
         const monthlySourceData = this.calculateMonthlySourceData(jobs);
-
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
-        if (this.charts.sourceTimelineChart) {
-            this.charts.sourceTimelineChart.destroy();
-        }
 
         // Get top 3 sources for the legend
         const allSources = {};
@@ -1142,7 +1618,28 @@ class Dashboard {
             tension: 0.4
         }));
 
-        this.charts.sourceTimelineChart = new Chart(ctx, {
+        // If chart exists, update data in place
+        if (this.charts.sourceTimelineChart) {
+            this.charts.sourceTimelineChart.data.labels = monthlySourceData.labels;
+            this.charts.sourceTimelineChart.data.datasets = datasets;
+            this.charts.sourceTimelineChart.update('none');
+            return;
+        }
+
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+
+        // Create new chart with error handling
+        try {
+            this.charts.sourceTimelineChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: monthlySourceData.labels,
@@ -1175,6 +1672,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating source timeline chart:', error);
+            this.charts.sourceTimelineChart = null;
+        }
     }
 
     /**
@@ -1184,15 +1685,13 @@ class Dashboard {
         const canvas = document.getElementById('stageTimelineChart');
         if (!canvas) return;
 
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for stage timeline chart');
+            return;
+        }
+
         const jobs = this.jobTracker.jobs || [];
         const monthlyStageData = this.calculateMonthlyStageData(jobs);
-
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
-        if (this.charts.stageTimelineChart) {
-            this.charts.stageTimelineChart.destroy();
-        }
 
         // Get top 3 stages for the legend
         const allStages = {};
@@ -1216,7 +1715,28 @@ class Dashboard {
             tension: 0.4
         }));
 
-        this.charts.stageTimelineChart = new Chart(ctx, {
+        // If chart exists, update data in place
+        if (this.charts.stageTimelineChart) {
+            this.charts.stageTimelineChart.data.labels = monthlyStageData.labels;
+            this.charts.stageTimelineChart.data.datasets = datasets;
+            this.charts.stageTimelineChart.update('none');
+            return;
+        }
+
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+
+        // Create new chart with error handling
+        try {
+            this.charts.stageTimelineChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: monthlyStageData.labels,
@@ -1249,6 +1769,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating stage timeline chart:', error);
+            this.charts.stageTimelineChart = null;
+        }
     }
 
     /**
@@ -1258,17 +1782,36 @@ class Dashboard {
         const canvas = document.getElementById('submissionRateChart');
         if (!canvas) return;
 
+        if (typeof Chart === 'undefined') {
+            console.warn('[Dashboard] Chart.js not available for submission rate chart');
+            return;
+        }
+
         const jobs = this.jobTracker.jobs || [];
         const submissionRateData = this.calculateSubmissionRateData(jobs);
 
-        const ctx = canvas.getContext('2d');
-
-        // Destroy existing chart
+        // If chart exists, update data in place
         if (this.charts.submissionRateChart) {
-            this.charts.submissionRateChart.destroy();
+            this.charts.submissionRateChart.data.labels = submissionRateData.labels;
+            this.charts.submissionRateChart.data.datasets[0].data = submissionRateData.weeklyData;
+            this.charts.submissionRateChart.update('none');
+            return;
         }
 
-        this.charts.submissionRateChart = new Chart(ctx, {
+        // Destroy any Chart.js instance on canvas before creating new one
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        // Only create if chart doesn't exist
+        const ctx = canvas.getContext('2d');
+
+        // Create new chart with error handling
+        try {
+            this.charts.submissionRateChart = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: submissionRateData.labels,
@@ -1307,6 +1850,10 @@ class Dashboard {
                 }
             }
         });
+        } catch (error) {
+            console.error('[Dashboard] Error creating submission rate chart:', error);
+            this.charts.submissionRateChart = null;
+        }
     }
 
     /**
@@ -1442,8 +1989,14 @@ class Dashboard {
         }
 
         try {
-            const analytics = new window.InstallAnalytics();
-            const metrics = analytics.getInstallMetrics();
+            // Use cached analytics if available and recent (within 5 seconds)
+            const now = Date.now();
+            if (!this.cachedInstallAnalytics || (now - this.lastAnalyticsUpdate) > 5000) {
+                this.cachedInstallAnalytics = new window.InstallAnalytics();
+                this.lastAnalyticsUpdate = now;
+            }
+            
+            const metrics = this.cachedInstallAnalytics.getInstallMetrics();
 
             this.updateInstallationSummaryCards(metrics);
             this.updateInstallationCharts(metrics);
@@ -1524,12 +2077,20 @@ class Dashboard {
         const canvas = document.getElementById('installFunnelChart');
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-
         // Destroy existing chart
         if (this.charts.installFunnelChart) {
             this.charts.installFunnelChart.destroy();
         }
+
+        // Also destroy any Chart.js instance on canvas
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        const ctx = canvas.getContext('2d');
 
         const funnelData = [
             { label: 'Prompts Shown', value: metrics.funnel.promptsShown },
@@ -1537,7 +2098,12 @@ class Dashboard {
             { label: 'Install Success', value: metrics.funnel.installSuccess }
         ];
 
-        this.charts.installFunnelChart = new Chart(ctx, {
+        if (!canvas.isConnected || !this.isElementVisible(canvas)) {
+            console.info('[Dashboard] installFunnelChart not ready for binding, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.updateInstallFunnelChart(metrics));
+            return;
+        }
+        this.charts.installFunnelChart = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels: funnelData.map(item => item.label),
@@ -1585,12 +2151,20 @@ class Dashboard {
         const canvas = document.getElementById('platformBreakdownChart');
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-
         // Destroy existing chart
         if (this.charts.platformBreakdownChart) {
             this.charts.platformBreakdownChart.destroy();
         }
+
+        // Also destroy any Chart.js instance on canvas
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        const ctx = canvas.getContext('2d');
 
         const platforms = Object.keys(metrics.platformBreakdown.platforms);
         const promptCounts = platforms.map(platform => 
@@ -1621,7 +2195,12 @@ class Dashboard {
             return;
         }
 
-        this.charts.platformBreakdownChart = new Chart(ctx, {
+        if (!canvas.isConnected || !this.isElementVisible(canvas)) {
+            console.info('[Dashboard] platformBreakdownChart not ready for binding, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.updatePlatformBreakdownChart(metrics));
+            return;
+        }
+        this.charts.platformBreakdownChart = new Chart(canvas, {
             type: 'doughnut',
             data: {
                 labels: platforms,
@@ -1663,12 +2242,20 @@ class Dashboard {
         const canvas = document.getElementById('browserBreakdownChart');
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-
         // Destroy existing chart
         if (this.charts.browserBreakdownChart) {
             this.charts.browserBreakdownChart.destroy();
         }
+
+        // Also destroy any Chart.js instance on canvas
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        const ctx = canvas.getContext('2d');
 
         const browsers = Object.keys(metrics.platformBreakdown.browsers);
         const promptCounts = browsers.map(browser => 
@@ -1699,7 +2286,12 @@ class Dashboard {
             return;
         }
 
-        this.charts.browserBreakdownChart = new Chart(ctx, {
+        if (!canvas.isConnected || !this.isElementVisible(canvas)) {
+            console.info('[Dashboard] browserBreakdownChart not ready for binding, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.updateBrowserBreakdownChart(metrics));
+            return;
+        }
+        this.charts.browserBreakdownChart = new Chart(canvas, {
             type: 'doughnut',
             data: {
                 labels: browsers,
@@ -1741,12 +2333,20 @@ class Dashboard {
         const canvas = document.getElementById('installTimelineChart');
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
-
         // Destroy existing chart
         if (this.charts.installTimelineChart) {
             this.charts.installTimelineChart.destroy();
         }
+
+        // Also destroy any Chart.js instance on canvas
+        if (typeof Chart !== 'undefined' && Chart.getChart) {
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+        }
+
+        const ctx = canvas.getContext('2d');
 
         const timelineData = metrics.timelineData;
 
@@ -1781,7 +2381,12 @@ class Dashboard {
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         });
 
-        this.charts.installTimelineChart = new Chart(ctx, {
+        if (!canvas.isConnected || !this.isElementVisible(canvas)) {
+            console.info('[Dashboard] installTimelineChart not ready for binding, deferring');
+            this.runWhenVisibleRAF(canvas, () => this.updateInstallTimelineChart(metrics));
+            return;
+        }
+        this.charts.installTimelineChart = new Chart(canvas, {
             type: 'line',
             data: {
                 labels: labels,

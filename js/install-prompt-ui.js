@@ -457,7 +457,7 @@ class InstallPromptUI {
         stepsList.setAttribute('role', 'list');
         stepsList.setAttribute('aria-label', 'Installation steps');
 
-        instructions.steps.forEach((step, index) => {
+        (instructions.steps || []).forEach((step, index) => {
             const listItem = document.createElement('li');
             listItem.className = 'install-step-item';
             listItem.setAttribute('role', 'listitem');
@@ -892,45 +892,7 @@ class InstallPromptUI {
         }
     }
 
-    /**
-     * Focus the first interactive element
-     */
-    focusFirstElement() {
-        const firstButton = this.element.querySelector('.install-btn');
-        if (firstButton) {
-            firstButton.focus();
-        }
-    }
-
-    /**
-     * Trap focus within the modal for accessibility
-     */
-    trapFocus() {
-        const focusableElements = this.element.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        this.element.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey) {
-                    if (document.activeElement === firstElement) {
-                        e.preventDefault();
-                        lastElement.focus();
-                    }
-                } else {
-                    if (document.activeElement === lastElement) {
-                        e.preventDefault();
-                        firstElement.focus();
-                    }
-                }
-            }
-        });
-    }
+    
 
     /**
      * Handle tab navigation within the modal

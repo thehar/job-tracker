@@ -44,7 +44,17 @@ class WeeklyReportManager {
      * Generate weekly report and show modal
      */
     generateReport() {
-        const jobs = this.jobTracker.jobs;
+        // Get jobs from state manager or jobTracker
+        let jobs = [];
+        if (window.stateManager) {
+            jobs = window.stateManager.getStateSlice('jobs') || [];
+        } else if (this.jobTracker && this.jobTracker.jobs) {
+            jobs = this.jobTracker.jobs;
+        } else {
+            console.error('[WeeklyReport] No job data available');
+            return;
+        }
+        
         const reportData = this.analyzeWeeklyData(jobs);
         const reportText = this.formatReport(reportData);
         

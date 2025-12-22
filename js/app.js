@@ -1328,9 +1328,8 @@ class AdminPanel {
     createAdminPanelUI() {
         // Check if admin section already exists
         let adminSection = document.getElementById('adminSection');
-        if (!adminSection) {
-            adminSection = this.createAdminSection();
-        }
+        // Do not generate legacy admin HTML here; rely on modular admin-panel-ui.js or existing markup
+        // If needed, admin-panel-ui.js should create the section.
         
         // Ensure admin tab exists
         this.ensureAdminTabExists();
@@ -1340,120 +1339,8 @@ class AdminPanel {
      * Create admin section HTML
      */
     createAdminSection() {
-        const adminSection = document.createElement('div');
-        adminSection.id = 'adminSection';
-        adminSection.className = 'admin-section hidden';
-        
-        adminSection.innerHTML = `
-            <div class="admin-header">
-                <h2>Admin Panel</h2>
-                <p class="admin-subtitle">PWA Installation Analytics & System Management</p>
-            </div>
-            
-            <div class="admin-content">
-                <!-- PWA Installation Analytics -->
-                <div class="admin-card">
-                    <h3>PWA Installation Analytics</h3>
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <div class="analytics-label">Total Prompts</div>
-                            <div class="analytics-value" id="adminTotalPrompts">-</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Install Clicks</div>
-                            <div class="analytics-value" id="adminInstallClicks">-</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Conversion Rate</div>
-                            <div class="analytics-value" id="adminConversionRate">-</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Install Success</div>
-                            <div class="analytics-value" id="adminInstallSuccess">-</div>
-                        </div>
-                    </div>
-                    
-                    <div class="admin-actions">
-                        <button id="refreshAnalyticsBtn" class="btn btn-primary">Refresh Analytics</button>
-                        <button id="exportAnalyticsBtn" class="btn btn-secondary">Export Data</button>
-                        <button id="resetAnalyticsBtn" class="btn btn-danger">Reset Analytics</button>
-                    </div>
-                </div>
-
-                <!-- PWA Installation Status -->
-                <div class="admin-card">
-                    <h3>PWA Installation Status</h3>
-                    <div class="status-grid">
-                        <div class="status-item">
-                            <span class="status-label">Installation Status:</span>
-                            <span class="status-value" id="adminInstallStatus">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Session Count:</span>
-                            <span class="status-value" id="adminSessionCount">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Prompt Count:</span>
-                            <span class="status-value" id="adminPromptCount">-</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Dismissal Count:</span>
-                            <span class="status-value" id="adminDismissalCount">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="admin-actions">
-                        <button id="triggerInstallBtn" class="btn btn-primary">Trigger Install Prompt</button>
-                        <button id="resetInstallPrefsBtn" class="btn btn-warning">Reset Install Preferences</button>
-                    </div>
-                </div>
-
-                <!-- System Information -->
-                <div class="admin-card">
-                    <h3>System Information</h3>
-                    <div class="system-info">
-                        <div class="info-item">
-                            <span class="info-label">Browser:</span>
-                            <span class="info-value" id="adminBrowserInfo">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Platform:</span>
-                            <span class="info-value" id="adminPlatformInfo">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">PWA Support:</span>
-                            <span class="info-value" id="adminPWASupport">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Service Worker:</span>
-                            <span class="info-value" id="adminServiceWorker">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="admin-card">
-                    <h3>Recent PWA Events</h3>
-                    <div class="recent-events" id="adminRecentEvents">
-                        <p class="no-events">No recent events</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Insert admin section after dashboard section
-        const dashboardSection = document.getElementById('dashboardSection');
-        if (dashboardSection && dashboardSection.parentNode) {
-            dashboardSection.parentNode.insertBefore(adminSection, dashboardSection.nextSibling);
-        } else {
-            // Fallback: append to body
-            document.body.appendChild(adminSection);
-        }
-        
-        // Set up admin section event listeners
-        this.setupAdminSectionEventListeners();
-        
-        return adminSection;
+        // Legacy generator disabled: rely on admin-panel-ui.js or existing markup.
+        return document.getElementById('adminSection');
     }
 
     /**

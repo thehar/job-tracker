@@ -5,6 +5,10 @@
 class AuthManager {
     constructor() {
         this.isAuthenticated = false;
+        // In-memory backoff for failed attempts
+        this.failedAttempts = 0;
+        this.maxBackoffMs = 5000;
+        this.baseBackoffMs = 200;
         this.init();
     }
 
@@ -77,18 +81,73 @@ class AuthManager {
         });
     }
 
-    /**
-     * Hash password using SHA-256
-     * @param {string} password - Plain text password
-     * @returns {Promise<string>} - Hashed password
-     */
-    async hashPassword(password) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
+    // ===== Password storage (PBKDF2) =====
+    getAuthRecord() {
+        try {
+            const raw = localStorage.getItem('jobTracker_auth');
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    setAuthRecord(record) {
+        localStorage.setItem('jobTracker_auth', JSON.stringify(record));
+    }
+
+    clearLegacyPassword() {
+        localStorage.removeItem('jobTracker_password');
+    }
+
+    async pbkdf2Derive(password, saltBytes, iterations = 150000) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+        );
+        const bits = await crypto.subtle.deriveBits(
+            { name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' },
+            keyMaterial,
+            256
+        );
+        return new Uint8Array(bits);
+    }
+
+    bytesToHex(bytes) {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    bytesToBase64(bytes) {
+        let binary = '';
+        bytes.forEach(b => binary += String.fromCharCode(b));
+        return btoa(binary);
+    }
+
+    base64ToBytes(b64) {
+        const binary = atob(b64);
+        const arr = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+        return arr;
+    }
+
+    async createAuthRecord(password) {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iterations = 150000;
+        const hashBytes = await this.pbkdf2Derive(password, salt, iterations);
+        return {
+            version: 'pbkdf2',
+            algo: 'PBKDF2-HMAC-SHA-256',
+            iterations,
+            salt: this.bytesToBase64(salt),
+            hash: this.bytesToHex(hashBytes)
+        };
+    }
+
+    async verifyPassword(password, record) {
+        if (!record || record.version !== 'pbkdf2') return false;
+        const saltBytes = this.base64ToBytes(record.salt);
+        const derived = await this.pbkdf2Derive(password, saltBytes, record.iterations);
+        const derivedHex = this.bytesToHex(derived);
+        return derivedHex === record.hash;
     }
 
     /**
@@ -96,18 +155,50 @@ class AuthManager {
      */
     async handleLogin() {
         const password = document.getElementById('password').value;
-        const storedHash = localStorage.getItem('jobTracker_password');
-        
-        if (!storedHash) {
+        const legacyHash = localStorage.getItem('jobTracker_password');
+        const record = this.getAuthRecord();
+
+        const doBackoff = async () => {
+            const delay = Math.min(this.maxBackoffMs, this.baseBackoffMs * Math.pow(2, this.failedAttempts));
+            if (delay > 0) await new Promise(r => setTimeout(r, delay));
+        };
+
+        // No credentials yet -> setup flow
+        if (!record && !legacyHash) {
             this.showSetupForm();
             return;
         }
 
-        const inputHash = await this.hashPassword(password);
-        
-        if (inputHash === storedHash) {
-            this.authenticate();
-        } else {
+        // Prefer PBKDF2 record
+        if (record) {
+            const ok = await this.verifyPassword(password, record);
+            if (ok) {
+                this.failedAttempts = 0;
+                this.authenticate();
+                return;
+            }
+            await doBackoff();
+            this.failedAttempts++;
+            this.showError('Incorrect password');
+            return;
+        }
+
+        // Legacy fallback (migrate on success)
+        if (legacyHash) {
+            const enc = new TextEncoder();
+            const buf = await crypto.subtle.digest('SHA-256', enc.encode(password));
+            const hex = this.bytesToHex(new Uint8Array(buf));
+            if (hex === legacyHash) {
+                // migrate
+                const newRecord = await this.createAuthRecord(password);
+                this.setAuthRecord(newRecord);
+                this.clearLegacyPassword();
+                this.failedAttempts = 0;
+                this.authenticate();
+                return;
+            }
+            await doBackoff();
+            this.failedAttempts++;
             this.showError('Incorrect password');
         }
     }
@@ -124,14 +215,15 @@ class AuthManager {
             return;
         }
 
-        if (newPassword.length < 6) {
-            this.showError('Password must be at least 6 characters long');
+        if (newPassword.length < 10) {
+            this.showError('Password must be at least 10 characters long');
             return;
         }
 
-        const hashedPassword = await this.hashPassword(newPassword);
-        localStorage.setItem('jobTracker_password', hashedPassword);
-        
+        const record = await this.createAuthRecord(newPassword);
+        this.setAuthRecord(record);
+        this.clearLegacyPassword();
+
         this.authenticate();
     }
 
@@ -144,10 +236,18 @@ class AuthManager {
         const confirmPassword = document.getElementById('settingsConfirmPassword').value;
         
         // Verify current password
-        const storedHash = localStorage.getItem('jobTracker_password');
-        const currentHash = await this.hashPassword(currentPassword);
-        
-        if (currentHash !== storedHash) {
+        const record = this.getAuthRecord();
+        const legacyHash = localStorage.getItem('jobTracker_password');
+        let verified = false;
+        if (record) {
+            verified = await this.verifyPassword(currentPassword, record);
+        } else if (legacyHash) {
+            const enc = new TextEncoder();
+            const buf = await crypto.subtle.digest('SHA-256', enc.encode(currentPassword));
+            const hex = this.bytesToHex(new Uint8Array(buf));
+            verified = (hex === legacyHash);
+        }
+        if (!verified) {
             this.showError('Current password is incorrect');
             return;
         }
@@ -157,13 +257,14 @@ class AuthManager {
             return;
         }
 
-        if (newPassword.length < 6) {
-            this.showError('Password must be at least 6 characters long');
+        if (newPassword.length < 10) {
+            this.showError('Password must be at least 10 characters long');
             return;
         }
 
-        const newHashedPassword = await this.hashPassword(newPassword);
-        localStorage.setItem('jobTracker_password', newHashedPassword);
+        const newRecord = await this.createAuthRecord(newPassword);
+        this.setAuthRecord(newRecord);
+        this.clearLegacyPassword();
         
         this.hideSettings();
         NotificationManager.show('Password changed successfully!', 'success');

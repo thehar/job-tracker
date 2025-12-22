@@ -13,11 +13,7 @@ const PWA_CONSTANTS = {
         INSTALLING: 'installing'
     },
 
-    // Log prefixes
-    LOG_PREFIX: {
-        INSTALL_STORAGE: '[InstallStorage]',
-        PWA_INSTALL: '[PWAInstall]'
-    },
+    
 
     // Common error messages
     ERROR_MESSAGES: {
@@ -1042,7 +1038,8 @@ class PWAInstallManager {
             getInstallationInstructions: () => ({
                 platform: 'generic',
                 supported: false,
-                message: 'Installation support detection failed, but you may still be able to install this app through your browser menu.'
+                message: 'Installation support detection failed, but you may still be able to install this app through your browser menu.',
+                steps: []
             })
         };
     }

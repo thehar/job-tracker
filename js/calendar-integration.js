@@ -499,28 +499,39 @@ class CalendarIntegration {
         const hasInterview = !!job.interviewDate;
         const hasFollowUp = !!job.followUpDate && this.settings.syncFollowUps;
 
-        let buttons = '<div class="calendar-actions">';
-        
+        const container = document.createElement('div');
+        container.className = 'calendar-actions';
+
         if (hasInterview) {
-            buttons += `<button class="btn btn-sm btn-calendar" data-action="add-interview" data-job-id="${job.id}" title="Add interview to calendar">
-                📅 Interview
-            </button>`;
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-calendar';
+            btn.dataset.action = 'add-interview';
+            btn.dataset.jobId = String(job.id || '');
+            btn.title = 'Add interview to calendar';
+            btn.textContent = '📅 Interview';
+            container.appendChild(btn);
         }
-        
+
         if (hasFollowUp) {
-            buttons += `<button class="btn btn-sm btn-calendar" data-action="add-followup" data-job-id="${job.id}" title="Add follow-up to calendar">
-                🔔 Follow-up
-            </button>`;
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-calendar';
+            btn.dataset.action = 'add-followup';
+            btn.dataset.jobId = String(job.id || '');
+            btn.title = 'Add follow-up to calendar';
+            btn.textContent = '🔔 Follow-up';
+            container.appendChild(btn);
         }
 
         if (syncStatus.synced) {
-            buttons += `<span class="calendar-synced" title="Synced to ${syncStatus.provider} calendar">
-                ✅ Synced
-            </span>`;
+            const badge = document.createElement('span');
+            badge.className = 'calendar-synced';
+            badge.title = `Synced to ${syncStatus.provider} calendar`;
+            badge.textContent = '✅ Synced';
+            container.appendChild(badge);
         }
 
-        buttons += '</div>';
-        return buttons;
+        // Return HTML string for compatibility with existing rendering
+        return container.outerHTML;
     }
 
     /**

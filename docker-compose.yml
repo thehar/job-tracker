@@ -1,0 +1,10 @@
+services:
+  job-tracker:
+    build: .
+    ports:
+      - "8080:80"
+    container_name: job-tracker-app
+    restart: unless-stopped
+    volumes:
+      # Optional: Mount a volume for persistent data if needed
+      - ./data:/usr/share/nginx/html/data
